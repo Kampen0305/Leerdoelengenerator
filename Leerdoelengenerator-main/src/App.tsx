@@ -1168,6 +1168,10 @@ function App() {
         )}
       </div>
 
+      <footer className="mt-12 text-center text-sm text-gray-600">
+        <a href="/over" className="hover:underline">Transparantie & Verantwoording</a>
+      </footer>
+
       {/* Modals */}
       {showKDImport && <KDImport onKDImported={handleKDImported} onClose={() => setShowKDImport(false)} />}
       {showSavedObjectives && <SavedObjectives onLoadObjective={loadObjective} onClose={() => setShowSavedObjectives(false)} />}
