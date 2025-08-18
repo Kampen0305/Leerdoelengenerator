@@ -14,6 +14,7 @@ import { Hero } from "./components/Hero";
 /** Paneel-knoppen werken weer via named exports zoals voorheen */
 import { QualityChecker } from "./components/QualityChecker";
 import { EducationGuidance } from "./components/EducationGuidance";
+import ObjectiveForm from "./ObjectiveForm";
 
 import { KDStructure } from "./types/kd";
 import { KDParser } from "./utils/kdParser";
@@ -125,7 +126,7 @@ function App() {
     original: "",
     context: { education: "", level: "", domain: "", assessment: "" },
   });
-  const [lane, setLane] = useState<Lane>("baan1"); // Two-Lane keuze
+  const [lane, setLane] = useState<"" | Lane>(""); // Two-Lane keuze
   const [output, setOutput] = useState<AIReadyOutput | null>(null);
   const [aiGoTags, setAiGoTags] = useState<AIGOTagKey[]>([]);
   const [aiStatement, setAiStatement] = useState<string>("");
@@ -154,7 +155,7 @@ function App() {
     if (fromUrl) {
       setCurrentStep(fromUrl.currentStep ?? 1);
       setFormData(fromUrl.formData ?? formData);
-      setLane(fromUrl.lane ?? "baan1");
+      setLane(fromUrl.lane ?? "");
       setOutput(fromUrl.output ?? null);
       setAiStatement(fromUrl.aiStatement ?? "");
       setGenerationSource(fromUrl.generationSource ?? null);
@@ -223,6 +224,7 @@ function App() {
   ];
 
   const isFormDataComplete = () =>
+    lane !== "" &&
     formData.original.trim() !== "" &&
     formData.context.education.trim() !== "" &&
     formData.context.level.trim() !== "" &&
@@ -291,7 +293,7 @@ function App() {
           : undefined;
 
         const geminiResponse = await geminiService.generateAIReadyObjective(
-          { ...formData, lane },
+          { ...formData, lane: lane as Lane },
           kdContext
         );
 
@@ -317,10 +319,10 @@ function App() {
         );
       } else {
         const aiOutput: AIReadyOutput = {
-          newObjective: generateAIReadyObjective(formData, lane),
+          newObjective: generateAIReadyObjective(formData, lane as Lane),
           rationale: generateRationale(formData),
-          activities: generateActivities(formData, lane),
-          assessments: generateAssessments(formData, lane),
+          activities: generateActivities(formData, lane as Lane),
+          assessments: generateAssessments(formData, lane as Lane),
         };
         setOutput(aiOutput);
         setGenerationSource("fallback");
@@ -337,10 +339,10 @@ function App() {
     } catch (err) {
       console.error("[AI-check] Fout in AI-pad, val terug op fallback:", err);
       const fallback: AIReadyOutput = {
-        newObjective: generateAIReadyObjective(formData, lane),
+        newObjective: generateAIReadyObjective(formData, lane as Lane),
         rationale: generateRationale(formData),
-        activities: generateActivities(formData, lane),
-        assessments: generateAssessments(formData, lane),
+        activities: generateActivities(formData, lane as Lane),
+        assessments: generateAssessments(formData, lane as Lane),
       };
       setOutput(fallback);
       setGenerationSource("fallback");
@@ -458,8 +460,8 @@ function App() {
     const o: AIReadyOutput = {
       newObjective: objective.aiReadyObjective,
       rationale: generateRationale({ original: objective.originalObjective, context: objective.context }),
-      activities: generateActivities({ original: objective.originalObjective, context: objective.context }, lane),
-      assessments: generateAssessments({ original: objective.originalObjective, context: objective.context }, lane),
+      activities: generateActivities({ original: objective.originalObjective, context: objective.context }, lane as Lane),
+      assessments: generateAssessments({ original: objective.originalObjective, context: objective.context }, lane as Lane),
     };
     setOutput(o);
     setGenerationSource(null); // onbekend voor oudere items
@@ -688,35 +690,11 @@ function App() {
 
                 <div className="space-y-6">
                   {/* Two-Lane keuze */}
-                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-                    <div className="text-sm font-medium text-slate-700 mb-2">Kies aanpak</div>
-                    <div className="flex flex-wrap gap-4">
-                      <label className="inline-flex items-center gap-2">
-                        <input
-                          type="radio"
-                          name="lane"
-                          value="baan1"
-                          checked={lane === "baan1"}
-                          onChange={() => setLane("baan1")}
-                        />
-                        <span>Baan 1 — zonder AI (individuele bekwaamheid)</span>
-                      </label>
-                      <label className="inline-flex items-center gap-2">
-                        <input
-                          type="radio"
-                          name="lane"
-                          value="baan2"
-                          checked={lane === "baan2"}
-                          onChange={() => setLane("baan2")}
-                          disabled={!geminiService.isAvailable()}
-                        />
-                        <span>
-                          Baan 2 — met AI (werkrealistisch, gratis tools)
-                          {!geminiService.isAvailable() && " (niet beschikbaar)"}
-                        </span>
-                      </label>
-                    </div>
-                  </div>
+                  <ObjectiveForm
+                    lane={lane}
+                    onLaneChange={setLane}
+                    geminiAvailable={geminiService.isAvailable()}
+                  />
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
