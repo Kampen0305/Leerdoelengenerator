@@ -10,6 +10,7 @@ import { KDImport } from "./components/KDImport";
 import { SavedObjectives } from "./components/SavedObjectives";
 import { TemplateLibrary } from "./components/TemplateLibrary";
 import { Hero } from "./components/Hero";
+import ExamplesPanel from "./components/ExamplesPanel";
 
 /** Paneel-knoppen werken weer via named exports zoals voorheen */
 import { QualityChecker } from "./components/QualityChecker";
@@ -141,6 +142,10 @@ function App() {
   const [showQualityChecker, setShowQualityChecker] = useState(false);
   const [showEducationGuidance, setShowEducationGuidance] = useState(false);
   const [generationSource, setGenerationSource] = useState<GenerationSource>(null); // NIEUW: bron van de laatste generatie
+
+  const handleExampleSelect = (example: LearningObjective) => {
+    setFormData(example);
+  };
 
   /* ---------- Hydrate bij laden (eerst URL, anders localStorage) ---------- */
   useEffect(() => {
@@ -696,7 +701,10 @@ function App() {
 
         {/* Step 1: Input Form */}
         {currentStep === 1 && (
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-4 gap-8">
+            <div className="lg:col-span-1">
+              <ExamplesPanel onSelectExample={handleExampleSelect} />
+            </div>
             <div className="lg:col-span-2">
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
@@ -813,7 +821,7 @@ function App() {
             </div>
 
             {/* Examples Sidebar */}
-            <div className="space-y-6">
+            <div className="lg:col-span-1 space-y-6">
               <div className="bg-green-50 border border-green-200 rounded-xl p-6">
                 <h3 className="font-semibold text-green-800 mb-3 flex items-center">
                   <Lightbulb className="w-5 h-5 mr-2" />
