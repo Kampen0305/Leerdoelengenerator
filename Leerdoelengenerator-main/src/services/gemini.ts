@@ -6,7 +6,7 @@ export interface GeminiResponse {
   rationale: string;
   activities: string[];
   assessments: string[];
-  autonomieTerms?: string[];
+  autonomieTerms?: string[]; // optioneel, krijgt altijd een array-fallback
 }
 
 export interface LearningObjectiveContext {
@@ -29,6 +29,7 @@ const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 const MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-1.5-flash';
 const TIMEOUT_MS = 20_000;
 
+/** Maakt JSON van modeltekst, ook als het in ```json ... ``` staat of er rommel omheen zit. */
 function toJson(text: string): any {
   const cleaned = text
     .replace(/^```json\s*/i, '')
@@ -58,7 +59,7 @@ class GeminiService {
     }
   }
 
-  public isAvailable() {
+  public isAvailable(): boolean {
     return Boolean(this.model);
   }
 
@@ -69,20 +70,22 @@ class GeminiService {
     if (!this.model) throw new Error('Gemini niet beschikbaar (API-key/init).');
 
     const kdText = kd?.title ? `KD: ${kd.title}${kd.code ? ` (${kd.code})` : ''}` : '';
+
     const prompt =
-      `Geef ALLEEN geldige JSON met exact deze sleutels:\n` +
-      `newObjective (string), rationale (string), activities (array van strings), assessments (array van strings), autonomieTerms (array van strings, optioneel).\n` +
-      `GEEN uitleg, GEEN extra tekst buiten het JSON-object.\n\n` +
+      `Geef ALLEEN een geldig JSON-object met exact deze sleutels:\n` +
+      `newObjective (string), rationale (string), activities (array<string>), assessments (array<string>), autonomieTerms (array<string>, optioneel).\n` +
+      `GEEN uitleg of tekst buiten het JSON-object.\n\n` +
       `Context: onderwijs=${ctx.education}; niveau=${ctx.level}; domein=${ctx.domain}. ${kdText}\n` +
       (ctx.assessment ? `Toetsing: ${ctx.assessment}\n` : '') +
       (ctx.lane ? `Variant: ${ctx.lane}\n` : '') +
       `Origineel leerdoel: "${ctx.original}"`;
 
-    // Belangrijk: GEEN generationConfig meegeven (voorkomt 400-fout).
+    // Belangrijk: GEEN generationConfig meegeven → voorkomt jouw 400-fout.
     const run = this.model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
     });
 
+    // Timeout guard
     const timeout = new Promise<never>((_, rej) =>
       setTimeout(() => rej(new Error('timeout')), TIMEOUT_MS)
     );
@@ -91,11 +94,16 @@ class GeminiService {
     const raw = (result as Awaited<typeof run>).response.text();
     const data = toJson(raw);
 
+    // Robuuste defaults → UI crasht nooit op undefined
     return {
       newObjective: typeof data.newObjective === 'string' ? data.newObjective : '',
       rationale: typeof data.rationale === 'string' ? data.rationale : '',
-      activities: Array.isArray(data.activities) ? data.activities.filter((x: any) => typeof x === 'string') : [],
-      assessments: Array.isArray(data.assessments) ? data.assessments.filter((x: any) => typeof x === 'string') : [],
+      activities: Array.isArray(data.activities)
+        ? data.activities.filter((x: any) => typeof x === 'string')
+        : [],
+      assessments: Array.isArray(data.assessments)
+        ? data.assessments.filter((x: any) => typeof x === 'string')
+        : [],
       autonomieTerms: Array.isArray(data.autonomieTerms)
         ? data.autonomieTerms.filter((x: any) => typeof x === 'string')
         : [],
