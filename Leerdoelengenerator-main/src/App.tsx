@@ -269,7 +269,7 @@ function App() {
     // Duidelijke console‑log per pad
     console.log(
       "[AI-check] Lane:", lane,
-      "| Gemini beschikbaar?", geminiService.isAvailable?.() ?? false
+      "| Gemini beschikbaar?", geminiService.isAvailable()
     );
 
     try {
@@ -706,8 +706,12 @@ function App() {
                           value="baan2"
                           checked={lane === "baan2"}
                           onChange={() => setLane("baan2")}
+                          disabled={!geminiService.isAvailable()}
                         />
-                        <span>Baan 2 — met AI (werkrealistisch, gratis tools)</span>
+                        <span>
+                          Baan 2 — met AI (werkrealistisch, gratis tools)
+                          {!geminiService.isAvailable() && " (niet beschikbaar)"}
+                        </span>
                       </label>
                     </div>
                   </div>

@@ -39,7 +39,10 @@ if (!API_KEY) {
 
 const MODEL_NAME = "gemini-1.5-flash"; // snel en goedkoop; desgewenst: "gemini-1.5-pro"
 
-const genAI = new GoogleGenerativeAI(API_KEY);
+let genAI: GoogleGenerativeAI | null = null;
+if (API_KEY) {
+  genAI = new GoogleGenerativeAI(API_KEY);
+}
 
 /**
  * Vocabulaire/termunen die elders in de app worden gebruikt.
@@ -121,6 +124,7 @@ function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): string {
 
 /** Snelle check of de Gemini API bruikbaar is (key + simpele call). */
 export async function checkGeminiAvailable(): Promise<boolean> {
+  if (!genAI) return false;
   try {
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
     const res = await model.generateContent({
@@ -142,6 +146,9 @@ export async function generateAIReadyObjective(
   ctx: LearningObjectiveContext,
   kd?: KDContext
 ): Promise<GeminiResponse> {
+  if (!genAI) {
+    return Promise.reject(new Error("Gemini API key ontbreekt."));
+  }
   const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
   const prompt = buildPrompt(ctx, kd);
@@ -211,4 +218,9 @@ export const Terms = {
   autonomieTerms,
   samenwerkTerms,
   reflectieTerms
+};
+
+export const geminiService = {
+  isAvailable: () => Boolean(genAI),
+  generateAIReadyObjective,
 };
