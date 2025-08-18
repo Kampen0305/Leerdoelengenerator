@@ -17,7 +17,7 @@ import { EducationGuidance } from "./components/EducationGuidance";
 import { KDStructure } from "./types/kd";
 import { KDParser } from "./utils/kdParser";
 import { ExportUtils } from "./utils/exportUtils";
-import { geminiService } from "./services/geminiService";
+import { geminiService } from "./services/gemini";
 
 /* --------------------- Helpers: opslag + delen --------------------- */
 const STORAGE_KEY = "ld-app-state-v2";
