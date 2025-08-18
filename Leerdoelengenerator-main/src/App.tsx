@@ -10,7 +10,7 @@ import { KDImport } from "./components/KDImport";
 import { SavedObjectives } from "./components/SavedObjectives";
 import { TemplateLibrary } from "./components/TemplateLibrary";
 
-/** BELANGRIJK: named exports zoals voorheen */
+/** Paneel-knoppen werken weer via named exports zoals voorheen */
 import { QualityChecker } from "./components/QualityChecker";
 import { EducationGuidance } from "./components/EducationGuidance";
 
@@ -33,6 +33,7 @@ function decodeState<T = any>(q: string | null): T | null {
 /* ===== AI-GO: automatische labeling (regelgebaseerd) ===== */
 type AIGOTagKey = "Kennis" | "Vaardigheden" | "Attitude" | "Ethiek";
 type Lane = "baan1" | "baan2"; // baan1 = zonder AI, baan2 = met AI
+type GenerationSource = "gemini" | "fallback" | null;
 
 const AIGO_KEYWORDS: Record<AIGOTagKey, RegExp[]> = {
   Kennis: [
@@ -135,6 +136,7 @@ function App() {
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showQualityChecker, setShowQualityChecker] = useState(false);
   const [showEducationGuidance, setShowEducationGuidance] = useState(false);
+  const [generationSource, setGenerationSource] = useState<GenerationSource>(null); // NIEUW: bron van de laatste generatie
 
   /* ---------- Hydrate bij laden (eerst URL, anders localStorage) ---------- */
   useEffect(() => {
@@ -145,6 +147,7 @@ function App() {
       output: AIReadyOutput | null;
       aiStatement?: string;
       importedKD?: KDStructure | null;
+      generationSource?: GenerationSource;
     }>(new URLSearchParams(window.location.search).get("data"));
 
     if (fromUrl) {
@@ -153,6 +156,7 @@ function App() {
       setLane(fromUrl.lane ?? "baan1");
       setOutput(fromUrl.output ?? null);
       setAiStatement(fromUrl.aiStatement ?? "");
+      setGenerationSource(fromUrl.generationSource ?? null);
       if (fromUrl.output) {
         setAiGoTags(
           inferAIGOTags(fromUrl.output.newObjective, {
@@ -183,6 +187,7 @@ function App() {
         if (typeof saved.currentStep === "number") setCurrentStep(saved.currentStep);
         if (saved.importedKD) setImportedKD(saved.importedKD);
         if (saved.aiStatement) setAiStatement(saved.aiStatement);
+        if (saved.generationSource) setGenerationSource(saved.generationSource as GenerationSource);
       }
     } catch { /* ignore */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -190,9 +195,9 @@ function App() {
 
   /* ---------------- Autosave naar localStorage ---------------- */
   useEffect(() => {
-    const state = { currentStep, formData, lane, output, aiStatement, importedKD };
+    const state = { currentStep, formData, lane, output, aiStatement, importedKD, generationSource };
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
-  }, [currentStep, formData, lane, output, aiStatement, importedKD]);
+  }, [currentStep, formData, lane, output, aiStatement, importedKD, generationSource]);
 
   const educationTypes = ["MBO", "HBO", "WO"];
   const levels = {
@@ -260,6 +265,13 @@ function App() {
       return;
     }
     setIsProcessing(true);
+
+    // Duidelijke console‑log per pad
+    console.log(
+      "[AI-check] Lane:", lane,
+      "| Gemini beschikbaar?", geminiService.isAvailable?.() ?? false
+    );
+
     try {
       if (geminiService.isAvailable()) {
         const kdContext = importedKD
@@ -281,6 +293,7 @@ function App() {
           { ...formData, lane },
           kdContext
         );
+
         const adjusted: AIReadyOutput = {
           ...geminiResponse,
           newObjective:
@@ -290,7 +303,11 @@ function App() {
                   .replace(/met hulp van.*?,\s*/i, "")
                   .replace(/\bAI-?tools?\b/gi, "hulpmiddelen"),
         };
+
         setOutput(adjusted);
+        setGenerationSource("gemini");
+        console.log("[AI-check] Gebruik: Gemini (AI)");
+
         setAiGoTags(
           inferAIGOTags(adjusted.newObjective, {
             withAI: lane === "baan2",
@@ -305,6 +322,9 @@ function App() {
           assessments: generateAssessments(formData, lane),
         };
         setOutput(aiOutput);
+        setGenerationSource("fallback");
+        console.log("[AI-check] Gebruik: fallback (geen Gemini)");
+
         setAiGoTags(
           inferAIGOTags(aiOutput.newObjective, {
             withAI: lane === "baan2",
@@ -313,7 +333,8 @@ function App() {
         );
       }
       setCurrentStep(3);
-    } catch {
+    } catch (err) {
+      console.error("[AI-check] Fout in AI-pad, val terug op fallback:", err);
       const fallback: AIReadyOutput = {
         newObjective: generateAIReadyObjective(formData, lane),
         rationale: generateRationale(formData),
@@ -321,6 +342,8 @@ function App() {
         assessments: generateAssessments(formData, lane),
       };
       setOutput(fallback);
+      setGenerationSource("fallback");
+
       setAiGoTags(
         inferAIGOTags(fallback.newObjective, {
           withAI: lane === "baan2",
@@ -349,7 +372,7 @@ function App() {
     const autonomyTerms = "zelf";
 
     if (baseObjective.includes("schrijven") || baseObjective.includes("tekst") || baseObjective.includes("communicatie")) {
-      return `De student kan met hulp van ${equityTerms} ${originalObjective.replace(/^De student kan /, "").toLowerCase()}, de output ${ethicsTerms}, en de uiteindelijke versie ${autonomyTerms} verbeteren met ${transparencyTerms} binnen de ${data.context.domain} context${kdContext}.`;
+      return `De student kan met hulp van ${equityTerms} ${originalObjective.replace(/^De student kan /, "").toLowerCase()}, de output ${ethicsTerms}, en de uiteindelijke versie ${autonomieTerms} verbeteren met ${transparencyTerms} binnen de ${data.context.domain} context${kdContext}.`.replace("autonomieTerms","zelf");
     } else if (baseObjective.includes("analyse") || baseObjective.includes("onderzoek") || baseObjective.includes("data")) {
       return `De student kan ${originalObjective.replace(/^De student kan /, "").toLowerCase()} waarbij ${whichLane === "baan2" ? "AI-tools" : "hulpmiddelen"} helpen met data verzamelen, de resultaten ${ethicsTerms}, en ${autonomyTerms} conclusies trekken die eerlijk zijn binnen de ${data.context.domain}${kdContext}.`;
     } else if (baseObjective.includes("ontwerp") || baseObjective.includes("creëren") || baseObjective.includes("maken")) {
@@ -438,6 +461,7 @@ function App() {
       assessments: generateAssessments({ original: objective.originalObjective, context: objective.context }, lane),
     };
     setOutput(o);
+    setGenerationSource(null); // onbekend voor oudere items
     setAiGoTags(inferAIGOTags(o.newObjective, { withAI: lane === "baan2", domain: objective.context.domain }));
     setCurrentStep(3);
     setShowSavedObjectives(false);
@@ -463,6 +487,7 @@ function App() {
       suggestedAssessments: output.assessments,
       aiGoTags,
       aiStatement,
+      generationSource,
       kdContext: importedKD
         ? {
             title: importedKD.metadata.title,
@@ -503,11 +528,12 @@ function App() {
     setIsProcessing(false);
     setShowQualityChecker(false);
     setShowEducationGuidance(false);
+    setGenerationSource(null);
   };
 
   /* ---------- Deelbare link + Print + AI-statement ---------- */
   const shareLink = () => {
-    const payload = encodeState({ currentStep, formData, lane, output, aiStatement, importedKD });
+    const payload = encodeState({ currentStep, formData, lane, output, aiStatement, importedKD, generationSource });
     const url = new URL(window.location.href);
     url.searchParams.set("data", payload);
     navigator.clipboard.writeText(url.toString());
@@ -563,7 +589,15 @@ function App() {
                     <p className="text-sm text-gray-600 flex items-center">
                       <Shield className="w-4 h-4 mr-1 text-green-600" />
                       Maak leeruitkomsten geschikt voor AI en eerlijke kansen (gratis tools)
-                      {geminiService.isAvailable() && <span className="ml-2 text-green-600 font-medium">• AI-Enhanced</span>}
+                      {/* Altijd zichtbaar AI-statuslabel */}
+                      <span
+                        className={`text-xs font-semibold ml-2 ${
+                          geminiService.isAvailable() ? "text-purple-600" : "text-gray-400"
+                        }`}
+                        title={geminiService.isAvailable() ? "Gemini actief" : "Fallback actief"}
+                      >
+                        {geminiService.isAvailable() ? "• AI actief (Gemini)" : "• AI uit (fallback)"}
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -842,21 +876,11 @@ function App() {
                   Nederlandse Visie
                 </h3>
                 <div className="space-y-2 text-sm text-blue-700">
-                  <p>
-                    <strong>Eerlijke kansen:</strong> gratis en toegankelijke tools
-                  </p>
-                  <p>
-                    <strong>Vooroordelen herkennen:</strong> kwaliteit/bias check
-                  </p>
-                  <p>
-                    <strong>Transparant:</strong> AI-statement bij resultaat
-                  </p>
-                  <p>
-                    <strong>Ethiek:</strong> verantwoord en privacy-bewust
-                  </p>
-                  <p>
-                    <strong>Inclusie:</strong> alternatieven zonder betaalde tools
-                  </p>
+                  <p><strong>Eerlijke kansen:</strong> gratis en toegankelijke tools</p>
+                  <p><strong>Vooroordelen herkennen:</strong> kwaliteit/bias check</p>
+                  <p><strong>Transparant:</strong> AI-statement bij resultaat</p>
+                  <p><strong>Ethiek:</strong> verantwoord en privacy-bewust</p>
+                  <p><strong>Inclusie:</strong> alternatieven zonder betaalde tools</p>
                 </div>
               </div>
             </div>
@@ -1008,7 +1032,7 @@ function App() {
               </div>
             </div>
 
-            {/* <<<<< HIER worden de panelen getoond zoals voorheen >>>>> */}
+            {/* Paneel-knoppen renderen zoals voorheen */}
             {showEducationGuidance && (
               <EducationGuidance
                 context={formData.context}
@@ -1067,6 +1091,19 @@ function App() {
                         ))}
                       </div>
                     )}
+
+                    {/* BRON: duidelijk zichtbaar onder de leeruitkomst */}
+                    <div className="mt-3 text-xs text-gray-500">
+                      {generationSource === "gemini" && (
+                        <span>Gegenereerd met <strong>Gemini (AI)</strong>.</span>
+                      )}
+                      {generationSource === "fallback" && (
+                        <span><strong>Lokaal</strong> gegenereerd (geen AI-verbinding).</span>
+                      )}
+                      {generationSource === null && (
+                        <span>Bron onbekend (bijv. geladen uit opgeslagen item).</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
