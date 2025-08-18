@@ -138,6 +138,11 @@ function App() {
   const [showEducationGuidance, setShowEducationGuidance] = useState(false);
   const [generationSource, setGenerationSource] = useState<GenerationSource>(null); // NIEUW: bron van de laatste generatie
 
+  // Controleer bij laden of de Gemini API beschikbaar is via de serverless functie
+  useEffect(() => {
+    void geminiService.checkAvailability();
+  }, []);
+
   /* ---------- Hydrate bij laden (eerst URL, anders localStorage) ---------- */
   useEffect(() => {
     const fromUrl = decodeState<{
