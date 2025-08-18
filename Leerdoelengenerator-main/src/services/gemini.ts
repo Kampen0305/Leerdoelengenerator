@@ -79,7 +79,11 @@ function formatKD(kd?: KDContext): string {
 /**
  * System-instructie
  */
+const FIXED_SYSTEM_PROMPT =
+  "Formuleer leerdoelen altijd in correct Nederlands, volgens de richtlijnen van constructive alignment en de Bloom-taxonomie. Gebruik de structuur: 'De student kan + [werkwoord uit Bloom] + [concreet gedrag] + [in een context] + [criterium voor succes]'. De leerdoelen moeten observeerbaar, toetsbaar en passend bij het niveau (mbo, hbo of wo) zijn. Houd de leerdoelen kort, concreet en eenduidig.";
+
 const SYSTEM_INSTRUCTION = [
+  FIXED_SYSTEM_PROMPT,
   "Je bent een onderwijsassistent voor MBO-docenten.",
   "Je herschrijft of concretiseert leerdoelen zodat ze SMART, uitvoerbaar en toetsbaar zijn.",
   "Gebruik heldere, korte zinnen. Vermijd jargon.",
