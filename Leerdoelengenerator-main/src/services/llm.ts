@@ -1,4 +1,5 @@
-import type { LearningObjectiveContext, KDContext, GeminiResponse } from "./gemini";
+import type { KDContext, GeminiResponse } from "./gemini";
+import type { LearningObjectiveContext } from "../types/context";
 import { geminiService } from "./gemini";
 import { enforceDutchAndSMART, PostProcessedResponse } from "../lib/format";
 
@@ -76,6 +77,15 @@ export async function generateNormalizedObjective(
   const processed = enforceDutchAndSMART(data, ctx.lane ?? "baan1");
   if (autoFixed) {
     processed.warnings.unshift("Automatisch hersteld");
+  }
+  if (ctx.education === "VO") {
+    const repl = (txt: string) =>
+      txt.replace(/studenten?/gi, (m) => (m.toLowerCase().endsWith("en") ? "leerlingen" : "leerling"));
+    processed.newObjective = repl(processed.newObjective);
+    processed.rationale = repl(processed.rationale);
+    processed.activities = processed.activities.map(repl);
+    processed.assessments = processed.assessments.map(repl);
+    processed.aiLiteracy = repl(processed.aiLiteracy);
   }
   return processed;
 }

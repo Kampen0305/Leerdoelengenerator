@@ -8,31 +8,44 @@ interface ObjectiveFormProps {
 
 type ObjectiveFormState = {
   original: string;
-  sector: ObjectiveInput['sector'] | '';
+  education: ObjectiveInput['education'] | '';
   level: string;
   domain: string;
   assessment: string;
+  voLevel: ObjectiveInput['voLevel'] | '';
+  voGrade: string;
 };
 
 type ObjectiveErrors = Partial<Record<keyof ObjectiveInput, string>>;
 
 const emptyForm: ObjectiveFormState = {
   original: '',
-  sector: '',
+  education: '',
   level: '',
   domain: '',
-  assessment: ''
+  assessment: '',
+  voLevel: '',
+  voGrade: ''
 };
 
 export function ObjectiveForm({ onSubmit }: ObjectiveFormProps) {
   const [formData, setFormData] = useState<ObjectiveFormState>(emptyForm);
   const [errors, setErrors] = useState<ObjectiveErrors>({});
 
-  const handleChange = (field: keyof ObjectiveFormState, value: string) => {
+const handleChange = (field: keyof ObjectiveFormState, value: string) => {
     setFormData(prev => {
       const next = { ...prev, [field]: value };
-      if (field === 'sector' && value !== 'mbo') {
-        next.level = '';
+      if (field === 'education') {
+        if (value === 'VO') {
+          next.level = '';
+        } else {
+          next.voLevel = '';
+          next.voGrade = '';
+          if (value !== 'MBO') next.level = '';
+        }
+      }
+      if (field === 'voLevel') {
+        next.voGrade = '';
       }
       return next;
     });
@@ -41,8 +54,13 @@ export function ObjectiveForm({ onSubmit }: ObjectiveFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const dataToValidate = {
-      ...formData,
-      level: formData.sector === 'mbo' ? formData.level : undefined
+      original: formData.original,
+      education: formData.education,
+      level: formData.education === 'VO' ? undefined : formData.level || undefined,
+      domain: formData.domain,
+      assessment: formData.assessment,
+      voLevel: formData.education === 'VO' ? (formData.voLevel || undefined) : undefined,
+      voGrade: formData.education === 'VO' ? Number(formData.voGrade) : undefined
     };
     const result = objectiveSchema.safeParse(dataToValidate);
     if (result.success) {
@@ -52,10 +70,12 @@ export function ObjectiveForm({ onSubmit }: ObjectiveFormProps) {
       const fieldErrors = result.error.flatten().fieldErrors;
       setErrors({
         original: fieldErrors.original?.[0],
-        sector: fieldErrors.sector?.[0],
+        education: fieldErrors.education?.[0],
         level: fieldErrors.level?.[0],
         domain: fieldErrors.domain?.[0],
-        assessment: fieldErrors.assessment?.[0]
+        assessment: fieldErrors.assessment?.[0],
+        voLevel: fieldErrors.voLevel?.[0],
+        voGrade: fieldErrors.voGrade?.[0]
       });
     }
   };
@@ -78,24 +98,25 @@ export function ObjectiveForm({ onSubmit }: ObjectiveFormProps) {
       </div>
 
       <div>
-        <label htmlFor="sector" className="block text-sm font-medium text-gray-700">Onderwijssector (mbo/hbo/wo)</label>
+        <label htmlFor="education" className="block text-sm font-medium text-gray-700">Niveau opleiding</label>
         <select
-          id="sector"
-          value={formData.sector}
-          onChange={e => handleChange('sector', e.target.value)}
-          aria-describedby="sector-help"
+          id="education"
+          value={formData.education}
+          onChange={e => handleChange('education', e.target.value)}
+          aria-describedby="education-help"
           className="w-full px-4 py-3 border border-gray-300 rounded-lg"
         >
-          <option value="">Kies sector</option>
-          <option value="mbo">mbo</option>
-          <option value="hbo">hbo</option>
-          <option value="wo">wo</option>
+          <option value="">Kies type</option>
+          <option value="MBO">MBO</option>
+          <option value="HBO">HBO</option>
+          <option value="WO">WO</option>
+          <option value="VO">VO</option>
         </select>
-        <small id="sector-help" className="text-gray-500">Kies de onderwijssector.</small>
-        {errors.sector && <p className="text-red-600 text-sm">{errors.sector}</p>}
+        <small id="education-help" className="text-gray-500">Kies de onderwijssector.</small>
+        {errors.education && <p className="text-red-600 text-sm">{errors.education}</p>}
       </div>
 
-      {formData.sector === 'mbo' && (
+      {formData.education === 'MBO' && (
         <div>
           <label htmlFor="level" className="block text-sm font-medium text-gray-700">Niveau (mbo 2/3/4…)</label>
           <select
@@ -113,6 +134,41 @@ export function ObjectiveForm({ onSubmit }: ObjectiveFormProps) {
           <small id="level-help" className="text-gray-500">Bij mbo alleen niveau 2, 3 of 4.</small>
           {errors.level && <p className="text-red-600 text-sm">{errors.level}</p>}
         </div>
+      )}
+
+      {formData.education === 'VO' && (
+        <>
+          <div>
+            <label htmlFor="voLevel" className="block text-sm font-medium text-gray-700">VO-niveau</label>
+            <select
+              id="voLevel"
+              value={formData.voLevel}
+              onChange={e => handleChange('voLevel', e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+            >
+              <option value="">Kies VO-niveau</option>
+              <option value="vmbo-bb">vmbo-bb</option>
+              <option value="vmbo-kb">vmbo-kb</option>
+              <option value="vmbo-gl-tl">vmbo-gl-tl</option>
+              <option value="havo">havo</option>
+              <option value="vwo">vwo</option>
+            </select>
+            {errors.voLevel && <p className="text-red-600 text-sm">{errors.voLevel}</p>}
+          </div>
+          <div>
+            <label htmlFor="voGrade" className="block text-sm font-medium text-gray-700">Leerjaar</label>
+            <input
+              id="voGrade"
+              type="number"
+              min={1}
+              value={formData.voGrade}
+              onChange={e => handleChange('voGrade', e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+              disabled={!formData.voLevel}
+            />
+            {errors.voGrade && <p className="text-red-600 text-sm">{errors.voGrade}</p>}
+          </div>
+        </>
       )}
 
       <div>

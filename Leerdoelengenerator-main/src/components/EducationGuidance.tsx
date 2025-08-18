@@ -6,6 +6,8 @@ interface EducationGuidanceProps {
     education: string;
     level: string;
     domain: string;
+    voLevel?: string;
+    voGrade?: number;
   };
   aiReadyObjective: string;
 }

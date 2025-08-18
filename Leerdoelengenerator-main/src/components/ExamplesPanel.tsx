@@ -10,6 +10,8 @@ interface Example {
       level: string;
       domain: string;
       assessment: string;
+      voLevel?: string;
+      voGrade?: number;
     };
   };
 }

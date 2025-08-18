@@ -10,6 +10,8 @@ interface SavedObjective {
     level: string;
     domain: string;
     assessment: string;
+    voLevel?: string;
+    voGrade?: number;
   };
   createdAt: string;
   tags: string[];
@@ -122,9 +124,17 @@ export function SavedObjectives({ onLoadObjective, onClose }: SavedObjectivesPro
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center space-x-2">
                       <Tag className="w-4 h-4 text-green-600" />
-                      <span className="text-sm font-medium bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent">
-                        {objective.context.education} - {objective.context.level}
-                      </span>
+                      {(() => {
+                        const levelLabel =
+                          objective.context.education === 'VO'
+                            ? `${objective.context.voLevel} leerjaar ${objective.context.voGrade}`
+                            : objective.context.level;
+                        return (
+                          <span className="text-sm font-medium bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent">
+                            {objective.context.education} - {levelLabel}
+                          </span>
+                        );
+                      })()}
                       <span className="text-sm text-gray-500">•</span>
                       <span className="text-sm text-gray-600">{objective.context.domain}</span>
                     </div>

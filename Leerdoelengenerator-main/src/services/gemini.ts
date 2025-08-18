@@ -1,5 +1,6 @@
 // src/services/gemini.ts
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import type { LearningObjectiveContext } from "../types/context";
 
 /**
  * Types
@@ -10,15 +11,6 @@ export interface GeminiResponse {
   activities: string[];
   assessments: string[];
   aiLiteracy: string;
-}
-
-export interface LearningObjectiveContext {
-  original: string;               // Origineel leerdoel / opdracht
-  education: string;              // bv. "MBO"
-  level: string;                  // bv. "niveau 3"
-  domain: string;                 // vak/sector
-  assessment?: string;            // (optioneel) toetsvorm
-  lane?: "baan1" | "baan2";       // workflow-variant
 }
 
 export interface KDContext {
@@ -64,8 +56,20 @@ function formatKD(kd?: KDContext): string {
 function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): string {
   const laneLabel = ctx.lane === "baan2" ? "Baan 2" : "Baan 1";
   const kdBlock = kd ? formatKD(kd) : "";
+  const isVO = ctx.education === "VO";
+  const contextLine = isVO
+    ? `- Onderwijs: ${ctx.education} | VO-niveau: ${ctx.voLevel} | Leerjaar: ${ctx.voGrade} | Domein: ${ctx.domain} | Baan: ${laneLabel}`
+    : `- Sector: ${ctx.education} | Niveau: ${ctx.level} | Domein: ${ctx.domain} | Baan: ${laneLabel}`;
+  const voLines = isVO
+    ? [
+        "Formuleer leerdoelen activerend en observeerbaar in correct Nederlands.",
+        "Gebruik het woord 'leerling' in plaats van 'student'.",
+        "Koppel waar passend aan toetbare criteria (formatief/summatief).",
+      ]
+    : [];
   return [
     "Je bent een onderwijskundige assistent. Schrijf ALLES in natuurlijk Nederlands.",
+    ...voLines,
     "Doel: herschrijf het oorspronkelijke leerdoel naar één SMART leerdoel, en lever: rationale, 3–5 leeractiviteiten, 2–4 toetsvormen met label [Baan 1] of [Baan 2].",
     "Kaders:",
     "- Constructive alignment; Two-Lane approach (Baan 1=besluitvormend, beperkte AI; Baan 2=ontwikkelingsgericht, AI toegestaan/verplicht).",
@@ -77,7 +81,7 @@ function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): string {
     "- Vermijd vage woorden (“optimaliseren”, “begrijpen”) zonder meetbare specificatie.",
     "Input:",
     `- Oorspronkelijk leerdoel: ${ctx.original}`,
-    `- Sector: ${ctx.education} | Niveau: ${ctx.level} | Domein: ${ctx.domain} | Baan: ${laneLabel}`,
+    contextLine,
     kdBlock,
     "Output JSON:",
     "{",
