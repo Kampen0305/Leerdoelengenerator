@@ -5,7 +5,7 @@ describe('objectiveSchema', () => {
   it('valideert correcte data', () => {
     const result = objectiveSchema.safeParse({
       original: 'Doel',
-      sector: 'mbo',
+      education: 'MBO',
       level: '3',
       domain: 'ICT',
       assessment: 'Exam'
@@ -16,7 +16,7 @@ describe('objectiveSchema', () => {
   it('toont fouten bij ontbrekende velden', () => {
     const result = objectiveSchema.safeParse({
       original: '',
-      sector: '',
+      education: '',
       level: '',
       domain: '',
       assessment: ''
@@ -24,7 +24,7 @@ describe('objectiveSchema', () => {
     expect(result.success).toBe(false);
     const errors = result.error.flatten().fieldErrors;
     expect(errors.original?.[0]).toBe('Vul het leerdoel in.');
-    expect(errors.sector?.[0]).toBe('Kies mbo, hbo of wo.');
+     expect(errors.education?.[0]).toBe('Kies MBO, HBO, WO of VO.');
     expect(errors.domain?.[0]).toBe('Vul het domein in.');
     expect(errors.assessment?.[0]).toBe('Vul de toetsing in.');
     expect(errors.level).toBeUndefined();
@@ -33,31 +33,19 @@ describe('objectiveSchema', () => {
   it('valideert onderwijssector', () => {
     const result = objectiveSchema.safeParse({
       original: 'Doel',
-      sector: 'vmbo',
+      education: 'VMBO' as any,
       level: '3',
       domain: 'ICT',
       assessment: 'Exam'
     });
     expect(result.success).toBe(false);
-    expect(result.error.flatten().fieldErrors.sector?.[0]).toBe('Kies mbo, hbo of wo.');
-  });
-
-  it('controleert mbo niveau', () => {
-    const result = objectiveSchema.safeParse({
-      original: 'Doel',
-      sector: 'mbo',
-      level: '5',
-      domain: 'ICT',
-      assessment: 'Exam'
-    });
-    expect(result.success).toBe(false);
-    expect(result.error.flatten().fieldErrors.level?.[0]).toBe('Kies niveau 2, 3 of 4.');
+    expect(result.error.flatten().fieldErrors.education?.[0]).toBe('Kies MBO, HBO, WO of VO.');
   });
 
   it('vereist niveau voor mbo', () => {
     const result = objectiveSchema.safeParse({
       original: 'Doel',
-      sector: 'mbo',
+      education: 'MBO',
       level: '',
       domain: 'ICT',
       assessment: 'Exam'
@@ -69,7 +57,7 @@ describe('objectiveSchema', () => {
   it('accepteert hbo zonder niveau', () => {
     const result = objectiveSchema.safeParse({
       original: 'Doel',
-      sector: 'hbo',
+      education: 'HBO',
       domain: 'ICT',
       assessment: 'Exam'
     });
@@ -79,11 +67,36 @@ describe('objectiveSchema', () => {
   it('negeert niveau bij wo', () => {
     const result = objectiveSchema.safeParse({
       original: 'Doel',
-      sector: 'wo',
+      education: 'WO',
       level: '9',
       domain: 'ICT',
       assessment: 'Exam'
     });
     expect(result.success).toBe(true);
+  });
+
+  it('valideert VO met leerjaar', () => {
+    const result = objectiveSchema.safeParse({
+      original: 'Doel',
+      education: 'VO',
+      domain: 'Economie',
+      assessment: 'Toets',
+      voLevel: 'havo',
+      voGrade: 4
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('controleert leerjaar bereik voor VO', () => {
+    const result = objectiveSchema.safeParse({
+      original: 'Doel',
+      education: 'VO',
+      domain: 'Economie',
+      assessment: 'Toets',
+      voLevel: 'vwo',
+      voGrade: 7
+    });
+    expect(result.success).toBe(false);
+    expect(result.error.flatten().fieldErrors.voGrade?.[0]).toBe('Leerjaar moet tussen 1 en 6 liggen.');
   });
 });

@@ -22,6 +22,8 @@ import { KDParser } from "./utils/kdParser";
 import { ExportUtils } from "./utils/exportUtils";
 import { geminiService } from "./services/gemini";
 import FeedbackBar from "./components/FeedbackBar";
+import type { Education, VoLevel } from "./types/context";
+import { getVoGradeOptions } from "./utils/vo";
 
 /* --------------------- Helpers: opslag + delen --------------------- */
 const STORAGE_KEY = "ld-app-state-v2";
@@ -95,10 +97,12 @@ function inferAIGOTags(
 interface LearningObjective {
   original: string;
   context: {
-    education: string;
+    education: Education;
     level: string;
     domain: string;
     assessment: string;
+    voLevel?: VoLevel;
+    voGrade?: number;
   };
 }
 interface AIReadyOutput {
@@ -113,10 +117,12 @@ interface SavedObjective {
   originalObjective: string;
   aiReadyObjective: string;
   context: {
-    education: string;
+    education: Education;
     level: string;
     domain: string;
     assessment: string;
+    voLevel?: VoLevel;
+    voGrade?: number;
   };
   createdAt: string;
   tags: string[];
@@ -127,7 +133,7 @@ function App() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<LearningObjective>({
     original: "",
-    context: { education: "", level: "", domain: "", assessment: "" },
+    context: { education: "", level: "", domain: "", assessment: "", voLevel: undefined, voGrade: undefined },
   });
   const [lane, setLane] = useState<"" | Lane>(""); // Two-Lane keuze
   const [output, setOutput] = useState<AIReadyOutput | null>(null);
@@ -209,7 +215,8 @@ function App() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
   }, [currentStep, formData, lane, output, aiStatement, importedKD, generationSource]);
 
-  const educationTypes = ["MBO", "HBO", "WO"];
+  const educationTypes: Education[] = ["MBO", "HBO", "WO", "VO"];
+  const voLevels: VoLevel[] = ["vmbo-bb", "vmbo-kb", "vmbo-gl-tl", "havo", "vwo"];
   const levels = {
     MBO: ["Niveau 1", "Niveau 2", "Niveau 3", "Niveau 4"],
     HBO: ["Bachelor", "Associate Degree"],
@@ -235,8 +242,10 @@ function App() {
     lane !== "" &&
     formData.original.trim() !== "" &&
     formData.context.education.trim() !== "" &&
-    formData.context.level.trim() !== "" &&
-    formData.context.domain.trim() !== "";
+    formData.context.domain.trim() !== "" &&
+    (formData.context.education === "VO"
+      ? Boolean(formData.context.voLevel && formData.context.voGrade)
+      : formData.context.level.trim() !== "");
 
   /* -------------------- Step-switch → automatisch genereren -------------------- */
   useEffect(() => {
@@ -315,6 +324,16 @@ function App() {
                   .replace(/\bAI-?tools?\b/gi, "hulpmiddelen"),
         };
 
+        if (formData.context.education === "VO") {
+          const repl = (txt: string) =>
+            txt.replace(/studenten?/gi, (m) => (m.toLowerCase().endsWith("en") ? "leerlingen" : "leerling"));
+          adjusted.newObjective = repl(adjusted.newObjective);
+          adjusted.rationale = repl(adjusted.rationale);
+          adjusted.activities = adjusted.activities.map(repl);
+          adjusted.assessments = adjusted.assessments.map(repl);
+          adjusted.aiLiteracy = repl(adjusted.aiLiteracy);
+        }
+
         setOutput(adjusted);
         setGenerationSource("gemini");
         console.log("[AI-check] Gebruik: Gemini (AI)");
@@ -378,8 +397,10 @@ function App() {
   };
 
   const generateAIReadyObjective = (data: LearningObjective, whichLane: Lane): string => {
+    const subject = data.context.education === "VO" ? "leerling" : "student";
     const originalObjective = data.original || "";
     const baseObjective = originalObjective.toLowerCase();
+    const stripped = originalObjective.replace(new RegExp(`^De ${subject} kan `, "i"), "").toLowerCase();
     let kdContext = "";
     if (importedKD) {
       const contextInfo = KDParser.extractContextForObjective(importedKD, originalObjective);
@@ -393,29 +414,32 @@ function App() {
     const autonomyTerms = "zelf";
 
     if (baseObjective.includes("schrijven") || baseObjective.includes("tekst") || baseObjective.includes("communicatie")) {
-      return `De student kan met hulp van ${equityTerms} ${originalObjective.replace(/^De student kan /, "").toLowerCase()}, de output ${ethicsTerms}, en de uiteindelijke versie ${autonomyTerms} verbeteren met ${transparencyTerms} binnen de ${data.context.domain} context${kdContext}.`;
+      return `De ${subject} kan met hulp van ${equityTerms} ${stripped}, de output ${ethicsTerms}, en de uiteindelijke versie ${autonomyTerms} verbeteren met ${transparencyTerms} binnen de ${data.context.domain} context${kdContext}.`;
     } else if (baseObjective.includes("analyse") || baseObjective.includes("onderzoek") || baseObjective.includes("data")) {
-      return `De student kan ${originalObjective.replace(/^De student kan /, "").toLowerCase()} waarbij ${whichLane === "baan2" ? "AI-tools" : "hulpmiddelen"} helpen met data verzamelen, de resultaten ${ethicsTerms}, en ${autonomyTerms} conclusies trekken die eerlijk zijn binnen de ${data.context.domain}${kdContext}.`;
+      return `De ${subject} kan ${stripped} waarbij ${whichLane === "baan2" ? "AI-tools" : "hulpmiddelen"} helpen met data verzamelen, de resultaten ${ethicsTerms}, en ${autonomyTerms} conclusies trekken die eerlijk zijn binnen de ${data.context.domain}${kdContext}.`;
     } else if (baseObjective.includes("ontwerp") || baseObjective.includes("creëren") || baseObjective.includes("maken")) {
-      return `De student kan ${originalObjective.replace(/^De student kan /, "").toLowerCase()} met hulp van ${equityTerms} voor ideeën, de suggesties ${ethicsTerms}, en het eindresultaat ${autonomyTerms} maken met ${transparencyTerms} binnen de ${data.context.domain}${kdContext}.`;
+      return `De ${subject} kan ${stripped} met hulp van ${equityTerms} voor ideeën, de suggesties ${ethicsTerms}, en het eindresultaat ${autonomyTerms} maken met ${transparencyTerms} binnen de ${data.context.domain}${kdContext}.`;
     } else {
-      return `De student kan ${originalObjective.replace(/^De student kan /, "").toLowerCase()} met hulp van ${equityTerms}, de output ${ethicsTerms}, en ${autonomyTerms} tot een goede uitvoering komen met ${transparencyTerms} binnen de ${data.context.domain} context${kdContext}.`;
+      return `De ${subject} kan ${stripped} met hulp van ${equityTerms}, de output ${ethicsTerms}, en ${autonomyTerms} tot een goede uitvoering komen met ${transparencyTerms} binnen de ${data.context.domain} context${kdContext}.`;
     }
   };
 
   const generateRationale = (data: LearningObjective): string => {
     const educationLevel = data.context.education;
     const domain = data.context.domain;
+    const subjectPlural = data.context.education === "VO" ? "leerlingen" : "studenten";
+    const subjectSingular = data.context.education === "VO" ? "leerling" : "student";
     let kdRationale = "";
     if (importedKD) {
       kdRationale = ` Deze aanpassing is gebaseerd op het kwalificatiedossier "${importedKD.metadata.title}" en past bij de competenties en werkprocessen.`;
     }
-    return `Volgens de Nederlandse visie op AI en eerlijke kansen is het belangrijk dat ${educationLevel}-studenten binnen ${domain} leren werken met technologie op een manier die eerlijke kansen biedt voor alle studenten. Deze aangepaste leeruitkomst zorgt ervoor dat studenten leren eerlijk te handelen, begrijpen hoe technologie werkt, en zelf beslissingen blijven nemen. De student ontwikkelt zowel vaardigheid als bewustzijn voor verantwoord gebruik.${kdRationale}`;
+    return `Volgens de Nederlandse visie op AI en eerlijke kansen is het belangrijk dat ${educationLevel}-${subjectPlural} binnen ${domain} leren werken met technologie op een manier die eerlijke kansen biedt voor alle ${subjectPlural}. Deze aangepaste leeruitkomst zorgt ervoor dat ${subjectPlural} leren eerlijk te handelen, begrijpen hoe technologie werkt, en zelf beslissingen blijven nemen. De ${subjectSingular} ontwikkelt zowel vaardigheid als bewustzijn voor verantwoord gebruik.${kdRationale}`;
   };
 
   const generateActivities = (data: LearningObjective, whichLane: Lane): string[] => {
     const domain = data.context.domain.toLowerCase();
     const withAI = whichLane === "baan2";
+    const subjectPlural = data.context.education === "VO" ? "leerlingen" : "studenten";
     const base = [
       `${withAI ? "Gebruik gratis AI-tools" : "Gebruik passende hulpmiddelen"} voor ${domain}-taken en controleer kwaliteit`,
       "Werk samen om resultaten te controleren op fouten en vooroordelen",
@@ -427,17 +451,18 @@ function App() {
       const contextInfo = KDParser.extractContextForObjective(importedKD, data.original);
       if (contextInfo.relatedWorkProcesses.length > 0) {
         base.push(
-          `Koppel aan werkproces "${contextInfo.relatedWorkProcesses[0].title}" en geef alternatieven voor studenten zonder betaalde tools`
+          `Koppel aan werkproces "${contextInfo.relatedWorkProcesses[0].title}" en geef alternatieven voor ${subjectPlural} zonder betaalde tools`
         );
       }
     }
     return base;
   };
 
-  const generateAssessments = (_data: LearningObjective, whichLane: Lane): string[] => {
+  const generateAssessments = (data: LearningObjective, whichLane: Lane): string[] => {
     const withAI = whichLane === "baan2";
+    const subject = data.context.education === "VO" ? "leerling" : "student";
     const assessments = [
-      `Authentieke opdracht waarin de student het werkproces laat zien met ${withAI ? "transparant AI-gebruik" : "eigen uitvoering"} en verantwoording`,
+      `Authentieke opdracht waarin de ${subject} het werkproces laat zien met ${withAI ? "transparant AI-gebruik" : "eigen uitvoering"} en verantwoording`,
       "Portfolio met kritische reflectie op kwaliteit en eerlijke kansen",
       "Mondelinge verificatie over keuzes en betrouwbaarheid van bronnen",
       "Peer-review op toegankelijkheid en inclusie",
@@ -448,11 +473,25 @@ function App() {
     return assessments;
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: any) => {
     if (field === "original") {
       setFormData((prev) => ({ ...prev, original: value }));
     } else {
-      setFormData((prev) => ({ ...prev, context: { ...prev.context, [field]: value } }));
+      setFormData((prev) => {
+        const next = { ...prev, context: { ...prev.context, [field]: value } };
+        if (field === "education") {
+          if (value === "VO") {
+            next.context.level = "";
+          } else {
+            next.context.voLevel = undefined;
+            next.context.voGrade = undefined;
+          }
+        }
+        if (field === "voLevel") {
+          next.context.voGrade = undefined;
+        }
+        return next;
+      });
     }
   };
   const handleKDImported = (kd: KDStructure) => setImportedKD(kd);
@@ -567,11 +606,15 @@ function App() {
   const printPdf = () => window.print();
   const buildAIStatement = () => {
     const withAI = lane === "baan2";
+    const contextLine =
+      formData.context.education === "VO"
+        ? `${formData.context.education} – ${formData.context.voLevel} leerjaar ${formData.context.voGrade} – ${formData.context.domain}`
+        : `${formData.context.education} – ${formData.context.level} – ${formData.context.domain}`;
     const txt = [
       "AI-statement",
       "",
       `Leerdoel/leeruitkomst: ${output?.newObjective ?? "(nog niet gegenereerd)"}`,
-      `Context: ${formData.context.education} – ${formData.context.level} – ${formData.context.domain}`,
+      `Context: ${contextLine}`,
       "",
       `Gebruik van ${withAI ? "gratis AI-tools" : "hulpmiddelen"}:`,
       withAI
@@ -785,7 +828,7 @@ function App() {
                     <textarea
                       value={formData.original}
                       onChange={(e) => handleInputChange("original", e.target.value)}
-                      placeholder="Bijvoorbeeld: De student kan een zakelijke e-mail schrijven in correct Nederlands."
+                      placeholder={`Bijvoorbeeld: De ${formData.context.education === "VO" ? "leerling" : "student"} kan een zakelijke e-mail schrijven in correct Nederlands.`}
                       className="w-full h-24 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none transition-all duration-200"
                     />
                     {importedKD && formData.original && (
@@ -801,7 +844,7 @@ function App() {
                   <div className="grid lg:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Onderwijstype *
+                        Niveau opleiding *
                       </label>
                       <select
                         value={formData.context.education}
@@ -817,26 +860,68 @@ function App() {
                       </select>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Niveau *
-                      </label>
-                      <select
-                        value={formData.context.level}
-                        onChange={(e) => handleInputChange("level", e.target.value)}
-                        disabled={!formData.context.education}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50"
-                      >
-                        <option value="">Kies niveau</option>
-                        {formData.context.education &&
-                          levels[formData.context.education as keyof typeof levels]?.map((level) => (
+                    {formData.context.education !== "VO" && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Niveau *
+                        </label>
+                        <select
+                          value={formData.context.level}
+                          onChange={(e) => handleInputChange("level", e.target.value)}
+                          disabled={!formData.context.education}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50"
+                        >
+                          <option value="">Kies niveau</option>
+                          {formData.context.education &&
+                            levels[formData.context.education as keyof typeof levels]?.map((level) => (
+                              <option key={level} value={level}>
+                                {level}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  {formData.context.education === "VO" && (
+                    <div className="grid lg:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          VO-niveau *
+                        </label>
+                        <select
+                          value={formData.context.voLevel || ""}
+                          onChange={(e) => handleInputChange("voLevel", e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                        >
+                          <option value="">Kies VO-niveau</option>
+                          {voLevels.map((level) => (
                             <option key={level} value={level}>
                               {level}
                             </option>
                           ))}
-                      </select>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Leerjaar *
+                        </label>
+                        <select
+                          value={formData.context.voGrade ?? ""}
+                          onChange={(e) => handleInputChange("voGrade", parseInt(e.target.value))}
+                          disabled={!formData.context.voLevel}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50"
+                        >
+                          <option value="">Kies leerjaar</option>
+                          {getVoGradeOptions(formData.context.voLevel).map((grade) => (
+                            <option key={grade} value={grade}>
+                              {grade}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <div className="grid lg:grid-cols-2 gap-6">
                     <div>
@@ -1126,6 +1211,12 @@ function App() {
                   <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                     <p className="text-sm font-medium text-green-800 mb-2">AI-ready:</p>
                     <p className="text-green-700">{output.newObjective}</p>
+                    <p className="text-xs text-gray-600 mt-2">
+                      Context: {formData.context.education === "VO"
+                        ? `${formData.context.voLevel} leerjaar ${formData.context.voGrade}`
+                        : formData.context.level}
+                      {' '}– {formData.context.domain}
+                    </p>
 
                     {/* AI-GO chips */}
                     {aiGoTags.length > 0 && (

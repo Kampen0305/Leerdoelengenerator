@@ -10,6 +10,8 @@ interface ExportData {
     level: string;
     domain: string;
     assessment: string;
+    voLevel?: string;
+    voGrade?: number;
   };
   aiReadyObjective: string;
   rationale: string;
@@ -63,7 +65,11 @@ export class ExportUtils {
     // Context section
     addText('CONTEXT', 14, true, '#059669');
     addText(`Onderwijstype: ${data.context.education}`, 12);
-    addText(`Niveau: ${data.context.level}`, 12);
+    const levelLine =
+      data.context.education === 'VO'
+        ? `VO-niveau: ${data.context.voLevel} | Leerjaar: ${data.context.voGrade}`
+        : `Niveau: ${data.context.level}`;
+    addText(levelLine, 12);
     addText(`Beroepsdomein: ${data.context.domain}`, 12);
     if (data.context.assessment) {
       addText(`Huidige toetsvorm: ${data.context.assessment}`, 12);
@@ -200,8 +206,8 @@ export class ExportUtils {
 
           new Paragraph({
             children: [
-              new TextRun({ text: "Niveau: ", bold: true }),
-              new TextRun({ text: data.context.level })
+              new TextRun({ text: data.context.education === 'VO' ? 'VO-niveau: ' : 'Niveau: ', bold: true }),
+              new TextRun({ text: data.context.education === 'VO' ? `${data.context.voLevel} | Leerjaar ${data.context.voGrade}` : data.context.level })
             ],
             spacing: { after: 100 }
           }),
