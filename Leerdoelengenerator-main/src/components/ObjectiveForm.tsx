@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { objectiveSchema, ObjectiveInput } from '../lib/validation';
+import PrivacyNote from './PrivacyNote';
 
 interface ObjectiveFormProps {
   onSubmit: (data: ObjectiveInput) => void;
@@ -60,8 +61,9 @@ export function ObjectiveForm({ onSubmit }: ObjectiveFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
+    <>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
         <label htmlFor="original" className="block text-sm font-medium text-gray-700">Oorspronkelijk leerdoel</label>
         <textarea
           id="original"
@@ -135,22 +137,24 @@ export function ObjectiveForm({ onSubmit }: ObjectiveFormProps) {
         {errors.domain && <p className="text-red-600 text-sm">{errors.domain}</p>}
       </div>
 
-      <div>
-        <label htmlFor="assessment" className="block text-sm font-medium text-gray-700">Beoogde toetsing (baan 1/baan 2)</label>
-        <input
-          id="assessment"
-          type="text"
-          value={formData.assessment}
-          onChange={e => handleChange('assessment', e.target.value)}
-          placeholder="Bijv. portfolio of examen"
-          aria-describedby="assessment-help"
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-        />
-        <small id="assessment-help" className="text-gray-500">Beschrijf hoe het doel getoetst wordt.</small>
-        {errors.assessment && <p className="text-red-600 text-sm">{errors.assessment}</p>}
-      </div>
+        <div>
+          <label htmlFor="assessment" className="block text-sm font-medium text-gray-700">Beoogde toetsing (baan 1/baan 2)</label>
+          <input
+            id="assessment"
+            type="text"
+            value={formData.assessment}
+            onChange={e => handleChange('assessment', e.target.value)}
+            placeholder="Bijv. portfolio of examen"
+            aria-describedby="assessment-help"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+          />
+          <small id="assessment-help" className="text-gray-500">Beschrijf hoe het doel getoetst wordt.</small>
+          {errors.assessment && <p className="text-red-600 text-sm">{errors.assessment}</p>}
+        </div>
 
-      <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">Versturen</button>
-    </form>
+        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">Versturen</button>
+      </form>
+      <PrivacyNote />
+    </>
   );
 }
