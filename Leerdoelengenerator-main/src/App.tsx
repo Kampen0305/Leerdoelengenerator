@@ -9,6 +9,7 @@ import {
 import { KDImport } from "./components/KDImport";
 import { SavedObjectives } from "./components/SavedObjectives";
 import { TemplateLibrary } from "./components/TemplateLibrary";
+import { Hero } from "./components/Hero";
 
 /** Paneel-knoppen werken weer via named exports zoals voorheen */
 import { QualityChecker } from "./components/QualityChecker";
@@ -640,7 +641,8 @@ function App() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <Hero />
+      <div id="form-start" className="max-w-7xl mx-auto px-6 py-8">
         {/* Progress Steps */}
         <div className="mb-8">
           <div className="flex items-center justify-center space-x-8">
