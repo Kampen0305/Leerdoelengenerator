@@ -372,7 +372,7 @@ function App() {
     const autonomyTerms = "zelf";
 
     if (baseObjective.includes("schrijven") || baseObjective.includes("tekst") || baseObjective.includes("communicatie")) {
-      return `De student kan met hulp van ${equityTerms} ${originalObjective.replace(/^De student kan /, "").toLowerCase()}, de output ${ethicsTerms}, en de uiteindelijke versie ${autonomieTerms} verbeteren met ${transparencyTerms} binnen de ${data.context.domain} context${kdContext}.`.replace("autonomieTerms","zelf");
+      return `De student kan met hulp van ${equityTerms} ${originalObjective.replace(/^De student kan /, "").toLowerCase()}, de output ${ethicsTerms}, en de uiteindelijke versie ${autonomyTerms} verbeteren met ${transparencyTerms} binnen de ${data.context.domain} context${kdContext}.`;
     } else if (baseObjective.includes("analyse") || baseObjective.includes("onderzoek") || baseObjective.includes("data")) {
       return `De student kan ${originalObjective.replace(/^De student kan /, "").toLowerCase()} waarbij ${whichLane === "baan2" ? "AI-tools" : "hulpmiddelen"} helpen met data verzamelen, de resultaten ${ethicsTerms}, en ${autonomyTerms} conclusies trekken die eerlijk zijn binnen de ${data.context.domain}${kdContext}.`;
     } else if (baseObjective.includes("ontwerp") || baseObjective.includes("creëren") || baseObjective.includes("maken")) {
