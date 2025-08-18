@@ -9,6 +9,7 @@ import {
 import { KDImport } from "./components/KDImport";
 import { SavedObjectives } from "./components/SavedObjectives";
 import { TemplateLibrary } from "./components/TemplateLibrary";
+import { ExamplesPanel } from "./components/ExamplesPanel";
 
 /** Paneel-knoppen werken weer via named exports zoals voorheen */
 import { QualityChecker } from "./components/QualityChecker";
@@ -220,6 +221,12 @@ function App() {
         "De student kan een marktanalyse maken waarbij AI-tools helpen met data verzamelen, de AI-resultaten controleren op juistheid, en zelf conclusies trekken voor het product.",
     },
   ];
+
+  const handleExampleSelect = (example: LearningObjective) => {
+    setFormData(example);
+    setOutput(null);
+    setCurrentStep(1);
+  };
 
   const isFormDataComplete = () =>
     formData.original.trim() !== "" &&
@@ -676,7 +683,8 @@ function App() {
 
         {/* Step 1: Input Form */}
         {currentStep === 1 && (
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-4 gap-8">
+            <ExamplesPanel onSelect={handleExampleSelect} />
             <div className="lg:col-span-2">
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
