@@ -9,6 +9,7 @@ import {
 import { KDImport } from "./components/KDImport";
 import { SavedObjectives } from "./components/SavedObjectives";
 import { TemplateLibrary } from "./components/TemplateLibrary";
+import { PrivacyNote } from "./components/PrivacyNote";
 
 /** Paneel-knoppen werken weer via named exports zoals voorheen */
 import { QualityChecker } from "./components/QualityChecker";
@@ -812,6 +813,7 @@ function App() {
                     Omzetten naar AI-ready onderwijs
                     <ChevronRight className="w-5 h-5 ml-2" />
                   </button>
+                  <PrivacyNote />
                 </div>
               </div>
             </div>
