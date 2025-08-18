@@ -20,6 +20,7 @@ import { KDStructure } from "./types/kd";
 import { KDParser } from "./utils/kdParser";
 import { ExportUtils } from "./utils/exportUtils";
 import { geminiService } from "./services/gemini";
+import FeedbackBar from "./components/FeedbackBar";
 
 /* --------------------- Helpers: opslag + delen --------------------- */
 const STORAGE_KEY = "ld-app-state-v2";
@@ -1089,6 +1090,7 @@ function App() {
                       )}
                     </div>
                   </div>
+                  <FeedbackBar />
                 </div>
               </div>
 
