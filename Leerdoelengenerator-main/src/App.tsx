@@ -436,30 +436,45 @@ function App() {
                 </div>
               )}
 
-              <button
-                onClick={() => setShowTemplateLibrary(true)}
-                className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
-              >
-                <Library className="w-4 h-4" />
-                <span>Voorbeelden</span>
-              </button>
+             <div className="flex flex-wrap gap-2">
+  <button className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg shadow">
+    📘 Handreikingen
+  </button>
 
-              <button
-                onClick={() => setShowSavedObjectives(true)}
-                className="flex items-center space-x-2 bg-gray-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-gray-700 transition-all duration-200 shadow-md hover:shadow-lg"
-              >
-                <FolderOpen className="w-4 h-4" />
-                <span>Opgeslagen</span>
-              </button>
+  <button className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-2 rounded-lg shadow">
+    📊 Kwaliteit
+  </button>
 
-              <button
-                onClick={() => setShowKDImport(true)}
-                className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 text-white py-2 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg"
-              >
-                <Upload className="w-4 h-4" />
-                <span>KD Importeren</span>
-              </button>
-            </div>
+  <button className="bg-purple-600 hover:bg-purple-700 text-white font-medium px-4 py-2 rounded-lg shadow">
+    💾 Opslaan
+  </button>
+
+  <button
+    onClick={() => window.print()}
+    className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-4 py-2 rounded-lg shadow"
+  >
+    🖨️ Print / PDF
+  </button>
+
+  <button
+    onClick={() => {
+      const url = new URL(window.location.href);
+      navigator.clipboard.writeText(url.toString());
+      alert("Link gekopieerd naar klembord!");
+    }}
+    className="bg-teal-500 hover:bg-teal-600 text-white font-medium px-4 py-2 rounded-lg shadow"
+  >
+    🔗 Deelbare link
+  </button>
+
+  <button className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg shadow">
+    ⬇️ Downloaden
+  </button>
+
+  <button className="bg-gray-700 hover:bg-gray-800 text-white font-medium px-4 py-2 rounded-lg shadow">
+    ➕ Nieuw Leerdoel
+  </button>
+</div>
           </div>
         </div>
       </header>
