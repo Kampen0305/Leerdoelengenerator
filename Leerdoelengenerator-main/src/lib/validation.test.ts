@@ -75,4 +75,15 @@ describe('objectiveSchema', () => {
     });
     expect(result.success).toBe(true);
   });
+
+  it('negeert niveau bij wo', () => {
+    const result = objectiveSchema.safeParse({
+      original: 'Doel',
+      sector: 'wo',
+      level: '9',
+      domain: 'ICT',
+      assessment: 'Exam'
+    });
+    expect(result.success).toBe(true);
+  });
 });
