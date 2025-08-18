@@ -5,11 +5,15 @@ import {
   CheckCircle, Upload, Database, ChevronDown, Save, FolderOpen, Library,
   BarChart3, Shield, Printer, Link2, Sparkles
 } from "lucide-react";
+
 import { KDImport } from "./components/KDImport";
 import { SavedObjectives } from "./components/SavedObjectives";
 import { TemplateLibrary } from "./components/TemplateLibrary";
+
+/** BELANGRIJK: named exports zoals voorheen */
 import { QualityChecker } from "./components/QualityChecker";
 import { EducationGuidance } from "./components/EducationGuidance";
+
 import { KDStructure } from "./types/kd";
 import { KDParser } from "./utils/kdParser";
 import { ExportUtils } from "./utils/exportUtils";
@@ -277,15 +281,14 @@ function App() {
           { ...formData, lane },
           kdContext
         );
-        // Pas leeruitkomst op basis van gekozen Lane licht aan
         const adjusted: AIReadyOutput = {
           ...geminiResponse,
           newObjective:
             lane === "baan2"
-              ? geminiResponse.newObjective // met AI
+              ? geminiResponse.newObjective
               : geminiResponse.newObjective
-                  .replace(/met hulp van.*?,\s*/i, "") // verwijder expliciete AI-hulp
-                  .replace(/\bAI-?tools?\b/gi, "hulpmiddelen") // neutraler
+                  .replace(/met hulp van.*?,\s*/i, "")
+                  .replace(/\bAI-?tools?\b/gi, "hulpmiddelen"),
         };
         setOutput(adjusted);
         setAiGoTags(
@@ -956,7 +959,7 @@ function App() {
                   <span>AI-statement</span>
                 </button>
 
-                {/* Bestaand export-menu */}
+                {/* Export-menu */}
                 <div className="relative">
                   <button
                     onClick={() => setShowExportMenu(!showExportMenu)}
@@ -1004,6 +1007,21 @@ function App() {
                 </button>
               </div>
             </div>
+
+            {/* <<<<< HIER worden de panelen getoond zoals voorheen >>>>> */}
+            {showEducationGuidance && (
+              <EducationGuidance
+                context={formData.context}
+                aiReadyObjective={output.newObjective}
+              />
+            )}
+
+            {showQualityChecker && (
+              <QualityChecker
+                objective={output.newObjective}
+                context={formData.context}
+              />
+            )}
 
             {/* Result blokken */}
             <div className="grid lg:grid-cols-2 gap-6">
