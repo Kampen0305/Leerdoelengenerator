@@ -563,7 +563,7 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-orange-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-green-100">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-xl mx-auto px-4 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               {/* DigitEd Logo */}
@@ -583,7 +583,7 @@ function App() {
                     <Brain className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent">
+                    <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent">
                       AI Leerdoelenmaker
                     </h1>
                     <p className="text-sm text-gray-600 flex items-center">
@@ -614,7 +614,7 @@ function App() {
 
               <button
                 onClick={() => setShowTemplateLibrary(true)}
-                className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="flex items-center space-x-2 min-h-[44px] bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 <Library className="w-4 h-4" />
                 <span>Voorbeelden</span>
@@ -622,7 +622,7 @@ function App() {
 
               <button
                 onClick={() => setShowSavedObjectives(true)}
-                className="flex items-center space-x-2 bg-gray-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-gray-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="flex items-center space-x-2 min-h-[44px] bg-gray-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-gray-700 transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 <FolderOpen className="w-4 h-4" />
                 <span>Opgeslagen</span>
@@ -630,7 +630,7 @@ function App() {
 
               <button
                 onClick={() => setShowKDImport(true)}
-                className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 text-white py-2 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="flex items-center space-x-2 min-h-[44px] bg-gradient-to-r from-green-600 to-green-700 text-white py-2 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 <Upload className="w-4 h-4" />
                 <span>KD Importeren</span>
@@ -640,9 +640,9 @@ function App() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-xl mx-auto px-4 lg:px-8 py-8 space-y-6">
         {/* Progress Steps */}
-        <div className="mb-8">
+        <div>
           <div className="flex items-center justify-center space-x-8">
             {[
               { step: 1, title: "Invoer", icon: FileText },
@@ -651,7 +651,7 @@ function App() {
             ].map(({ step, title, icon: Icon }) => (
               <div key={step} className="flex items-center">
                 <div
-                  className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${
+                  className={`flex items-center justify-center w-11 h-11 rounded-full transition-all duration-300 ${
                     currentStep >= step
                       ? "bg-gradient-to-r from-green-600 to-orange-500 text-white shadow-lg"
                       : "bg-gray-200 text-gray-500"
@@ -736,7 +736,7 @@ function App() {
                     )}
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid lg:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Onderwijstype *
@@ -776,7 +776,7 @@ function App() {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid lg:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Vakgebied *
@@ -804,11 +804,11 @@ function App() {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => setCurrentStep(2)}
-                    disabled={!isFormDataComplete()}
-                    className="w-full bg-gradient-to-r from-green-600 to-orange-500 text-white py-3 px-6 rounded-lg font-medium hover:from-green-700 hover:to-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
-                  >
+                    <button
+                      onClick={() => setCurrentStep(2)}
+                      disabled={!isFormDataComplete()}
+                      className="w-full bg-gradient-to-r from-green-600 to-orange-500 text-white py-3 px-6 rounded-lg font-medium hover:from-green-700 hover:to-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center min-h-[44px] shadow-md hover:shadow-lg"
+                    >
                     Omzetten naar AI-ready onderwijs
                     <ChevronRight className="w-5 h-5 ml-2" />
                   </button>
@@ -934,65 +934,65 @@ function App() {
 
               {/* Actieknoppen */}
               <div className="flex flex-wrap gap-3 items-center">
-                <button
-                  onClick={() => setShowEducationGuidance(!showEducationGuidance)}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                >
+                  <button
+                    onClick={() => setShowEducationGuidance(!showEducationGuidance)}
+                    className="flex items-center space-x-2 min-h-[44px] bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
                   <BookOpen className="w-4 h-4" />
                   <span>Handreikingen</span>
                 </button>
 
-                <button
-                  onClick={() => setShowQualityChecker(!showQualityChecker)}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                >
+                  <button
+                    onClick={() => setShowQualityChecker(!showQualityChecker)}
+                    className="flex items-center space-x-2 min-h-[44px] bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
                   <BarChart3 className="w-4 h-4" />
                   <span>Kwaliteit</span>
                 </button>
 
-                <button
-                  onClick={saveObjective}
-                  className="flex items-center space-x-2 bg-purple-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                >
+                  <button
+                    onClick={saveObjective}
+                    className="flex items-center space-x-2 min-h-[44px] bg-purple-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
                   <Save className="w-4 h-4" />
                   <span>Opslaan</span>
                 </button>
 
                 {/* Print / Deelbaar */}
-                <button
-                  onClick={printPdf}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-slate-600 to-slate-700 text-white py-2 px-4 rounded-lg font-medium hover:from-slate-700 hover:to-slate-800 transition-all duration-200 shadow-md hover:shadow-lg"
-                  title="Print of sla als PDF op"
-                >
+                  <button
+                    onClick={printPdf}
+                    className="flex items-center space-x-2 min-h-[44px] bg-gradient-to-r from-slate-600 to-slate-700 text-white py-2 px-4 rounded-lg font-medium hover:from-slate-700 hover:to-slate-800 transition-all duration-200 shadow-md hover:shadow-lg"
+                    title="Print of sla als PDF op"
+                  >
                   <Printer className="w-4 h-4" />
                   <span>Print / PDF</span>
                 </button>
 
-                <button
-                  onClick={shareLink}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white py-2 px-4 rounded-lg font-medium hover:from-teal-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                  title="Kopieer een link met de huidige invoer en resultaat"
-                >
+                  <button
+                    onClick={shareLink}
+                    className="flex items-center space-x-2 min-h-[44px] bg-gradient-to-r from-teal-500 to-teal-600 text-white py-2 px-4 rounded-lg font-medium hover:from-teal-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                    title="Kopieer een link met de huidige invoer en resultaat"
+                  >
                   <Link2 className="w-4 h-4" />
                   <span>Deelbare link</span>
                 </button>
 
                 {/* AI-statement genereren */}
-                <button
-                  onClick={buildAIStatement}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white py-2 px-4 rounded-lg font-medium hover:from-cyan-700 hover:to-cyan-800 transition-all duration-200 shadow-md hover:shadow-lg"
-                  title="Genereer transparante AI-verantwoording"
-                >
+                  <button
+                    onClick={buildAIStatement}
+                    className="flex items-center space-x-2 min-h-[44px] bg-gradient-to-r from-cyan-600 to-cyan-700 text-white py-2 px-4 rounded-lg font-medium hover:from-cyan-700 hover:to-cyan-800 transition-all duration-200 shadow-md hover:shadow-lg"
+                    title="Genereer transparante AI-verantwoording"
+                  >
                   <Sparkles className="w-4 h-4" />
                   <span>AI-statement</span>
                 </button>
 
                 {/* Export-menu */}
                 <div className="relative">
-                  <button
-                    onClick={() => setShowExportMenu(!showExportMenu)}
-                    className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 text-white py-2 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg"
-                  >
+                    <button
+                      onClick={() => setShowExportMenu(!showExportMenu)}
+                      className="flex items-center space-x-2 min-h-[44px] bg-gradient-to-r from-green-600 to-green-700 text-white py-2 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg"
+                    >
                     <Download className="w-4 h-4" />
                     <span>Downloaden</span>
                     <ChevronDown className="w-4 h-4" />
@@ -1001,24 +1001,24 @@ function App() {
                   {showExportMenu && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
                       <div className="py-1">
-                        <button
-                          onClick={() => handleExport("pdf")}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                        >
+                          <button
+                            onClick={() => handleExport("pdf")}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center min-h-[44px]"
+                          >
                           <FileText className="w-4 h-4 mr-2 text-red-500" />
                           PDF Document
                         </button>
-                        <button
-                          onClick={() => handleExport("word")}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                        >
+                          <button
+                            onClick={() => handleExport("word")}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center min-h-[44px]"
+                          >
                           <FileText className="w-4 h-4 mr-2 text-blue-500" />
                           Word Document
                         </button>
-                        <button
-                          onClick={() => handleExport("json")}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-                        >
+                          <button
+                            onClick={() => handleExport("json")}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center min-h-[44px]"
+                          >
                           <FileText className="w-4 h-4 mr-2 text-gray-500" />
                           JSON Data
                         </button>
@@ -1027,10 +1027,10 @@ function App() {
                   )}
                 </div>
 
-                <button
-                  onClick={resetForm}
-                  className="flex items-center space-x-2 bg-gray-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-gray-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                >
+                  <button
+                    onClick={resetForm}
+                    className="flex items-center space-x-2 min-h-[44px] bg-gray-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-gray-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
                   <span>Nieuw Leerdoel</span>
                 </button>
               </div>
