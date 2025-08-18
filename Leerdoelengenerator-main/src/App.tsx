@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import {
   BookOpen, Brain, Users, FileText, Download, ChevronRight, Lightbulb, Target,
   CheckCircle, Upload, Database, ChevronDown, Save, FolderOpen, Library,
-  BarChart3, Shield, Printer, Link2, Sparkles
+  BarChart3, Shield, Printer, Link2, Sparkles, Menu
 } from "lucide-react";
 
 import { KDImport } from "./components/KDImport";
@@ -142,6 +142,7 @@ function App() {
   const [showQualityChecker, setShowQualityChecker] = useState(false);
   const [showEducationGuidance, setShowEducationGuidance] = useState(false);
   const [generationSource, setGenerationSource] = useState<GenerationSource>(null); // NIEUW: bron van de laatste generatie
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleExampleSelect = (example: LearningObjective) => {
     setFormData(example);
@@ -584,7 +585,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-orange-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-green-50 via-white to-orange-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-green-100">
         <div className="max-w-screen-xl mx-auto px-4 lg:px-8 py-4">
@@ -629,38 +630,95 @@ function App() {
             </div>
 
             <div className="flex items-center space-x-4">
+              <div className="hidden md:flex items-center space-x-4">
+                {importedKD && (
+                  <div className="flex items-center space-x-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                    <Database className="w-4 h-4 text-green-600" />
+                    <span className="text-sm font-medium text-green-700">
+                      {importedKD.metadata.title}
+                    </span>
+                  </div>
+                )}
+
+                <button
+                  onClick={() => setShowTemplateLibrary(true)}
+                  className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white h-11 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  <Library className="w-4 h-4" />
+                  <span>Voorbeelden</span>
+                </button>
+
+                <button
+                  onClick={() => setShowSavedObjectives(true)}
+                  className="flex items-center space-x-2 bg-gray-600 text-white h-11 px-4 rounded-lg font-medium hover:bg-gray-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  <FolderOpen className="w-4 h-4" />
+                  <span>Opgeslagen</span>
+                </button>
+
+                <button
+                  onClick={() => setShowKDImport(true)}
+                  className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 text-white h-11 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>KD Importeren</span>
+                </button>
+              </div>
+
+              <button
+                className="md:hidden p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                onClick={() => setMenuOpen(!menuOpen)}
+                aria-label="Menu"
+              >
+                <Menu className="w-6 h-6 text-gray-800" />
+              </button>
+            </div>
+          </div>
+          {menuOpen && (
+            <div className="mt-4 flex flex-col space-y-2 md:hidden">
               {importedKD && (
                 <div className="flex items-center space-x-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
                   <Database className="w-4 h-4 text-green-600" />
-                  <span className="text-sm font-medium text-green-700">{importedKD.metadata.title}</span>
+                  <span className="text-sm font-medium text-green-700">
+                    {importedKD.metadata.title}
+                  </span>
                 </div>
               )}
 
               <button
-                onClick={() => setShowTemplateLibrary(true)}
-                className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white h-11 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                onClick={() => {
+                  setShowTemplateLibrary(true);
+                  setMenuOpen(false);
+                }}
+                className="flex items-center justify-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white h-11 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg w-full"
               >
                 <Library className="w-4 h-4" />
                 <span>Voorbeelden</span>
               </button>
 
               <button
-                onClick={() => setShowSavedObjectives(true)}
-                className="flex items-center space-x-2 bg-gray-600 text-white h-11 px-4 rounded-lg font-medium hover:bg-gray-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                onClick={() => {
+                  setShowSavedObjectives(true);
+                  setMenuOpen(false);
+                }}
+                className="flex items-center justify-center space-x-2 bg-gray-600 text-white h-11 px-4 rounded-lg font-medium hover:bg-gray-700 transition-all duration-200 shadow-md hover:shadow-lg w-full"
               >
                 <FolderOpen className="w-4 h-4" />
                 <span>Opgeslagen</span>
               </button>
 
               <button
-                onClick={() => setShowKDImport(true)}
-                className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 text-white h-11 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg"
+                onClick={() => {
+                  setShowKDImport(true);
+                  setMenuOpen(false);
+                }}
+                className="flex items-center justify-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 text-white h-11 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg w-full"
               >
                 <Upload className="w-4 h-4" />
                 <span>KD Importeren</span>
               </button>
             </div>
-          </div>
+          )}
         </div>
       </header>
 
