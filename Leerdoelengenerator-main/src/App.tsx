@@ -608,7 +608,7 @@ function App() {
                   </div>
                   <div>
                     <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent">
-                      AI Leerdoelenmaker
+                      AI Leerdoelengenerator
                     </h1>
                     <p className="text-sm text-gray-600 flex items-center">
                       <Shield className="w-4 h-4 mr-1 text-green-600" />
