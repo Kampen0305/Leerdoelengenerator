@@ -28,12 +28,22 @@ export function ObjectiveForm({ onSubmit }: ObjectiveFormProps) {
   const [errors, setErrors] = useState<ObjectiveErrors>({});
 
   const handleChange = (field: keyof ObjectiveFormState, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => {
+      const next = { ...prev, [field]: value };
+      if (field === 'sector' && value !== 'mbo') {
+        next.level = '';
+      }
+      return next;
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const result = objectiveSchema.safeParse(formData);
+    const dataToValidate = {
+      ...formData,
+      level: formData.sector === 'mbo' ? formData.level : undefined
+    };
+    const result = objectiveSchema.safeParse(dataToValidate);
     if (result.success) {
       setErrors({});
       onSubmit(result.data);
@@ -83,32 +93,44 @@ export function ObjectiveForm({ onSubmit }: ObjectiveFormProps) {
         {errors.sector && <p className="text-red-600 text-sm">{errors.sector}</p>}
       </div>
 
-      <div>
-        <label htmlFor="level" className="block text-sm font-medium text-gray-700">Niveau (mbo 2/3/4…)</label>
-        <input
-          id="level"
-          type="text"
-          value={formData.level}
-          onChange={e => handleChange('level', e.target.value)}
-          placeholder="Bijv. 3"
-          aria-describedby="level-help"
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-        />
-        <small id="level-help" className="text-gray-500">Bij mbo alleen niveau 2, 3 of 4.</small>
-        {errors.level && <p className="text-red-600 text-sm">{errors.level}</p>}
-      </div>
+      {formData.sector === 'mbo' && (
+        <div>
+          <label htmlFor="level" className="block text-sm font-medium text-gray-700">Niveau (mbo 2/3/4…)</label>
+          <select
+            id="level"
+            value={formData.level}
+            onChange={e => handleChange('level', e.target.value)}
+            aria-describedby="level-help"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+          >
+            <option value="">Kies niveau</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+          <small id="level-help" className="text-gray-500">Bij mbo alleen niveau 2, 3 of 4.</small>
+          {errors.level && <p className="text-red-600 text-sm">{errors.level}</p>}
+        </div>
+      )}
 
       <div>
         <label htmlFor="domain" className="block text-sm font-medium text-gray-700">Domein/opleiding</label>
         <input
           id="domain"
           type="text"
+          list="domain-options"
           value={formData.domain}
           onChange={e => handleChange('domain', e.target.value)}
           placeholder="Bijv. Marketing"
           aria-describedby="domain-help"
           className="w-full px-4 py-3 border border-gray-300 rounded-lg"
         />
+        <datalist id="domain-options">
+          <option value="Economie" />
+          <option value="Zorg" />
+          <option value="Sport & Bewegen" />
+          <option value="Techniek" />
+        </datalist>
         <small id="domain-help" className="text-gray-500">Noem het domein of de opleiding.</small>
         {errors.domain && <p className="text-red-600 text-sm">{errors.domain}</p>}
       </div>
