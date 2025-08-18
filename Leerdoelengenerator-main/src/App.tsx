@@ -105,6 +105,7 @@ interface AIReadyOutput {
   rationale: string;
   activities: string[];
   assessments: string[];
+  aiLiteracy: string;
 }
 interface SavedObjective {
   id: string;
@@ -319,11 +320,16 @@ function App() {
           })
         );
       } else {
+        const generatedObjective = generateAIReadyObjective(formData, lane as Lane);
         const aiOutput: AIReadyOutput = {
-          newObjective: generateAIReadyObjective(formData, lane as Lane),
+          newObjective: generatedObjective,
           rationale: generateRationale(formData),
           activities: generateActivities(formData, lane as Lane),
           assessments: generateAssessments(formData, lane as Lane),
+          aiLiteracy: inferAIGOTags(generatedObjective, {
+            withAI: lane === "baan2",
+            domain: formData.context.domain,
+          }).join(", ") || "kritisch denken, ethiek",
         };
         setOutput(aiOutput);
         setGenerationSource("fallback");
@@ -339,11 +345,16 @@ function App() {
       setCurrentStep(3);
     } catch (err) {
       console.error("[AI-check] Fout in AI-pad, val terug op fallback:", err);
+      const fbObjective = generateAIReadyObjective(formData, lane as Lane);
       const fallback: AIReadyOutput = {
-        newObjective: generateAIReadyObjective(formData, lane as Lane),
+        newObjective: fbObjective,
         rationale: generateRationale(formData),
         activities: generateActivities(formData, lane as Lane),
         assessments: generateAssessments(formData, lane as Lane),
+        aiLiteracy: inferAIGOTags(fbObjective, {
+          withAI: lane === "baan2",
+          domain: formData.context.domain,
+        }).join(", ") || "kritisch denken, ethiek",
       };
       setOutput(fallback);
       setGenerationSource("fallback");
@@ -463,6 +474,10 @@ function App() {
       rationale: generateRationale({ original: objective.originalObjective, context: objective.context }),
       activities: generateActivities({ original: objective.originalObjective, context: objective.context }, lane as Lane),
       assessments: generateAssessments({ original: objective.originalObjective, context: objective.context }, lane as Lane),
+      aiLiteracy: inferAIGOTags(objective.aiReadyObjective, {
+        withAI: lane === "baan2",
+        domain: objective.context.domain,
+      }).join(", ") || "kritisch denken, ethiek",
     };
     setOutput(o);
     setGenerationSource(null); // onbekend voor oudere items

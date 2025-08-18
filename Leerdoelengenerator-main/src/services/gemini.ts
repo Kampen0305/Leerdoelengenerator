@@ -9,6 +9,7 @@ export interface GeminiResponse {
   rationale: string;
   activities: string[];
   assessments: string[];
+  aiLiteracy: string;
 }
 
 export interface LearningObjectiveContext {
@@ -45,30 +46,14 @@ if (API_KEY) {
 }
 
 /**
- * Vocabulaire/termunen die elders in de app worden gebruikt.
- * (Voorkomt ReferenceError: autonomieTerms is not defined)
- */
-const autonomieTerms = [
-  "zelfstandig", "eigen regie", "zelf keuzes maken", "initiatief nemen",
-  "plannen en organiseren", "verantwoordelijkheid nemen"
-];
-
-const samenwerkTerms = [
-  "samenwerken", "communiceren", "afstemmen", "feedback geven en ontvangen"
-];
-
-const reflectieTerms = [
-  "reflecteren", "leerdoelen bijstellen", "eigen handelen evalueren"
-];
-
-/**
  * Klein hulpmiddel om KD-context leesbaar in de prompt te zetten
  */
 function formatKD(kd?: KDContext): string {
-  if (!kd) return "Geen KD-context aangeleverd.";
+  if (!kd) return "";
   const comp = kd.relatedCompetencies?.map(c => `- ${c.title}`).join("\n") || "- (geen)";
-  const wp   = kd.relatedWorkProcesses?.map(w => `- ${w.title}`).join("\n") || "- (geen)";
+  const wp = kd.relatedWorkProcesses?.map(w => `- ${w.title}`).join("\n") || "- (geen)";
   return [
+    "\nKD-context:",
     `KD titel: ${kd.title ?? "(onbekend)"}`,
     `KD code: ${kd.code ?? "(onbekend)"}`,
     `Gerelateerde competenties:\n${comp}`,
@@ -76,50 +61,33 @@ function formatKD(kd?: KDContext): string {
   ].join("\n");
 }
 
-/**
- * System-instructie
- */
-const FIXED_SYSTEM_PROMPT =
-  "Formuleer leerdoelen altijd in correct Nederlands, volgens de richtlijnen van constructive alignment en de Bloom-taxonomie. Gebruik de structuur: 'De student kan + [werkwoord uit Bloom] + [concreet gedrag] + [in een context] + [criterium voor succes]'. De leerdoelen moeten observeerbaar, toetsbaar en passend bij het niveau (mbo, hbo of wo) zijn. Houd de leerdoelen kort, concreet en eenduidig.";
-
-const SYSTEM_INSTRUCTION = [
-  FIXED_SYSTEM_PROMPT,
-  "Je bent een onderwijsassistent voor MBO-docenten.",
-  "Je herschrijft of concretiseert leerdoelen zodat ze SMART, uitvoerbaar en toetsbaar zijn.",
-  "Gebruik heldere, korte zinnen. Vermijd jargon.",
-  "Schrijf in het Nederlands."
-].join(" ");
-
-
-/**
- * Bouwt de prompt op basis van context + KD-gegevens
- */
 function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): string {
-  const laneLine =
-    ctx.lane === "baan2"
-      ? "Focus extra op authentic assessment en praktijknabij toetsen."
-      : "Houd het compact en direct toepasbaar in de lespraktijk.";
-
+  const laneLabel = ctx.lane === "baan2" ? "Baan 2" : "Baan 1";
+  const kdBlock = kd ? formatKD(kd) : "";
   return [
-    `SYSTEEM: ${SYSTEM_INSTRUCTION}`,
-    "",
-    `Onderwijs: ${ctx.education}, niveau: ${ctx.level}, domein: ${ctx.domain}.`,
-    laneLine,
-    "",
-    "Beschikbare terminologie (ter inspiratie, niet verplicht):",
-    `- Autonomie: ${autonomieTerms.join(", ")}`,
-    `- Samenwerken: ${samenwerkTerms.join(", ")}`,
-    `- Reflectie: ${reflectieTerms.join(", ")}`,
-    "",
-    "KD-context:",
-    formatKD(kd),
-    "",
-    "Origineel leerdoel/opdracht:",
-    ctx.original,
-    "",
-    "Gevraagde output: JSON met de sleutels newObjective, rationale, activities, assessments.",
-    "Vermijd extra tekst buiten de JSON."
-  ].join("\n");
+    "Je bent een onderwijskundige assistent. Schrijf ALLES in natuurlijk Nederlands.",
+    "Doel: herschrijf het oorspronkelijke leerdoel naar één SMART leerdoel, en lever: rationale, 3–5 leeractiviteiten, 2–4 toetsvormen met label [Baan 1] of [Baan 2].",
+    "Kaders:",
+    "- Constructive alignment; Two-Lane approach (Baan 1=besluitvormend, beperkte AI; Baan 2=ontwikkelingsgericht, AI toegestaan/verplicht).",
+    "- AI-geletterdheid (AI-GO): benoem kort welke kennis/vaardigheden/ethiek aan bod komen.",
+    "- Referentiekader 2.0: wees transparant en ethisch; geen persoonsgegevens; geen hallucinaties.",
+    "Eisen:",
+    "- 1 leerdoel, actief werkwoord + context + meetcriterium + condities + tijd.",
+    "- Geen Engels.",
+    "- Vermijd vage woorden (“optimaliseren”, “begrijpen”) zonder meetbare specificatie.",
+    "Input:",
+    `- Oorspronkelijk leerdoel: ${ctx.original}`,
+    `- Sector: ${ctx.education} | Niveau: ${ctx.level} | Domein: ${ctx.domain} | Baan: ${laneLabel}`,
+    kdBlock,
+    "Output JSON:",
+    "{",
+    ' "newObjective": "...",',
+    ' "rationale": "... (≤80 woorden)",',
+    ' "activities": ["…","…","…"],',
+    ' "assessments": ["[Baan X] …","…"],',
+    ' "aiLiteracy": "Kernpunten (kritisch denken/ethiek/vaardigheden)"',
+    "}"
+  ].filter(Boolean).join("\n");
 }
 
 /**
@@ -194,11 +162,12 @@ export async function generateAIReadyObjective(
       newObjective: String(data.newObjective ?? ""),
       rationale: String(data.rationale ?? ""),
       activities: Array.isArray(data.activities) ? data.activities.map(String) : [],
-      assessments: Array.isArray(data.assessments) ? data.assessments.map(String) : []
+      assessments: Array.isArray(data.assessments) ? data.assessments.map(String) : [],
+      aiLiteracy: String(data.aiLiteracy ?? "")
     };
 
     // Minimale validatie
-    if (!safe.newObjective || safe.activities.length === 0) {
+    if (!safe.newObjective || safe.activities.length === 0 || !safe.aiLiteracy) {
       throw new Error("Onvolledige JSON-respons ontvangen van model.");
     }
 
@@ -218,12 +187,6 @@ export async function generateAIReadyObjective(
 /**
  * Eventueel extra exporteren voor elders in de app.
  */
-export const Terms = {
-  autonomieTerms,
-  samenwerkTerms,
-  reflectieTerms
-};
-
 export const geminiService = {
   isAvailable: () => Boolean(genAI),
   generateAIReadyObjective,

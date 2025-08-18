@@ -8,6 +8,7 @@ export interface PostProcessedResponse {
   rationale: string;
   activities: string[];
   assessments: string[];
+  aiLiteracy: string;
   aiLiteracyFocus: string[];
   smart: SMARTCheck;
   warnings: string[];
@@ -19,7 +20,7 @@ export interface PostProcessedResponse {
  * (kritisch denken, ethiek). Inspired by Npuls Two-Lane approach and AI-GO checklists.
  */
 export function enforceDutchAndSMART(
-  res: { newObjective: string; rationale: string; activities: string[]; assessments: string[] },
+  res: { newObjective: string; rationale: string; activities: string[]; assessments: string[]; aiLiteracy?: string },
   lane: "baan1" | "baan2" = "baan1"
 ): PostProcessedResponse {
   const warnings: string[] = [];
@@ -37,9 +38,10 @@ export function enforceDutchAndSMART(
   let rationale = replaceEnglish(res.rationale.trim());
   let activities = res.activities.map(a => replaceEnglish(a.trim())).filter(Boolean);
   let assessments = res.assessments.map(a => replaceEnglish(a.trim())).filter(Boolean);
+  const aiLiteracy = replaceEnglish(res.aiLiteracy?.trim() || "");
 
   const englishPattern = /\b(the|and|with|without|to|for|on)\b/i;
-  if (englishPattern.test([newObjective, rationale, activities.join(" "), assessments.join(" ")].join(" "))) {
+  if (englishPattern.test([newObjective, rationale, activities.join(" "), assessments.join(" "), aiLiteracy].join(" "))) {
     warnings.push("Niet alle tekst is in het Nederlands.");
   }
 
@@ -86,7 +88,7 @@ export function enforceDutchAndSMART(
   }
 
   // AI literacy indicators
-  const allText = [newObjective, ...activities, ...assessments].join(" ").toLowerCase();
+  const allText = [newObjective, ...activities, ...assessments, aiLiteracy].join(" ").toLowerCase();
   const indicators = ["kritisch denken", "ethiek"];
   const missingIndicators = indicators.filter(ind => !allText.includes(ind));
   const aiLiteracyFocus = missingIndicators;
@@ -99,6 +101,7 @@ export function enforceDutchAndSMART(
     rationale,
     activities,
     assessments,
+    aiLiteracy,
     aiLiteracyFocus,
     smart: { badge: smartBadge, issues },
     warnings,
