@@ -83,19 +83,6 @@ const SYSTEM_INSTRUCTION = [
   "Schrijf in het Nederlands."
 ].join(" ");
 
-/**
- * JSON schema dat we van het model terug verwachten
- */
-const RESPONSE_SCHEMA = {
-  type: "object",
-  properties: {
-    newObjective: { type: "string", description: "Het verbeterde/concrete leerdoel in 1 zin." },
-    rationale:    { type: "string", description: "Waarom dit leerdoel zo is geformuleerd." },
-    activities:   { type: "array", items: { type: "string" }, description: "3–6 les/leeractiviteiten." },
-    assessments:  { type: "array", items: { type: "string" }, description: "2–4 toets- of beoordelingssuggesties." }
-  },
-  required: ["newObjective", "rationale", "activities", "assessments"]
-} as const;
 
 /**
  * Bouwt de prompt op basis van context + KD-gegevens
@@ -166,12 +153,10 @@ export async function generateAIReadyObjective(
       generationConfig: {
         temperature: 0.3,
         maxOutputTokens: 800
-      },
-      // Forceer JSON-structuur via schema (betrouwbaarder dan 'responseMimeType')
-      responseSchema: RESPONSE_SCHEMA as any
+      }
     });
 
-    // Bij responseSchema levert de SDK nog steeds tekst terug; meestal is dat al geldige JSON
+    // De SDK geeft tekst terug; we vragen via de prompt om JSON
     const raw = (result.response?.text?.() ?? "").trim();
 
     if (!raw) {
@@ -211,7 +196,7 @@ export async function generateAIReadyObjective(
     // Duidelijke foutmeldingen voor in je UI/logs
     const msg =
       err?.message?.includes("Invalid JSON payload received")
-        ? "Fout in API-aanroep: controleer de meegestuurde velden (responseMimeType niet gebruiken)."
+        ? "Fout in API-aanroep: controleer de meegestuurde velden."
         : err?.message || String(err);
 
     console.error("[gemini] generateAIReadyObjective error:", err);
