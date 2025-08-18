@@ -587,7 +587,7 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-orange-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-green-100">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-screen-xl mx-auto px-4 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               {/* DigitEd Logo */}
@@ -607,7 +607,7 @@ function App() {
                     <Brain className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent">
+                    <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent">
                       AI Leerdoelengenerator
                     </h1>
                     <p className="text-sm text-gray-600 flex items-center">
@@ -638,7 +638,7 @@ function App() {
 
               <button
                 onClick={() => setShowTemplateLibrary(true)}
-                className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white h-11 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 <Library className="w-4 h-4" />
                 <span>Voorbeelden</span>
@@ -646,7 +646,7 @@ function App() {
 
               <button
                 onClick={() => setShowSavedObjectives(true)}
-                className="flex items-center space-x-2 bg-gray-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-gray-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="flex items-center space-x-2 bg-gray-600 text-white h-11 px-4 rounded-lg font-medium hover:bg-gray-700 transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 <FolderOpen className="w-4 h-4" />
                 <span>Opgeslagen</span>
@@ -654,7 +654,7 @@ function App() {
 
               <button
                 onClick={() => setShowKDImport(true)}
-                className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 text-white py-2 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 text-white h-11 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 <Upload className="w-4 h-4" />
                 <span>KD Importeren</span>
@@ -665,9 +665,9 @@ function App() {
       </header>
 
       <Hero />
-      <div id="form-start" className="max-w-7xl mx-auto px-6 py-8">
+      <div id="form-start" className="max-w-screen-xl mx-auto px-4 lg:px-8 py-8 space-y-6">
         {/* Progress Steps */}
-        <div className="mb-8">
+        <div>
           <div className="flex items-center justify-center space-x-8">
             {[
               { step: 1, title: "Invoer", icon: FileText },
@@ -740,7 +740,7 @@ function App() {
                     )}
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid lg:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Onderwijstype *
@@ -780,7 +780,7 @@ function App() {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid lg:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Vakgebied *
@@ -811,7 +811,7 @@ function App() {
                   <button
                     onClick={() => setCurrentStep(2)}
                     disabled={!isFormDataComplete()}
-                    className="w-full bg-gradient-to-r from-green-600 to-orange-500 text-white py-3 px-6 rounded-lg font-medium hover:from-green-700 hover:to-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
+                    className="w-full bg-gradient-to-r from-green-600 to-orange-500 text-white py-3.5 px-6 rounded-lg font-medium hover:from-green-700 hover:to-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
                   >
                     Omzetten naar AI-ready onderwijs
                     <ChevronRight className="w-5 h-5 ml-2" />
