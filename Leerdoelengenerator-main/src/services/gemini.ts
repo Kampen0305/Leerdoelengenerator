@@ -9,6 +9,7 @@ export interface GeminiResponse {
   rationale: string;
   activities: string[];
   assessments: string[];
+  aiLiteracy: string;
 }
 
 export interface LearningObjectiveContext {
@@ -77,49 +78,58 @@ function formatKD(kd?: KDContext): string {
 }
 
 /**
- * System-instructie
+ * System-/contentprompt volgens Npuls-kaders
  */
-const FIXED_SYSTEM_PROMPT =
-  "Formuleer leerdoelen altijd in correct Nederlands, volgens de richtlijnen van constructive alignment en de Bloom-taxonomie. Gebruik de structuur: 'De student kan + [werkwoord uit Bloom] + [concreet gedrag] + [in een context] + [criterium voor succes]'. De leerdoelen moeten observeerbaar, toetsbaar en passend bij het niveau (mbo, hbo of wo) zijn. Houd de leerdoelen kort, concreet en eenduidig.";
-
-const SYSTEM_INSTRUCTION = [
-  FIXED_SYSTEM_PROMPT,
-  "Je bent een onderwijsassistent voor MBO-docenten.",
-  "Je herschrijft of concretiseert leerdoelen zodat ze SMART, uitvoerbaar en toetsbaar zijn.",
-  "Gebruik heldere, korte zinnen. Vermijd jargon.",
-  "Schrijf in het Nederlands."
-].join(" ");
-
+const SYSTEM_PROMPT = [
+  "Je bent een onderwijskundige assistent. Schrijf ALLES in natuurlijk Nederlands.",
+  "Doel: herschrijf het oorspronkelijke leerdoel naar één SMART leerdoel, en lever: rationale, 3–5 leeractiviteiten, 2–4 toetsvormen met label [Baan 1] of [Baan 2].",
+  "Kaders:",
+  "- Constructive alignment; Two-Lane approach (Baan 1=besluitvormend, beperkte AI; Baan 2=ontwikkelingsgericht, AI toegestaan/verplicht).",
+  "- AI-geletterdheid (AI-GO): benoem kort welke kennis/vaardigheden/ethiek aan bod komen.",
+  "- Referentiekader 2.0: wees transparant en ethisch; geen persoonsgegevens; geen hallucinaties.",
+  "Eisen:",
+  "- 1 leerdoel, actief werkwoord + context + meetcriterium + condities + tijd.",
+  "- Geen Engels.",
+  "- Vermijd vage woorden (“optimaliseren”, “begrijpen”) zonder meetbare specificatie."
+].join("\n");
 
 /**
- * Bouwt de prompt op basis van context + KD-gegevens
+ * Bouwt de prompt op basis van context + optionele KD-gegevens
  */
 function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): string {
-  const laneLine =
-    ctx.lane === "baan2"
-      ? "Focus extra op authentic assessment en praktijknabij toetsen."
-      : "Houd het compact en direct toepasbaar in de lespraktijk.";
+  const lines = [
+    SYSTEM_PROMPT,
+    "",
+    "Input:",
+    `- Oorspronkelijk leerdoel: ${ctx.original}`,
+    `- Sector: ${ctx.education} | Niveau: ${ctx.level} | Domein: ${ctx.domain} | Baan: ${ctx.lane}`,
+  ];
 
-  return [
-    `SYSTEEM: ${SYSTEM_INSTRUCTION}`,
+  if (kd) {
+    lines.push("", "KD-context:", formatKD(kd));
+  }
+
+  lines.push(
     "",
-    `Onderwijs: ${ctx.education}, niveau: ${ctx.level}, domein: ${ctx.domain}.`,
-    laneLine,
+    "Output JSON:",
+    "{",
+    ' "newObjective": "...",',
+    ' "rationale": "... (≤80 woorden)",',
+    ' "activities": ["…","…","…"],',
+    ' "assessments": ["[Baan X] …","…"],',
+    ' "aiLiteracy": "Kernpunten (kritisch denken/ethiek/vaardigheden)"',
+    "}",
     "",
-    "Beschikbare terminologie (ter inspiratie, niet verplicht):",
-    `- Autonomie: ${autonomieTerms.join(", ")}`,
-    `- Samenwerken: ${samenwerkTerms.join(", ")}`,
-    `- Reflectie: ${reflectieTerms.join(", ")}`,
+    "Acceptatiecriteria:",
+    "Modeloutput is altijd NL en JSON-parseable.",
+    "Baanlabels correct afhankelijk van keuze.",
+    "Geen PII.",
+    "Bronnen: Two-Lane/constructive alignment/AI-geletterdheid/waarden.",
     "",
-    "KD-context:",
-    formatKD(kd),
-    "",
-    "Origineel leerdoel/opdracht:",
-    ctx.original,
-    "",
-    "Gevraagde output: JSON met de sleutels newObjective, rationale, activities, assessments.",
-    "Vermijd extra tekst buiten de JSON."
-  ].join("\n");
+    "Geef uitsluitend de JSON-respons zonder extra tekst."
+  );
+
+  return lines.join("\n");
 }
 
 /**
@@ -175,7 +185,7 @@ export async function generateAIReadyObjective(
     }
 
     // Probeer te parsen; als het mislukt, toon een zinvolle fout
-    let data: any;
+    let data: unknown;
     try {
       data = JSON.parse(raw);
     } catch {
@@ -189,12 +199,15 @@ export async function generateAIReadyObjective(
       data = JSON.parse(cleaned);
     }
 
+    const obj = data as Record<string, unknown>;
+
     // Type-narrowing + defaults
     const safe: GeminiResponse = {
-      newObjective: String(data.newObjective ?? ""),
-      rationale: String(data.rationale ?? ""),
-      activities: Array.isArray(data.activities) ? data.activities.map(String) : [],
-      assessments: Array.isArray(data.assessments) ? data.assessments.map(String) : []
+      newObjective: typeof obj.newObjective === "string" ? obj.newObjective : "",
+      rationale: typeof obj.rationale === "string" ? obj.rationale : "",
+      activities: Array.isArray(obj.activities) ? obj.activities.map(String) : [],
+      assessments: Array.isArray(obj.assessments) ? obj.assessments.map(String) : [],
+      aiLiteracy: typeof obj.aiLiteracy === "string" ? obj.aiLiteracy : ""
     };
 
     // Minimale validatie
@@ -203,12 +216,14 @@ export async function generateAIReadyObjective(
     }
 
     return safe;
-  } catch (err: any) {
+  } catch (err: unknown) {
     // Duidelijke foutmeldingen voor in je UI/logs
     const msg =
-      err?.message?.includes("Invalid JSON payload received")
+      err instanceof Error && err.message.includes("Invalid JSON payload received")
         ? "Fout in API-aanroep: controleer de meegestuurde velden."
-        : err?.message || String(err);
+        : err instanceof Error
+        ? err.message
+        : String(err);
 
     console.error("[gemini] generateAIReadyObjective error:", err);
     throw new Error(msg);

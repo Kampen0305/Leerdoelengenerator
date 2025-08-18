@@ -25,7 +25,7 @@ const STORAGE_KEY = "ld-app-state-v2";
 function encodeState(obj: unknown) {
   return encodeURIComponent(btoa(JSON.stringify(obj)));
 }
-function decodeState<T = any>(q: string | null): T | null {
+function decodeState<T = unknown>(q: string | null): T | null {
   if (!q) return null;
   try { return JSON.parse(atob(decodeURIComponent(q))) as T; } catch { return null; }
 }
@@ -102,6 +102,7 @@ interface AIReadyOutput {
   rationale: string;
   activities: string[];
   assessments: string[];
+  aiLiteracy: string;
 }
 interface SavedObjective {
   id: string;
@@ -304,33 +305,37 @@ function App() {
                   .replace(/\bAI-?tools?\b/gi, "hulpmiddelen"),
         };
 
+        const tags = inferAIGOTags(adjusted.newObjective, {
+          withAI: lane === "baan2",
+          domain: formData.context.domain,
+        });
+        if (!adjusted.aiLiteracy) {
+          adjusted.aiLiteracy = tags.join(", ");
+        }
+
         setOutput(adjusted);
         setGenerationSource("gemini");
         console.log("[AI-check] Gebruik: Gemini (AI)");
 
-        setAiGoTags(
-          inferAIGOTags(adjusted.newObjective, {
-            withAI: lane === "baan2",
-            domain: formData.context.domain,
-          })
-        );
+        setAiGoTags(tags);
       } else {
         const aiOutput: AIReadyOutput = {
           newObjective: generateAIReadyObjective(formData, lane),
           rationale: generateRationale(formData),
           activities: generateActivities(formData, lane),
           assessments: generateAssessments(formData, lane),
+          aiLiteracy: "",
         };
+        const tags = inferAIGOTags(aiOutput.newObjective, {
+          withAI: lane === "baan2",
+          domain: formData.context.domain,
+        });
+        aiOutput.aiLiteracy = tags.join(", ");
         setOutput(aiOutput);
         setGenerationSource("fallback");
         console.log("[AI-check] Gebruik: fallback (geen Gemini)");
 
-        setAiGoTags(
-          inferAIGOTags(aiOutput.newObjective, {
-            withAI: lane === "baan2",
-            domain: formData.context.domain,
-          })
-        );
+        setAiGoTags(tags);
       }
       setCurrentStep(3);
     } catch (err) {
@@ -340,16 +345,17 @@ function App() {
         rationale: generateRationale(formData),
         activities: generateActivities(formData, lane),
         assessments: generateAssessments(formData, lane),
+        aiLiteracy: "",
       };
+      const tags = inferAIGOTags(fallback.newObjective, {
+        withAI: lane === "baan2",
+        domain: formData.context.domain,
+      });
+      fallback.aiLiteracy = tags.join(", ");
       setOutput(fallback);
       setGenerationSource("fallback");
 
-      setAiGoTags(
-        inferAIGOTags(fallback.newObjective, {
-          withAI: lane === "baan2",
-          domain: formData.context.domain,
-        })
-      );
+      setAiGoTags(tags);
       setCurrentStep(3);
     } finally {
       setIsProcessing(false);
@@ -459,15 +465,20 @@ function App() {
       rationale: generateRationale({ original: objective.originalObjective, context: objective.context }),
       activities: generateActivities({ original: objective.originalObjective, context: objective.context }, lane),
       assessments: generateAssessments({ original: objective.originalObjective, context: objective.context }, lane),
+      aiLiteracy: "",
     };
+    const tags = inferAIGOTags(o.newObjective, { withAI: lane === "baan2", domain: objective.context.domain });
+    o.aiLiteracy = tags.join(", ");
     setOutput(o);
     setGenerationSource(null); // onbekend voor oudere items
-    setAiGoTags(inferAIGOTags(o.newObjective, { withAI: lane === "baan2", domain: objective.context.domain }));
+    setAiGoTags(tags);
     setCurrentStep(3);
     setShowSavedObjectives(false);
   };
 
-  const useTemplate = (template: any) => {
+  const useTemplate = (
+    template: { originalObjective: string; education: string; level: string; domain: string }
+  ) => {
     setFormData({
       original: template.originalObjective,
       context: { education: template.education, level: template.level, domain: template.domain, assessment: "" },
@@ -485,6 +496,7 @@ function App() {
       rationale: output.rationale,
       suggestedActivities: output.activities,
       suggestedAssessments: output.assessments,
+      aiLiteracy: output.aiLiteracy,
       aiGoTags,
       aiStatement,
       generationSource,
