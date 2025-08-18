@@ -25,13 +25,6 @@ function decodeState<T = any>(q: string | null): T | null {
   if (!q) return null;
   try { return JSON.parse(atob(decodeURIComponent(q))) as T; } catch { return null; }
 }
-function downloadJson(filename: string, data: unknown) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-}
 
 /* ------------------------- Types uit jouw app ---------------------- */
 interface LearningObjective {
@@ -80,7 +73,7 @@ function App() {
   const [showQualityChecker, setShowQualityChecker] = useState(false);
   const [showEducationGuidance, setShowEducationGuidance] = useState(false);
 
-  /* ---------- NIEUW: hydrate bij laden (eerst URL, anders localStorage) ---------- */
+  /* ---------- Hydrate bij laden (eerst URL, anders localStorage) ---------- */
   useEffect(() => {
     const fromUrl = decodeState<{
       currentStep: number;
@@ -110,7 +103,7 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ---------- NIEUW: autosave naar localStorage ---------- */
+  /* ---------------- Autosave naar localStorage ---------------- */
   useEffect(() => {
     const state = { currentStep, formData, output, importedKD };
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
@@ -264,7 +257,7 @@ function App() {
     return baseActivities;
   };
 
-  const generateAssessments = (data: LearningObjective): string[] => {
+  const generateAssessments = (_data: LearningObjective): string[] => {
     const assessments = [
       'Echte opdracht waarin de student het hele werkproces laat zien inclusief eerlijk AI-gebruik',
       'Portfolio met kritische reflectie over AI-gebruik en eerlijkheid voor iedereen',
@@ -364,30 +357,13 @@ function App() {
     setShowEducationGuidance(false);
   };
 
-  /* ---------- NIEUW: deelbare link + state import/export + print ---------- */
+  /* ---------- Deelbare link + Print ---------- */
   const shareLink = () => {
     const payload = encodeState({ currentStep, formData, output, importedKD });
     const url = new URL(window.location.href);
     url.searchParams.set('data', payload);
     navigator.clipboard.writeText(url.toString());
     alert('Deelbare link gekopieerd!');
-  };
-  const downloadState = () => downloadJson('leerdoelen-state.json', { currentStep, formData, output, importedKD });
-  const onUploadState: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      const obj = JSON.parse(await file.text());
-      if (obj.formData) setFormData(obj.formData);
-      if (obj.output) setOutput(obj.output);
-      if (typeof obj.currentStep === 'number') setCurrentStep(obj.currentStep);
-      if (obj.importedKD) setImportedKD(obj.importedKD);
-      alert('JSON geladen.');
-    } catch {
-      alert('Kon JSON niet lezen.');
-    } finally {
-      e.currentTarget.value = '';
-    }
   };
   const printPdf = () => window.print();
 
@@ -436,45 +412,30 @@ function App() {
                 </div>
               )}
 
-             <div className="flex flex-wrap gap-2">
-  <button className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg shadow">
-    📘 Handreikingen
-  </button>
+              <button
+                onClick={() => setShowTemplateLibrary(true)}
+                className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
+              >
+                <Library className="w-4 h-4" />
+                <span>Voorbeelden</span>
+              </button>
 
-  <button className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-4 py-2 rounded-lg shadow">
-    📊 Kwaliteit
-  </button>
+              <button
+                onClick={() => setShowSavedObjectives(true)}
+                className="flex items-center space-x-2 bg-gray-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-gray-700 transition-all duration-200 shadow-md hover:shadow-lg"
+              >
+                <FolderOpen className="w-4 h-4" />
+                <span>Opgeslagen</span>
+              </button>
 
-  <button className="bg-purple-600 hover:bg-purple-700 text-white font-medium px-4 py-2 rounded-lg shadow">
-    💾 Opslaan
-  </button>
-
-  <button
-    onClick={() => window.print()}
-    className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-4 py-2 rounded-lg shadow"
-  >
-    🖨️ Print / PDF
-  </button>
-
-  <button
-    onClick={() => {
-      const url = new URL(window.location.href);
-      navigator.clipboard.writeText(url.toString());
-      alert("Link gekopieerd naar klembord!");
-    }}
-    className="bg-teal-500 hover:bg-teal-600 text-white font-medium px-4 py-2 rounded-lg shadow"
-  >
-    🔗 Deelbare link
-  </button>
-
-  <button className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg shadow">
-    ⬇️ Downloaden
-  </button>
-
-  <button className="bg-gray-700 hover:bg-gray-800 text-white font-medium px-4 py-2 rounded-lg shadow">
-    ➕ Nieuw Leerdoel
-  </button>
-</div>
+              <button
+                onClick={() => setShowKDImport(true)}
+                className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 text-white py-2 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg"
+              >
+                <Upload className="w-4 h-4" />
+                <span>KD Importeren</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -711,6 +672,8 @@ function App() {
                 AI-Ready Leeruitkomst (Nederlandse Visie)
                 {geminiService.isAvailable() && <span className="text-sm font-normal text-green-600 ml-2">• AI-Enhanced</span>}
               </h2>
+
+              {/* Actieknoppen */}
               <div className="flex flex-wrap gap-3 items-center">
                 <button
                   onClick={() => setShowEducationGuidance(!showEducationGuidance)}
@@ -736,10 +699,10 @@ function App() {
                   <span>Opslaan</span>
                 </button>
 
-                {/* NIEUW: Print / Deel / State export/import */}
+                {/* NIEUW: Print / Deelbaar — zelfde layout als andere knoppen */}
                 <button
                   onClick={printPdf}
-                  className="flex items-center space-x-2 bg-gray-100 text-gray-800 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200"
+                  className="flex items-center space-x-2 bg-gradient-to-r from-slate-600 to-slate-700 text-white py-2 px-4 rounded-lg font-medium hover:from-slate-700 hover:to-slate-800 transition-all duration-200 shadow-md hover:shadow-lg"
                   title="Print of sla als PDF op"
                 >
                   <Printer className="w-4 h-4" />
@@ -748,27 +711,14 @@ function App() {
 
                 <button
                   onClick={shareLink}
-                  className="flex items-center space-x-2 bg-gray-100 text-gray-800 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200"
+                  className="flex items-center space-x-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white py-2 px-4 rounded-lg font-medium hover:from-teal-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg"
                   title="Kopieer een link met de huidige invoer en resultaat"
                 >
                   <Link2 className="w-4 h-4" />
                   <span>Deelbare link</span>
                 </button>
 
-                <label className="flex items-center space-x-2 bg-gray-100 text-gray-800 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200 cursor-pointer">
-                  <Upload className="w-4 h-4" />
-                  <span>Upload JSON</span>
-                  <input type="file" accept="application/json" className="hidden" onChange={onUploadState} />
-                </label>
-
-                <button
-                  onClick={downloadState}
-                  className="flex items-center space-x-2 bg-gray-100 text-gray-800 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Download JSON</span>
-                </button>
-
+                {/* Bestaande export-menu (PDF/Word/JSON) blijft */}
                 <div className="relative">
                   <button
                     onClick={() => setShowExportMenu(!showExportMenu)}
