@@ -34,8 +34,6 @@ const DEBUG = false;
 export class GeminiService {
   private genAI: GoogleGenerativeAI | null = null;
   private model: ReturnType<GoogleGenerativeAI['getGenerativeModel']> | null = null;
-
-  // optionele health flag
   private _healthy: boolean | null = null;
 
   constructor() {
@@ -102,10 +100,8 @@ export class GeminiService {
       const result = await Promise.race([run, withTimeout]) as Awaited<typeof run>;
       const response = await result.response;
       const raw = response.text();
-
       const parsed = JSON.parse(raw);
       this.validateShape(parsed);
-
       return {
         newObjective: parsed.newObjective,
         rationale: parsed.rationale,
@@ -128,12 +124,12 @@ export class GeminiService {
     }
   }
 
-  // >>>>>>>>>>>>>>>>>>>> HIER STAAT buildPrompt BINNEN DE CLASS <<<<<<<<<<<<<<<<<<<<
+  // ---------- buildPrompt STAAT HIER BINNEN DE CLASS ----------
   private buildPrompt(context: LearningObjectiveContext, kdContext?: KDContext): string {
-    const levelGuidance   = this.getLevelSpecificGuidance(context.education, context.level);
-    const domainGuidance  = this.getDomainSpecificGuidance(context.domain);
-    const nationalVision  = this.getNationalVisionGuidance();
-    const languageGuidance= this.getLanguageAndComplexityGuidance(context.education, context.level);
+    const levelGuidance    = this.getLevelSpecificGuidance(context.education, context.level);
+    const domainGuidance   = this.getDomainSpecificGuidance(context.domain);
+    const nationalVision   = this.getNationalVisionGuidance();
+    const languageGuidance = this.getLanguageAndComplexityGuidance(context.education, context.level);
 
     let kdText = '';
     if (kdContext?.title) {
@@ -207,7 +203,7 @@ BELANGRIJK:
 - Geen onnodig ingewikkelde taal, tenzij niveau HBO/WO dit vereist.`;
   }
 
-  // --- Richtlijnhelpers (compact gehouden; jouw langere teksten kunnen hier) ---
+  // ---- helpers (compact; mag je eigen uitgebreide teksten inzetten) ----
   private getLanguageAndComplexityGuidance(education: string, level: string): string {
     return `Gebruik taal passend bij ${education} ${level}; korte, duidelijke zinnen en leg vaktermen uit.`;
   }
