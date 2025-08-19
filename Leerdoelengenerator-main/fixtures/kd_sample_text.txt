@@ -1,0 +1,10 @@
+KD Softwaredeveloper 2024
+
+Kerntaak 1 Ontwikkelt software
+Werkproces 1.1 Ontwerpt en plant werkzaamheden
+Resultaat:
+- Het ontwerp sluit aan op de klantvraag.
+Kwaliteitscriteria:
+- Hanteert versiebeheer en code-conventies.
+Gedragsindicatoren:
+- Werkt nauwkeurig en proactief.
