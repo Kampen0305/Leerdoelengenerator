@@ -1,23 +1,25 @@
 import { z } from 'zod';
+import { EDUCATION_TYPES, LEVEL_OPTIONS, VO_LEVELS } from '../constants/education';
 
 export const objectiveSchema = z
   .object({
     original: z.string().min(1, 'Vul het leerdoel in.'),
-    education: z.enum(['MBO', 'HBO', 'WO', 'VO'], {
-      errorMap: () => ({ message: 'Kies MBO, HBO, WO of VO.' })
+    education: z.enum(EDUCATION_TYPES, {
+      errorMap: () => ({ message: 'Kies MBO, HBO, WO, VO of VSO.' })
     }),
     level: z.string().optional(),
     domain: z.string().min(1, 'Vul het domein in.'),
     assessment: z.string().min(1, 'Vul de toetsing in.'),
-    voLevel: z.enum(['vmbo-bb', 'vmbo-kb', 'vmbo-gl-tl', 'havo', 'vwo']).optional(),
+    voLevel: z.enum(VO_LEVELS).optional(),
     voGrade: z.number().int().optional()
   })
   .superRefine((data, ctx) => {
-    if (data.education === 'MBO' || data.education === 'HBO' || data.education === 'WO') {
-      if (!data.level) {
+    if (data.education !== 'VO') {
+      const allowed = LEVEL_OPTIONS[data.education as keyof typeof LEVEL_OPTIONS];
+      if (!data.level || !allowed || !allowed.includes(data.level)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Vul het niveau in.',
+          message: 'Kies een geldig niveau.',
           path: ['level']
         });
       }

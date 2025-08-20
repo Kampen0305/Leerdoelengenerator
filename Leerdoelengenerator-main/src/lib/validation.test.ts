@@ -6,7 +6,7 @@ describe('objectiveSchema', () => {
     const result = objectiveSchema.safeParse({
       original: 'Doel',
       education: 'MBO',
-      level: '3',
+      level: 'Niveau 3',
       domain: 'ICT',
       assessment: 'Exam'
     });
@@ -24,10 +24,10 @@ describe('objectiveSchema', () => {
     expect(result.success).toBe(false);
     const errors = result.error.flatten().fieldErrors;
     expect(errors.original?.[0]).toBe('Vul het leerdoel in.');
-     expect(errors.education?.[0]).toBe('Kies MBO, HBO, WO of VO.');
+    expect(errors.education?.[0]).toBe('Kies MBO, HBO, WO, VO of VSO.');
     expect(errors.domain?.[0]).toBe('Vul het domein in.');
     expect(errors.assessment?.[0]).toBe('Vul de toetsing in.');
-    expect(errors.level).toBeUndefined();
+    expect(errors.level?.[0]).toBe('Kies een geldig niveau.');
   });
 
   it('valideert onderwijssector', () => {
@@ -39,7 +39,7 @@ describe('objectiveSchema', () => {
       assessment: 'Exam'
     });
     expect(result.success).toBe(false);
-    expect(result.error.flatten().fieldErrors.education?.[0]).toBe('Kies MBO, HBO, WO of VO.');
+    expect(result.error.flatten().fieldErrors.education?.[0]).toBe('Kies MBO, HBO, WO, VO of VSO.');
   });
 
   it('vereist niveau voor mbo', () => {
@@ -51,28 +51,41 @@ describe('objectiveSchema', () => {
       assessment: 'Exam'
     });
     expect(result.success).toBe(false);
-    expect(result.error.flatten().fieldErrors.level?.[0]).toBe('Vul het niveau in.');
+    expect(result.error.flatten().fieldErrors.level?.[0]).toBe('Kies een geldig niveau.');
   });
 
-  it('accepteert hbo zonder niveau', () => {
+  it('valideert VSO-niveau', () => {
+    const result = objectiveSchema.safeParse({
+      original: 'Doel',
+      education: 'VSO',
+      level: 'Arbeidsmarktgerichte route',
+      domain: 'Zorg',
+      assessment: 'Toets'
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('valideert HBO Master', () => {
     const result = objectiveSchema.safeParse({
       original: 'Doel',
       education: 'HBO',
+      level: 'Master',
       domain: 'ICT',
       assessment: 'Exam'
     });
     expect(result.success).toBe(true);
   });
 
-  it('negeert niveau bij wo', () => {
+  it('wijst ongeldig VSO niveau af', () => {
     const result = objectiveSchema.safeParse({
       original: 'Doel',
-      education: 'WO',
-      level: '9',
-      domain: 'ICT',
-      assessment: 'Exam'
+      education: 'VSO',
+      level: 'Bachelor',
+      domain: 'Zorg',
+      assessment: 'Toets'
     });
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
+    expect(result.error.flatten().fieldErrors.level?.[0]).toBe('Kies een geldig niveau.');
   });
 
   it('valideert VO met leerjaar', () => {
