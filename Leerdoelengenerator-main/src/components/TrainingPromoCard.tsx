@@ -15,7 +15,7 @@ export default function TrainingPromoCard({ className = "" }: Props) {
     >
       <div className="mx-auto max-w-5xl flex flex-col md:flex-row md:items-start gap-6">
         <div className="flex-1">
-          <span className="inline-block rounded-full bg-indigo-600/10 text-indigo-700 dark:text-indigo-300 px-3 py-1 text-xs font-medium">
+          <span className="inline-block rounded-full bg-[#2D864E]/10 text-[#2D864E] px-3 py-1 text-xs font-medium">
             Workshops & Trainingen
           </span>
           <h2 id="trainingen-workshops-heading" className="mt-3 text-2xl md:text-3xl font-semibold">
@@ -37,7 +37,7 @@ export default function TrainingPromoCard({ className = "" }: Props) {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Neem contact op via DigitEd"
-              className="inline-flex items-center justify-center rounded-xl px-5 py-3 bg-indigo-600 text-white font-medium shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="inline-flex items-center justify-center rounded-xl px-5 py-3 bg-[#EF8D00] text-white font-medium shadow-sm hover:bg-[#d97800] focus:outline-none focus:ring-2 focus:ring-[#EF8D00]"
             >
               Neem contact op
             </a>
@@ -46,7 +46,7 @@ export default function TrainingPromoCard({ className = "" }: Props) {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Plan een vrijblijvende kennismaking"
-              className="inline-flex items-center justify-center rounded-xl px-5 py-3 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/80 focus:outline-none focus:ring-2 focus:ring-zinc-400"
+              className="inline-flex items-center justify-center rounded-xl px-5 py-3 bg-white dark:bg-zinc-800 text-[#2D864E] border border-[#2D864E] hover:bg-[#2D864E]/10 dark:hover:bg-[#2D864E]/20 focus:outline-none focus:ring-2 focus:ring-[#2D864E]"
             >
               Plan kennismaking
             </a>
