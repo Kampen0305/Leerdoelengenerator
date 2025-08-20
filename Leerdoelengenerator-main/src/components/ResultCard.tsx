@@ -1,5 +1,6 @@
 import React from 'react';
 import type { PostProcessedResponse } from '../lib/format';
+import { formatBloom } from '../utils/bloom';
 
 interface ResultCardProps {
   result?: PostProcessedResponse;
@@ -24,6 +25,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, error, onSave })
   const autoFixed = result.warnings.includes('Automatisch hersteld');
   const remainingWarnings = result.warnings.filter(w => w !== 'Automatisch hersteld');
   const isIncomplete = !result.newObjective || !result.rationale;
+  const bloom = formatBloom(result.bloom);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
@@ -35,6 +37,11 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, error, onSave })
 
       <h3 className="font-semibold text-gray-900 mb-2">AI-ready leerdoel</h3>
       <p className="text-gray-700 mb-4">{result.newObjective}</p>
+      {bloom && (
+        <p className="text-gray-700 mb-4">
+          <strong>{bloom.label}</strong> — {bloom.description}
+        </p>
+      )}
 
       <h4 className="font-medium text-gray-900 mb-1">Rationale</h4>
       <p className="text-gray-700 mb-4">{result.rationale}</p>

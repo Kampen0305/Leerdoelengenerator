@@ -11,6 +11,7 @@ export interface GeminiResponse {
   activities: string[];
   assessments: string[];
   aiLiteracy: string;
+  bloom?: string;
 }
 
 export interface KDContext {
@@ -111,6 +112,7 @@ export function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): stri
     ' "rationale": "... (≤80 woorden)",',
     ' "activities": ["…","…","…"],',
     ' "assessments": ["[Baan X] …","…"],',
+    ' "bloom": "apply",',
     ' "aiLiteracy": "Kernpunten (kritisch denken/ethiek/vaardigheden)"',
     "}"
   ].filter(Boolean).join("\n");
@@ -189,7 +191,8 @@ export async function generateAIReadyObjective(
       rationale: String(data.rationale ?? ""),
       activities: Array.isArray(data.activities) ? data.activities.map(String) : [],
       assessments: Array.isArray(data.assessments) ? data.assessments.map(String) : [],
-      aiLiteracy: String(data.aiLiteracy ?? "")
+      aiLiteracy: String(data.aiLiteracy ?? ""),
+      bloom: data.bloom ? String(data.bloom) : undefined
     };
 
     // Minimale validatie
