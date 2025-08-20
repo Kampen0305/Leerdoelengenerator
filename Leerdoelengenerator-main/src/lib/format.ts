@@ -11,6 +11,7 @@ export interface PostProcessedResponse {
   activities: string[];
   assessments: string[];
   aiLiteracy: string;
+  bloom?: string;
   aiLiteracyFocus: string[];
   smart: SMARTCheck;
   warnings: string[];
@@ -22,7 +23,14 @@ export interface PostProcessedResponse {
  * (kritisch denken, ethiek). Inspired by Npuls Two-Lane approach and AI-GO checklists.
  */
 export function enforceDutchAndSMART(
-  res: { newObjective: string; rationale: string; activities: string[]; assessments: string[]; aiLiteracy?: string },
+  res: {
+    newObjective: string;
+    rationale: string;
+    activities: string[];
+    assessments: string[];
+    aiLiteracy?: string;
+    bloom?: string;
+  },
   lane: "baan1" | "baan2" = "baan1"
 ): PostProcessedResponse {
   const warnings: string[] = [];
@@ -41,6 +49,7 @@ export function enforceDutchAndSMART(
   let activities = res.activities.map(a => replaceEnglish(a.trim())).filter(Boolean);
   let assessments = res.assessments.map(a => replaceEnglish(a.trim())).filter(Boolean);
   const aiLiteracy = replaceEnglish(res.aiLiteracy?.trim() || "");
+  const bloom = res.bloom?.trim();
 
   const englishPattern = /\b(the|and|with|without|to|for|on)\b/i;
   if (englishPattern.test([newObjective, rationale, activities.join(" "), assessments.join(" "), aiLiteracy].join(" "))) {
@@ -104,6 +113,7 @@ export function enforceDutchAndSMART(
     activities,
     assessments,
     aiLiteracy,
+    bloom,
     aiLiteracyFocus,
     smart: { badge: smartBadge, issues },
     warnings,
