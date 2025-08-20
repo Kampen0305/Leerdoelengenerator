@@ -1,17 +1,13 @@
-import Image from "next/image";
-import Link from "next/link";
-
 export default function DigitEdPromo() {
   return (
     <aside className="mx-auto my-8 w-full max-w-5xl rounded-2xl border border-zinc-200/60 bg-white/80 p-5 shadow-sm backdrop-blur dark:border-zinc-800/60 dark:bg-zinc-900/60">
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
         <div className="shrink-0">
-          <Image
+          <img
             src="/brand/digited-logo.png"
             alt="DigitEd"
             width={200}
             height={86}
-            priority
             className="h-auto w-[180px] sm:w-[200px]"
           />
         </div>
@@ -29,22 +25,22 @@ export default function DigitEdPromo() {
             <li>Coaching &amp; advies: verantwoord AI-gebruik</li>
           </ul>
           <div className="mt-4 flex flex-wrap gap-3">
-            <Link
+            <a
               href="https://digited.nl/contact/"
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-xl bg-green-700 px-4 py-2 text-sm font-medium text-white hover:opacity-90"
             >
               Neem contact op
-            </Link>
-            <Link
+            </a>
+            <a
               href="https://www.linkedin.com/in/edwinspielhagen"
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-xl border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
             >
               Stuur LinkedIn-bericht
-            </Link>
+            </a>
           </div>
         </div>
       </div>
