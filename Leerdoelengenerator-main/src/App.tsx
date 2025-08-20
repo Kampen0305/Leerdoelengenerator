@@ -29,6 +29,7 @@ import { getVoGradeOptions } from "./utils/vo";
 import { LevelBadge } from "./components/LevelBadge";
 import { NiveauCheck } from "./components/NiveauCheck";
 import { LevelKey } from "./domain/levelProfiles";
+import TrainingPromoCard from "./components/TrainingPromoCard";
 
 /* --------------------- Helpers: opslag + delen --------------------- */
 const STORAGE_KEY = "ld-app-state-v2";
@@ -1409,6 +1410,10 @@ function App() {
             </div>
           </div>
         )}
+      </div>
+
+      <div className="mx-auto max-w-5xl px-4 my-10">
+        <TrainingPromoCard />
       </div>
 
       <footer className="mt-12 text-center text-sm text-gray-600">
