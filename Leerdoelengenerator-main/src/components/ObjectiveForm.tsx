@@ -14,6 +14,7 @@ type ObjectiveFormState = {
   assessment: string;
   voLevel: ObjectiveInput['voLevel'] | '';
   voGrade: string;
+  vsoCluster: string;
 };
 
 type ObjectiveErrors = Partial<Record<keyof ObjectiveInput, string>>;
@@ -25,7 +26,8 @@ const emptyForm: ObjectiveFormState = {
   domain: '',
   assessment: '',
   voLevel: '',
-  voGrade: ''
+  voGrade: '',
+  vsoCluster: ''
 };
 
 export function ObjectiveForm({ onSubmit }: ObjectiveFormProps) {
@@ -36,13 +38,10 @@ const handleChange = (field: keyof ObjectiveFormState, value: string) => {
     setFormData(prev => {
       const next = { ...prev, [field]: value };
       if (field === 'education') {
-        if (value === 'VO') {
-          next.level = '';
-        } else {
-          next.voLevel = '';
-          next.voGrade = '';
-          if (value !== 'MBO') next.level = '';
-        }
+        next.level = '';
+        next.voLevel = '';
+        next.voGrade = '';
+        next.vsoCluster = '';
       }
       if (field === 'voLevel') {
         next.voGrade = '';
@@ -60,7 +59,8 @@ const handleChange = (field: keyof ObjectiveFormState, value: string) => {
       domain: formData.domain,
       assessment: formData.assessment,
       voLevel: formData.education === 'VO' ? (formData.voLevel || undefined) : undefined,
-      voGrade: formData.education === 'VO' ? Number(formData.voGrade) : undefined
+      voGrade: formData.education === 'VO' ? Number(formData.voGrade) : undefined,
+      vsoCluster: formData.education === 'VSO' ? (formData.vsoCluster || undefined) : undefined
     };
     const result = objectiveSchema.safeParse(dataToValidate);
     if (result.success) {
@@ -75,7 +75,8 @@ const handleChange = (field: keyof ObjectiveFormState, value: string) => {
         domain: fieldErrors.domain?.[0],
         assessment: fieldErrors.assessment?.[0],
         voLevel: fieldErrors.voLevel?.[0],
-        voGrade: fieldErrors.voGrade?.[0]
+        voGrade: fieldErrors.voGrade?.[0],
+        vsoCluster: fieldErrors.vsoCluster?.[0]
       });
     }
   };
@@ -111,6 +112,7 @@ const handleChange = (field: keyof ObjectiveFormState, value: string) => {
           <option value="HBO">HBO</option>
           <option value="WO">WO</option>
           <option value="VO">VO</option>
+          <option value="VSO">VSO</option>
         </select>
         <small id="education-help" className="text-gray-500">Kies de onderwijssector.</small>
         {errors.education && <p className="text-red-600 text-sm">{errors.education}</p>}
@@ -134,6 +136,42 @@ const handleChange = (field: keyof ObjectiveFormState, value: string) => {
           <small id="level-help" className="text-gray-500">Bij mbo alleen niveau 2, 3 of 4.</small>
           {errors.level && <p className="text-red-600 text-sm">{errors.level}</p>}
         </div>
+      )}
+
+      {formData.education === 'VSO' && (
+        <>
+          <div>
+            <label htmlFor="level" className="block text-sm font-medium text-gray-700">Niveau (leerroute)</label>
+            <select
+              id="level"
+              value={formData.level}
+              onChange={e => handleChange('level', e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+            >
+              <option value="">Kies niveau</option>
+              <option value="Arbeidsmarktgerichte route">Arbeidsmarktgerichte route</option>
+              <option value="Vervolgonderwijsroute">Vervolgonderwijsroute</option>
+              <option value="Dagbestedingsroute">Dagbestedingsroute</option>
+            </select>
+            {errors.level && <p className="text-red-600 text-sm">{errors.level}</p>}
+          </div>
+          <div>
+            <label htmlFor="vsoCluster" className="block text-sm font-medium text-gray-700">VSO-cluster</label>
+            <select
+              id="vsoCluster"
+              value={formData.vsoCluster}
+              onChange={e => handleChange('vsoCluster', e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg"
+            >
+              <option value="">Kies cluster</option>
+              <option value="Cluster 1: blinde en slechtziende kinderen">Cluster 1: blinde en slechtziende kinderen</option>
+              <option value="Cluster 2: dove en slechthorende kinderen en kinderen met een taal/spraakprobleem">Cluster 2: dove en slechthorende kinderen en kinderen met een taal/spraakprobleem</option>
+              <option value="Cluster 3: motorisch gehandicapte, verstandelijk gehandicapte en langdurig zieke kinderen">Cluster 3: motorisch gehandicapte, verstandelijk gehandicapte en langdurig zieke kinderen</option>
+              <option value="Cluster 4: kinderen met psychische stoornissen en gedragsproblemen">Cluster 4: kinderen met psychische stoornissen en gedragsproblemen</option>
+            </select>
+            {errors.vsoCluster && <p className="text-red-600 text-sm">{errors.vsoCluster}</p>}
+          </div>
+        </>
       )}
 
       {formData.education === 'VO' && (

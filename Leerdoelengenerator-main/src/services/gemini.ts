@@ -53,23 +53,45 @@ function formatKD(kd?: KDContext): string {
   ].join("\n");
 }
 
-function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): string {
+export function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): string {
   const laneLabel = ctx.lane === "baan2" ? "Baan 2" : "Baan 1";
   const kdBlock = kd ? formatKD(kd) : "";
   const isVO = ctx.education === "VO";
+  const needsLearner = ctx.education === "VO" || ctx.education === "VSO";
   const contextLine = isVO
     ? `- Onderwijs: ${ctx.education} | VO-niveau: ${ctx.voLevel} | Leerjaar: ${ctx.voGrade} | Domein: ${ctx.domain} | Baan: ${laneLabel}`
+    : ctx.education === "VSO"
+    ? `- Sector: ${ctx.education} | Niveau: ${ctx.level} | Cluster: ${ctx.vsoCluster} | Domein: ${ctx.domain} | Baan: ${laneLabel}`
     : `- Sector: ${ctx.education} | Niveau: ${ctx.level} | Domein: ${ctx.domain} | Baan: ${laneLabel}`;
-  const voLines = isVO
+  const learnerLines = needsLearner
     ? [
         "Formuleer leerdoelen activerend en observeerbaar in correct Nederlands.",
         "Gebruik het woord 'leerling' in plaats van 'student'.",
         "Koppel waar passend aan toetbare criteria (formatief/summatief).",
       ]
     : [];
+  const sectorLines =
+    ctx.education === "VSO"
+      ? [
+          "Je schrijft leerdoelen voor het Voortgezet Speciaal Onderwijs (VSO).",
+          "Houd rekening met handelingsgericht en passend onderwijs.",
+          'Differentiatie per leerroute: ' + ctx.level + '.',
+          'Cluster: ' + ctx.vsoCluster + '.',
+          "Gebruik concrete, observeerbare gedragsindicatoren en realistische contexten.",
+        ]
+      : ctx.education === "HBO" && ctx.level === "Master"
+      ? [
+          "Je schrijft leeruitkomsten op HBO-masterniveau:",
+          "- Kennisontwikkeling en onderzoekend vermogen",
+          "- Kritische reflectie, innovatie en complex probleemoplossen",
+          "- Professionele standaard, ethiek en evidence-informed handelen",
+          "- Hoge mate van zelfstandigheid en leiderschap",
+        ]
+      : [];
   return [
     "Je bent een onderwijskundige assistent. Schrijf ALLES in natuurlijk Nederlands.",
-    ...voLines,
+    ...learnerLines,
+    ...sectorLines,
     "Doel: herschrijf het oorspronkelijke leerdoel naar één SMART leerdoel, en lever: rationale, 3–5 leeractiviteiten, 2–4 toetsvormen met label [Baan 1] of [Baan 2].",
     "Kaders:",
     "- Constructive alignment; Two-Lane approach (Baan 1=besluitvormend, beperkte AI; Baan 2=ontwikkelingsgericht, AI toegestaan/verplicht).",

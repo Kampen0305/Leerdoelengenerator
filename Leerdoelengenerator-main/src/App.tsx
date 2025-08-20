@@ -22,7 +22,9 @@ import { KDParser } from "./utils/kdParser";
 import { ExportUtils } from "./utils/exportUtils";
 import { geminiService } from "./services/gemini";
 import FeedbackBar from "./components/FeedbackBar";
-import type { Education, VoLevel } from "./types/context";
+import type { Education, VoLevel, VSOCluster } from "./types/context";
+import { EDUCATION_TYPES, LEVEL_OPTIONS, VO_LEVELS, VSO_CLUSTERS } from "./constants/education";
+import InfoBox from "./components/InfoBox";
 import { getVoGradeOptions } from "./utils/vo";
 
 /* --------------------- Helpers: opslag + delen --------------------- */
@@ -103,6 +105,7 @@ interface LearningObjective {
     assessment: string;
     voLevel?: VoLevel;
     voGrade?: number;
+    vsoCluster?: VSOCluster;
   };
 }
 interface AIReadyOutput {
@@ -123,6 +126,7 @@ interface SavedObjective {
     assessment: string;
     voLevel?: VoLevel;
     voGrade?: number;
+    vsoCluster?: VSOCluster;
   };
   createdAt: string;
   tags: string[];
@@ -133,7 +137,7 @@ function App() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<LearningObjective>({
     original: "",
-    context: { education: "", level: "", domain: "", assessment: "", voLevel: undefined, voGrade: undefined },
+    context: { education: "", level: "", domain: "", assessment: "", voLevel: undefined, voGrade: undefined, vsoCluster: undefined },
   });
   const [lane, setLane] = useState<"" | Lane>(""); // Two-Lane keuze
   const [output, setOutput] = useState<AIReadyOutput | null>(null);
@@ -215,13 +219,10 @@ function App() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
   }, [currentStep, formData, lane, output, aiStatement, importedKD, generationSource]);
 
-  const educationTypes: Education[] = ["MBO", "HBO", "WO", "VO"];
-  const voLevels: VoLevel[] = ["vmbo-bb", "vmbo-kb", "vmbo-gl-tl", "havo", "vwo"];
-  const levels = {
-    MBO: ["Niveau 1", "Niveau 2", "Niveau 3", "Niveau 4"],
-    HBO: ["Bachelor", "Associate Degree"],
-    WO: ["Bachelor", "Master"],
-  };
+  const educationTypes: Education[] = [...EDUCATION_TYPES];
+  const voLevels: VoLevel[] = [...VO_LEVELS];
+  const levels = LEVEL_OPTIONS;
+  const vsoClusters: VSOCluster[] = [...VSO_CLUSTERS];
 
   const examples = [
     {
@@ -245,7 +246,9 @@ function App() {
     formData.context.domain.trim() !== "" &&
     (formData.context.education === "VO"
       ? Boolean(formData.context.voLevel && formData.context.voGrade)
-      : formData.context.level.trim() !== "");
+      : formData.context.education === "VSO"
+        ? formData.context.level.trim() !== "" && Boolean(formData.context.vsoCluster)
+        : formData.context.level.trim() !== "");
 
   /* -------------------- Step-switch → automatisch genereren -------------------- */
   useEffect(() => {
@@ -324,15 +327,15 @@ function App() {
                   .replace(/\bAI-?tools?\b/gi, "hulpmiddelen"),
         };
 
-        if (formData.context.education === "VO") {
-          const repl = (txt: string) =>
-            txt.replace(/studenten?/gi, (m) => (m.toLowerCase().endsWith("en") ? "leerlingen" : "leerling"));
-          adjusted.newObjective = repl(adjusted.newObjective);
-          adjusted.rationale = repl(adjusted.rationale);
-          adjusted.activities = adjusted.activities.map(repl);
-          adjusted.assessments = adjusted.assessments.map(repl);
-          adjusted.aiLiteracy = repl(adjusted.aiLiteracy);
-        }
+    if (formData.context.education === "VO" || formData.context.education === "VSO") {
+      const repl = (txt: string) =>
+        txt.replace(/studenten?/gi, (m) => (m.toLowerCase().endsWith("en") ? "leerlingen" : "leerling"));
+      adjusted.newObjective = repl(adjusted.newObjective);
+      adjusted.rationale = repl(adjusted.rationale);
+      adjusted.activities = adjusted.activities.map(repl);
+      adjusted.assessments = adjusted.assessments.map(repl);
+      adjusted.aiLiteracy = repl(adjusted.aiLiteracy);
+    }
 
         setOutput(adjusted);
         setGenerationSource("gemini");
@@ -397,7 +400,10 @@ function App() {
   };
 
   const generateAIReadyObjective = (data: LearningObjective, whichLane: Lane): string => {
-    const subject = data.context.education === "VO" ? "leerling" : "student";
+    const subject =
+      data.context.education === "VO" || data.context.education === "VSO"
+        ? "leerling"
+        : "student";
     const originalObjective = data.original || "";
     const baseObjective = originalObjective.toLowerCase();
     const stripped = originalObjective.replace(new RegExp(`^De ${subject} kan `, "i"), "").toLowerCase();
@@ -427,8 +433,14 @@ function App() {
   const generateRationale = (data: LearningObjective): string => {
     const educationLevel = data.context.education;
     const domain = data.context.domain;
-    const subjectPlural = data.context.education === "VO" ? "leerlingen" : "studenten";
-    const subjectSingular = data.context.education === "VO" ? "leerling" : "student";
+    const subjectPlural =
+      data.context.education === "VO" || data.context.education === "VSO"
+        ? "leerlingen"
+        : "studenten";
+    const subjectSingular =
+      data.context.education === "VO" || data.context.education === "VSO"
+        ? "leerling"
+        : "student";
     let kdRationale = "";
     if (importedKD) {
       kdRationale = ` Deze aanpassing is gebaseerd op het kwalificatiedossier "${importedKD.metadata.title}" en past bij de competenties en werkprocessen.`;
@@ -439,7 +451,10 @@ function App() {
   const generateActivities = (data: LearningObjective, whichLane: Lane): string[] => {
     const domain = data.context.domain.toLowerCase();
     const withAI = whichLane === "baan2";
-    const subjectPlural = data.context.education === "VO" ? "leerlingen" : "studenten";
+    const subjectPlural =
+      data.context.education === "VO" || data.context.education === "VSO"
+        ? "leerlingen"
+        : "studenten";
     const base = [
       `${withAI ? "Gebruik gratis AI-tools" : "Gebruik passende hulpmiddelen"} voor ${domain}-taken en controleer kwaliteit`,
       "Werk samen om resultaten te controleren op fouten en vooroordelen",
@@ -460,7 +475,10 @@ function App() {
 
   const generateAssessments = (data: LearningObjective, whichLane: Lane): string[] => {
     const withAI = whichLane === "baan2";
-    const subject = data.context.education === "VO" ? "leerling" : "student";
+    const subject =
+      data.context.education === "VO" || data.context.education === "VSO"
+        ? "leerling"
+        : "student";
     const assessments = [
       `Authentieke opdracht waarin de ${subject} het werkproces laat zien met ${withAI ? "transparant AI-gebruik" : "eigen uitvoering"} en verantwoording`,
       "Portfolio met kritische reflectie op kwaliteit en eerlijke kansen",
@@ -480,12 +498,10 @@ function App() {
       setFormData((prev) => {
         const next = { ...prev, context: { ...prev.context, [field]: value } };
         if (field === "education") {
-          if (value === "VO") {
-            next.context.level = "";
-          } else {
-            next.context.voLevel = undefined;
-            next.context.voGrade = undefined;
-          }
+          next.context.level = "";
+          next.context.voLevel = undefined;
+          next.context.voGrade = undefined;
+          next.context.vsoCluster = undefined;
         }
         if (field === "voLevel") {
           next.context.voGrade = undefined;
@@ -828,7 +844,7 @@ function App() {
                     <textarea
                       value={formData.original}
                       onChange={(e) => handleInputChange("original", e.target.value)}
-                      placeholder={`Bijvoorbeeld: De ${formData.context.education === "VO" ? "leerling" : "student"} kan een zakelijke e-mail schrijven in correct Nederlands.`}
+                      placeholder={`Bijvoorbeeld: De ${['VO','VSO'].includes(formData.context.education) ? 'leerling' : 'student'} kan een zakelijke e-mail schrijven in correct Nederlands.`}
                       className="w-full h-24 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none transition-all duration-200"
                     />
                     {importedKD && formData.original && (
@@ -845,6 +861,13 @@ function App() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Niveau opleiding *
+                        {formData.context.education === "VSO" && (
+                          <InfoBox>
+                            <p>
+                              VSO: differentieer op leerroutes en werk handelingsgericht.
+                            </p>
+                          </InfoBox>
+                        )}
                       </label>
                       <select
                         value={formData.context.education}
@@ -882,6 +905,26 @@ function App() {
                       </div>
                     )}
                   </div>
+
+                  {formData.context.education === "VSO" && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        VSO-cluster *
+                      </label>
+                      <select
+                        value={formData.context.vsoCluster || ""}
+                        onChange={(e) => handleInputChange("vsoCluster", e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                      >
+                        <option value="">Kies cluster</option>
+                        {vsoClusters.map((cluster) => (
+                          <option key={cluster} value={cluster}>
+                            {cluster}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   {formData.context.education === "VO" && (
                     <div className="grid lg:grid-cols-2 gap-6">

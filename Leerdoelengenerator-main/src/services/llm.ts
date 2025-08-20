@@ -78,7 +78,7 @@ export async function generateNormalizedObjective(
   if (autoFixed) {
     processed.warnings.unshift("Automatisch hersteld");
   }
-  if (ctx.education === "VO") {
+  if (ctx.education === "VO" || ctx.education === "VSO") {
     const repl = (txt: string) =>
       txt.replace(/studenten?/gi, (m) => (m.toLowerCase().endsWith("en") ? "leerlingen" : "leerling"));
     processed.newObjective = repl(processed.newObjective);
