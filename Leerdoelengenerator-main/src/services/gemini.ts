@@ -1,6 +1,8 @@
 // src/services/gemini.ts
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { LearningObjectiveContext } from "../types/context";
+import { LEVEL_PROFILES, LevelKey } from "../domain/levelProfiles";
+import { validateObjective } from "../utils/objectiveValidator";
 
 /**
  * Types
@@ -36,6 +38,17 @@ let genAI: GoogleGenerativeAI | null = null;
 if (API_KEY) {
   genAI = new GoogleGenerativeAI(API_KEY);
 }
+async function callGemini(system: string, user: string): Promise<string> {
+  if (!genAI) throw new Error("Gemini API key ontbreekt.");
+  const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+  const prompt = `${system}\n\n${user}`.trim();
+  const res = await model.generateContent({
+    contents: [{ role: "user", parts: [{ text: prompt }]}],
+    generationConfig: { temperature: 0.2, maxOutputTokens: 256 },
+  });
+  return res.response.text();
+}
+
 
 /**
  * Klein hulpmiddel om KD-context leesbaar in de prompt te zetten
@@ -208,6 +221,66 @@ export async function generateAIReadyObjective(
     console.error("[gemini] generateAIReadyObjective error:", err);
     throw new Error(msg);
   }
+}
+
+
+export async function generateObjective(ctx: {
+  original: string;
+  education: string;
+  levelKey: LevelKey;
+  domain: string;
+  productOrProcess?: string;
+}) {
+  const profile = LEVEL_PROFILES[ctx.levelKey];
+
+  const strictRules = `
+TAAL & FORMAT:
+- Schrijf in natuurlijk, professioneel Nederlands.
+- Begin met een meetbaar actie-werkwoord dat is toegestaan voor het niveau.
+- Structureer als: [werkwoord] + [taak/inhoud] + [context/voorwaarden] + [criteria/kwaliteit] + [mate van zelfstandigheid] + [beoordeling].
+- 1 zin, zonder opsommingstekens. Houd lengte ~${profile.lengthGuideline.minWords}–${profile.lengthGuideline.maxWords} woorden.
+
+NIVEAU & COMPLEXITEIT:
+- Toegestane werkwoord-banden: ${profile.allowedBands.join(", ")}.
+- Voorbeelden (niet kopiëren, wel als stijlreferentie): ${profile.examples.join(" | ")}
+
+CRITERIA:
+- Gebruik criteriamarkers zoals: ${profile.criteriaMarkers.join(", ")}.
+- Noem expliciet zelfstandigheid/begeleiding: ${profile.autonomyPhrases.join(", ")}.
+`;
+
+  const allowedVerbs = [
+    ...profile.verbBands.rememberUnderstand,
+    ...profile.verbBands.apply,
+    ...profile.verbBands.analyze,
+    ...profile.verbBands.evaluate,
+    ...profile.verbBands.create,
+  ].filter(v => v !== "--");
+
+  const system = `Je bent een onderwijsontwerper. Maak leerdoelen die passen bij ${profile.label}.`;
+  const user = `
+Origineel leerdoel: "${ctx.original}"
+Niveau: ${profile.label}
+Vak/domein: ${ctx.domain}
+Product/proces: ${ctx.productOrProcess ?? "n.v.t."}
+
+Beschikbare werkwoorden voor dit niveau (begin hiermee): ${allowedVerbs.join(", ")}
+
+${strictRules}
+Genereer precies 1 leerdoel.`;
+
+  let result = (await callGemini(system, user)).trim().replace(/\s+/g, " ");
+  let check = validateObjective(result, ctx.levelKey);
+  if (!check.ok) {
+    const fixPrompt = `
+Herzie het leerdoel zodat alle issues opgelost zijn:
+Issues: ${check.issues.map(i => i.message).join("; ")}
+Houd je strikt aan de niveauprofiel-regels en begin met een toegestaan werkwoord.
+Genereer precies 1 leerdoel.`;
+    const revised = await callGemini(system, `${user}\n\n${fixPrompt}`);
+    result = revised.trim().replace(/\s+/g, " ");
+  }
+  return result;
 }
 
 /**
