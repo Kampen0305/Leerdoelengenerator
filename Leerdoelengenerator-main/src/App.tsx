@@ -26,6 +26,9 @@ import type { Education, VoLevel, VSOCluster } from "./types/context";
 import { EDUCATION_TYPES, LEVEL_OPTIONS, VO_LEVELS, VSO_CLUSTERS } from "./constants/education";
 import InfoBox from "./components/InfoBox";
 import { getVoGradeOptions } from "./utils/vo";
+import { LevelBadge } from "./components/LevelBadge";
+import { NiveauCheck } from "./components/NiveauCheck";
+import { LevelKey } from "./domain/levelProfiles";
 
 /* --------------------- Helpers: opslag + delen --------------------- */
 const STORAGE_KEY = "ld-app-state-v2";
@@ -36,6 +39,41 @@ function encodeState(obj: unknown) {
 function decodeState<T = any>(q: string | null): T | null {
   if (!q) return null;
   try { return JSON.parse(atob(decodeURIComponent(q))) as T; } catch { return null; }
+}
+
+function toLevelKey(ctx: { education: Education; level: string; voLevel?: VoLevel }): LevelKey {
+  switch (ctx.education) {
+    case "MBO":
+      if (ctx.level === "Niveau 1") return "MBO-1";
+      if (ctx.level === "Niveau 2") return "MBO-2";
+      if (ctx.level === "Niveau 3") return "MBO-3";
+      if (ctx.level === "Niveau 4") return "MBO-4";
+      break;
+    case "HBO":
+      if (ctx.level === "Associate Degree") return "HBO-AD";
+      if (ctx.level === "Bachelor") return "HBO-Bachelor";
+      if (ctx.level === "Master") return "HBO-Master";
+      break;
+    case "WO":
+      if (ctx.level === "Bachelor") return "WO-Bachelor";
+      if (ctx.level === "Master") return "WO-Master";
+      break;
+    case "VO":
+      switch (ctx.voLevel) {
+        case "vmbo-bb":
+        case "vmbo-kb":
+          return "VO-vmbo-bbkb";
+        case "vmbo-gl-tl":
+          return "VO-vmbo-gtl";
+        case "havo":
+          return "VO-havo";
+        case "vwo":
+          return "VO-vwo";
+      }
+      break;
+  }
+  console.warn("Onbekend niveau, val terug op HBO-Bachelor");
+  return "HBO-Bachelor";
 }
 
 /* ===== AI-GO: automatische labeling (regelgebaseerd) ===== */
@@ -150,6 +188,7 @@ function App() {
   const [importedKD, setImportedKD] = useState<KDStructure | null>(null);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showQualityChecker, setShowQualityChecker] = useState(false);
+  const levelKey: LevelKey = toLevelKey(formData.context);
   const [showEducationGuidance, setShowEducationGuidance] = useState(false);
   const [generationSource, setGenerationSource] = useState<GenerationSource>(null); // NIEUW: bron van de laatste generatie
   const [menuOpen, setMenuOpen] = useState(false);
@@ -1252,6 +1291,7 @@ function App() {
                     <p className="text-red-700">{formData.original}</p>
                   </div>
                   <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="mb-2"><LevelBadge levelKey={levelKey} /></div>
                     <p className="text-sm font-medium text-green-800 mb-2">AI-ready:</p>
                     <p className="text-green-700">{output.newObjective}</p>
                     <p className="text-xs text-gray-600 mt-2">
@@ -1291,6 +1331,7 @@ function App() {
                         ))}
                       </div>
                     )}
+                    <div className="mt-4"><NiveauCheck levelKey={levelKey} objective={output.newObjective} /></div>
 
                     {/* BRON: duidelijk zichtbaar onder de leeruitkomst */}
                     <div className="mt-3 text-xs text-gray-500">
