@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { EDUCATION_TYPES, LEVEL_OPTIONS, VO_LEVELS } from '../constants/education';
+import { EDUCATION_TYPES, LEVEL_OPTIONS, VO_LEVELS, VSO_CLUSTERS } from '../constants/education';
 
 export const objectiveSchema = z
   .object({
@@ -11,7 +11,8 @@ export const objectiveSchema = z
     domain: z.string().min(1, 'Vul het domein in.'),
     assessment: z.string().min(1, 'Vul de toetsing in.'),
     voLevel: z.enum(VO_LEVELS).optional(),
-    voGrade: z.number().int().optional()
+    voGrade: z.number().int().optional(),
+    vsoCluster: z.enum(VSO_CLUSTERS).optional()
   })
   .superRefine((data, ctx) => {
     if (data.education !== 'VO') {
@@ -47,6 +48,15 @@ export const objectiveSchema = z
             path: ['voGrade']
           });
         }
+      }
+    }
+    if (data.education === 'VSO') {
+      if (!data.vsoCluster) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Kies een geldig VSO-cluster.',
+          path: ['vsoCluster']
+        });
       }
     }
   });

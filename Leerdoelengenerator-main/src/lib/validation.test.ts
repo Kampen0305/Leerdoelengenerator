@@ -60,9 +60,22 @@ describe('objectiveSchema', () => {
       education: 'VSO',
       level: 'Arbeidsmarktgerichte route',
       domain: 'Zorg',
-      assessment: 'Toets'
+      assessment: 'Toets',
+      vsoCluster: 'Cluster 1: blinde en slechtziende kinderen'
     });
     expect(result.success).toBe(true);
+  });
+
+  it('vereist VSO-cluster', () => {
+    const result = objectiveSchema.safeParse({
+      original: 'Doel',
+      education: 'VSO',
+      level: 'Arbeidsmarktgerichte route',
+      domain: 'Zorg',
+      assessment: 'Toets'
+    });
+    expect(result.success).toBe(false);
+    expect(result.error.flatten().fieldErrors.vsoCluster?.[0]).toBe('Kies een geldig VSO-cluster.');
   });
 
   it('valideert HBO Master', () => {
@@ -82,7 +95,8 @@ describe('objectiveSchema', () => {
       education: 'VSO',
       level: 'Bachelor',
       domain: 'Zorg',
-      assessment: 'Toets'
+      assessment: 'Toets',
+      vsoCluster: 'Cluster 1: blinde en slechtziende kinderen'
     });
     expect(result.success).toBe(false);
     expect(result.error.flatten().fieldErrors.level?.[0]).toBe('Kies een geldig niveau.');

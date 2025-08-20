@@ -26,3 +26,11 @@ export const VO_LEVELS = [
   "vwo",
 ] as const;
 export type VoLevel = typeof VO_LEVELS[number];
+
+export const VSO_CLUSTERS = [
+  "Cluster 1: blinde en slechtziende kinderen",
+  "Cluster 2: dove en slechthorende kinderen en kinderen met een taal/spraakprobleem",
+  "Cluster 3: motorisch gehandicapte, verstandelijk gehandicapte en langdurig zieke kinderen",
+  "Cluster 4: kinderen met psychische stoornissen en gedragsproblemen",
+] as const;
+export type VSOCluster = typeof VSO_CLUSTERS[number];

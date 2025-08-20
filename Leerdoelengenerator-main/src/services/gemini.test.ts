@@ -14,11 +14,13 @@ describe('buildPrompt', () => {
       ...base,
       education: 'VSO',
       level: 'Arbeidsmarktgerichte route',
+      vsoCluster: 'Cluster 1: blinde en slechtziende kinderen',
       domain: 'Zorg',
     } as any;
     const prompt = buildPrompt(ctx);
     expect(prompt).toContain('Voortgezet Speciaal Onderwijs (VSO)');
     expect(prompt).toContain('Differentiatie per leerroute: Arbeidsmarktgerichte route');
+    expect(prompt).toContain('Cluster: Cluster 1: blinde en slechtziende kinderen');
   });
 
   it('voegt HBO master-richtlijnen toe', () => {

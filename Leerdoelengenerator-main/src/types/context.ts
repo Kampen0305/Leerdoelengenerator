@@ -1,5 +1,5 @@
-import type { Education, VoLevel } from '../constants/education';
-export type { Education, VoLevel };
+import type { Education, VoLevel, VSOCluster } from '../constants/education';
+export type { Education, VoLevel, VSOCluster };
 
 export interface LearningObjectiveContext {
   original: string;
@@ -10,4 +10,5 @@ export interface LearningObjectiveContext {
   lane?: 'baan1' | 'baan2';
   voLevel?: VoLevel; // required when education === 'VO'
   voGrade?: number;  // required when education === 'VO'
+  vsoCluster?: VSOCluster; // required when education === 'VSO'
 }

@@ -22,8 +22,8 @@ import { KDParser } from "./utils/kdParser";
 import { ExportUtils } from "./utils/exportUtils";
 import { geminiService } from "./services/gemini";
 import FeedbackBar from "./components/FeedbackBar";
-import type { Education, VoLevel } from "./types/context";
-import { EDUCATION_TYPES, LEVEL_OPTIONS, VO_LEVELS } from "./constants/education";
+import type { Education, VoLevel, VSOCluster } from "./types/context";
+import { EDUCATION_TYPES, LEVEL_OPTIONS, VO_LEVELS, VSO_CLUSTERS } from "./constants/education";
 import InfoBox from "./components/InfoBox";
 import { getVoGradeOptions } from "./utils/vo";
 
@@ -105,6 +105,7 @@ interface LearningObjective {
     assessment: string;
     voLevel?: VoLevel;
     voGrade?: number;
+    vsoCluster?: VSOCluster;
   };
 }
 interface AIReadyOutput {
@@ -125,6 +126,7 @@ interface SavedObjective {
     assessment: string;
     voLevel?: VoLevel;
     voGrade?: number;
+    vsoCluster?: VSOCluster;
   };
   createdAt: string;
   tags: string[];
@@ -135,7 +137,7 @@ function App() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<LearningObjective>({
     original: "",
-    context: { education: "", level: "", domain: "", assessment: "", voLevel: undefined, voGrade: undefined },
+    context: { education: "", level: "", domain: "", assessment: "", voLevel: undefined, voGrade: undefined, vsoCluster: undefined },
   });
   const [lane, setLane] = useState<"" | Lane>(""); // Two-Lane keuze
   const [output, setOutput] = useState<AIReadyOutput | null>(null);
@@ -220,6 +222,7 @@ function App() {
   const educationTypes: Education[] = [...EDUCATION_TYPES];
   const voLevels: VoLevel[] = [...VO_LEVELS];
   const levels = LEVEL_OPTIONS;
+  const vsoClusters: VSOCluster[] = [...VSO_CLUSTERS];
 
   const examples = [
     {
@@ -243,7 +246,9 @@ function App() {
     formData.context.domain.trim() !== "" &&
     (formData.context.education === "VO"
       ? Boolean(formData.context.voLevel && formData.context.voGrade)
-      : formData.context.level.trim() !== "");
+      : formData.context.education === "VSO"
+        ? formData.context.level.trim() !== "" && Boolean(formData.context.vsoCluster)
+        : formData.context.level.trim() !== "");
 
   /* -------------------- Step-switch → automatisch genereren -------------------- */
   useEffect(() => {
@@ -496,6 +501,7 @@ function App() {
           next.context.level = "";
           next.context.voLevel = undefined;
           next.context.voGrade = undefined;
+          next.context.vsoCluster = undefined;
         }
         if (field === "voLevel") {
           next.context.voGrade = undefined;
@@ -899,6 +905,26 @@ function App() {
                       </div>
                     )}
                   </div>
+
+                  {formData.context.education === "VSO" && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        VSO-cluster *
+                      </label>
+                      <select
+                        value={formData.context.vsoCluster || ""}
+                        onChange={(e) => handleInputChange("vsoCluster", e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                      >
+                        <option value="">Kies cluster</option>
+                        {vsoClusters.map((cluster) => (
+                          <option key={cluster} value={cluster}>
+                            {cluster}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   {formData.context.education === "VO" && (
                     <div className="grid lg:grid-cols-2 gap-6">

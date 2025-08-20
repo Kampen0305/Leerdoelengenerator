@@ -60,6 +60,8 @@ export function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): stri
   const needsLearner = ctx.education === "VO" || ctx.education === "VSO";
   const contextLine = isVO
     ? `- Onderwijs: ${ctx.education} | VO-niveau: ${ctx.voLevel} | Leerjaar: ${ctx.voGrade} | Domein: ${ctx.domain} | Baan: ${laneLabel}`
+    : ctx.education === "VSO"
+    ? `- Sector: ${ctx.education} | Niveau: ${ctx.level} | Cluster: ${ctx.vsoCluster} | Domein: ${ctx.domain} | Baan: ${laneLabel}`
     : `- Sector: ${ctx.education} | Niveau: ${ctx.level} | Domein: ${ctx.domain} | Baan: ${laneLabel}`;
   const learnerLines = needsLearner
     ? [
@@ -74,6 +76,7 @@ export function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): stri
           "Je schrijft leerdoelen voor het Voortgezet Speciaal Onderwijs (VSO).",
           "Houd rekening met handelingsgericht en passend onderwijs.",
           'Differentiatie per leerroute: ' + ctx.level + '.',
+          'Cluster: ' + ctx.vsoCluster + '.',
           "Gebruik concrete, observeerbare gedragsindicatoren en realistische contexten.",
         ]
       : ctx.education === "HBO" && ctx.level === "Master"
