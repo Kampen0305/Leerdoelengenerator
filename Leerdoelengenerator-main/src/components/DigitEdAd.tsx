@@ -17,7 +17,7 @@ const DigitEdAd: React.FC = () => {
           // Fallback: toon alleen de tekst als het extern logo niet laadt
           (e.currentTarget as HTMLImageElement).style.display = "none";
           const alt = document.createElement("div");
-          alt.innerHTML =
+                  alt.innerHTML =
             '<span class="text-[#247A38]">Digit</span><span class="text-[#E3701C]">Ed</span>';
           alt.className = "text-2xl font-semibold mb-4";
           e.currentTarget.parentElement?.insertBefore(alt, e.currentTarget.nextSibling);
@@ -52,6 +52,16 @@ const DigitEdAd: React.FC = () => {
           <strong>Coaching:</strong> eigen casus, direct toepasbaar.
         </p>
       </div>
+          alt.textContent = "DigitEd";
+          alt.className = "text-2xl font-semibold text-[#247A38] mb-4";
+          e.currentTarget.parentElement?.insertBefore(alt, e.currentTarget.nextSibling);
+        }}
+      />
+      <h2 className="text-[#247A38] text-xl font-semibold mb-2">DigitEd</h2>
+      <p className="text-base leading-relaxed mb-4">
+        DigitEd helpt onderwijsprofessionals met praktische trainingen en begeleiding rond digitalisering en AI.
+        Met hands-on workshops en inspirerende tools maak je jouw onderwijs klaar voor de toekomst.
+      </p>
       <div className="mt-2 flex flex-col sm:flex-row justify-center gap-3">
         <a
           href="https://digited.nl/contact/"
@@ -75,4 +85,3 @@ const DigitEdAd: React.FC = () => {
 };
 
 export default DigitEdAd;
-
