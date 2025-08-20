@@ -1,3 +1,5 @@
+import { normalizeObjective } from "./nlGoals";
+
 export interface SMARTCheck {
   badge: "✅" | "❌";
   issues: string[];
@@ -34,7 +36,7 @@ export function enforceDutchAndSMART(
       .replace(/\bstudent\b/gi, "student");
   };
 
-  const newObjective = replaceEnglish(res.newObjective.trim());
+  const newObjective = normalizeObjective(replaceEnglish(res.newObjective.trim()));
   let rationale = replaceEnglish(res.rationale.trim());
   let activities = res.activities.map(a => replaceEnglish(a.trim())).filter(Boolean);
   let assessments = res.assessments.map(a => replaceEnglish(a.trim())).filter(Boolean);
