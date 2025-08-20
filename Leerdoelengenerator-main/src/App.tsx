@@ -11,6 +11,7 @@ import { SavedObjectives } from "./components/SavedObjectives";
 import { TemplateLibrary } from "./components/TemplateLibrary";
 import { Hero } from "./components/Hero";
 import ExamplesPanel from "./components/ExamplesPanel";
+import DigitEdAd from "./components/DigitEdAd";
 
 /** Paneel-knoppen werken weer via named exports zoals voorheen */
 import { QualityChecker } from "./components/QualityChecker";
@@ -863,8 +864,9 @@ function App() {
         {/* Step 1: Input Form */}
         {currentStep === 1 && (
           <div className="grid lg:grid-cols-4 gap-8">
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-6">
               <ExamplesPanel onSelectExample={handleExampleSelect} />
+              <DigitEdAd />
             </div>
             <div className="lg:col-span-2">
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
