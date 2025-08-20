@@ -6,6 +6,13 @@ test("VO-vmbo-bbkb objective valid", () => {
   expect(res.ok).toBe(true);
 });
 
+test("VSO-arbeidsmarkt objective valid", () => {
+  const obj =
+    "Voert een eenvoudige logistieke taak uit op de werkplek, met standaardhulpmiddelen, volgens instructies, onder begeleiding.";
+  const res = validateObjective(obj, "VSO-arbeidsmarkt");
+  expect(res.ok).toBe(true);
+});
+
 test("VO-havo objective valid", () => {
   const obj = "Analyseert de betrouwbaarheid van twee nieuwsbronnen in een actuele context, op basis van vastgestelde criteria, met enige zelfstandigheid.";
   const res = validateObjective(obj, "VO-havo");

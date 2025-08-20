@@ -41,7 +41,7 @@ function decodeState<T = any>(q: string | null): T | null {
   try { return JSON.parse(atob(decodeURIComponent(q))) as T; } catch { return null; }
 }
 
-function toLevelKey(ctx: { education: Education; level: string; voLevel?: VoLevel }): LevelKey {
+function toLevelKey(ctx: { education: Education; level: string; voLevel?: VoLevel; vsoCluster?: VSOCluster }): LevelKey {
   switch (ctx.education) {
     case "MBO":
       if (ctx.level === "Niveau 1") return "MBO-1";
@@ -70,6 +70,11 @@ function toLevelKey(ctx: { education: Education; level: string; voLevel?: VoLeve
         case "vwo":
           return "VO-vwo";
       }
+      break;
+    case "VSO":
+      if (ctx.level === "Vervolgonderwijsroute") return "VSO-vervolgonderwijs";
+      if (ctx.level === "Arbeidsmarktgerichte route") return "VSO-arbeidsmarkt";
+      if (ctx.level === "Dagbestedingsroute") return "VSO-dagbesteding";
       break;
   }
   console.warn("Onbekend niveau, val terug op HBO-Bachelor");

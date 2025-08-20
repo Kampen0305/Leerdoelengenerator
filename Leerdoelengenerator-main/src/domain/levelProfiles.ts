@@ -4,6 +4,9 @@ export type LevelKey =
   | "VO-vmbo-gtl"
   | "VO-havo"
   | "VO-vwo"
+  | "VSO-vervolgonderwijs"
+  | "VSO-arbeidsmarkt"
+  | "VSO-dagbesteding"
   | "MBO-1"
   | "MBO-2"
   | "MBO-3"
@@ -103,6 +106,60 @@ export const LEVEL_PROFILES: Record<LevelKey, LevelProfile> = {
     lengthGuideline: { minWords: 24, maxWords: 46 },
     examples: [
       "Evalueert een wetenschappelijke claim door twee bronnen kritisch te vergelijken, met expliciete argumentatie en verantwoording, zelfstandig."
+    ],
+  },
+  "VSO-vervolgonderwijs": {
+    label: "VSO – vervolgonderwijsroute",
+    verbBands: {
+      rememberUnderstand: ["benoemt", "beschrijft", "verklaart kort"],
+      apply: ["past toe", "oefent", "voert uit"],
+      analyze: ["ordent"],
+      evaluate: ["geeft eenvoudige terugkoppeling"],
+      create: ["--"],
+    },
+    allowedBands: ["rememberUnderstand", "apply"],
+    autonomyPhrases: ["met veel begeleiding"],
+    contextHints: ["in de klas", "tijdens de les", "met ondersteuning"],
+    criteriaMarkers: ["volgens", "met behulp van"],
+    lengthGuideline: { minWords: 16, maxWords: 36 },
+    examples: [
+      "Past een rekenstrategie toe in de klas, met behulp van voorbeeldopgaven, volgens het stappenplan, met veel begeleiding.",
+    ],
+  },
+  "VSO-arbeidsmarkt": {
+    label: "VSO – arbeidsmarktgerichte route",
+    verbBands: {
+      rememberUnderstand: ["benoemt", "herkent", "beschrijft kort"],
+      apply: ["voert uit", "past toe", "helpt bij"],
+      analyze: ["controleert eenvoudig"],
+      evaluate: ["geeft terugkoppeling eenvoudig"],
+      create: ["--"],
+    },
+    allowedBands: ["rememberUnderstand", "apply"],
+    autonomyPhrases: ["onder begeleiding", "met ondersteuning"],
+    contextHints: ["op de werkplek", "tijdens een praktijkopdracht"],
+    criteriaMarkers: ["volgens", "conform", "op basis van"],
+    lengthGuideline: { minWords: 16, maxWords: 36 },
+    examples: [
+      "Voert een eenvoudige logistieke taak uit op de werkplek, met standaardhulpmiddelen, volgens instructies, onder begeleiding.",
+    ],
+  },
+  "VSO-dagbesteding": {
+    label: "VSO – dagbestedingsroute",
+    verbBands: {
+      rememberUnderstand: ["benoemt", "herkent", "neemt deel"],
+      apply: ["voert uit (eenvoudig)", "oefent mee"],
+      analyze: ["--"],
+      evaluate: ["--"],
+      create: ["--"],
+    },
+    allowedBands: ["rememberUnderstand", "apply"],
+    autonomyPhrases: ["onder begeleiding"],
+    contextHints: ["in de dagbestedingsruimte", "tijdens een activiteit"],
+    criteriaMarkers: ["volgens", "met begeleiding", "aan de hand van"],
+    lengthGuideline: { minWords: 14, maxWords: 30 },
+    examples: [
+      "Neemt deel aan een creatieve activiteit in de dagbestedingsruimte, met aangepast materiaal, volgens een eenvoudig plan, onder begeleiding.",
     ],
   },
   "MBO-1": {
