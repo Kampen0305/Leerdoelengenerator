@@ -27,10 +27,31 @@ const DigitEdAd: React.FC = () => {
         <span className="text-[#247A38]">Digit</span>
         <span className="text-[#E3701C]">Ed</span>
       </h2>
-      <p className="text-base leading-relaxed mb-4">
-        DigitEd helpt onderwijsprofessionals met praktische trainingen en begeleiding rond digitalisering en AI.
-        Met hands-on workshops en inspirerende tools maak je jouw onderwijs klaar voor de toekomst.
-      </p>
+      <div className="hidden sm:block text-base leading-relaxed mb-4 text-left">
+        <p>
+          DigitEd helpt onderwijsprofessionals met praktische trainingen en begeleiding rond digitalisering en AI.
+        </p>
+        <p className="mt-2">
+          <strong>Workshops & trainingen</strong> – AI in de klas, AI-geletterdheid, M365/Teams.
+        </p>
+        <p>
+          <strong>Implementatie & advies</strong> – AI-ready leerdoelen, didactiek, veilige toolkeuze.
+        </p>
+        <p>
+          <strong>Maatwerk & coaching</strong> – jullie eigen casus, templates & borging in de praktijk.
+        </p>
+      </div>
+      <div className="sm:hidden text-base leading-relaxed mb-4 text-left">
+        <p>
+          <strong>Trainingen:</strong> AI in de klas & AI-geletterdheid.
+        </p>
+        <p>
+          <strong>Advies:</strong> AI-ready leerdoelen & toolkeuze.
+        </p>
+        <p>
+          <strong>Coaching:</strong> eigen casus, direct toepasbaar.
+        </p>
+      </div>
       <div className="mt-2 flex flex-col sm:flex-row justify-center gap-3">
         <a
           href="https://digited.nl/contact/"
