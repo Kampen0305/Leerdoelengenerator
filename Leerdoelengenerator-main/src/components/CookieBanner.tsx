@@ -1,12 +1,5 @@
-// src/components/CookieBanner.tsx
 import { useEffect, useState } from 'react';
-import {
-  initGA,
-  sendMinimalPageView,
-  sendEnhancedPageView,
-  updateConsentGranted,
-  updateConsentDenied,
-} from '@/lib/ga';
+import { sendPageView, setConsentGranted, setConsentDenied } from '@/lib/ga';
 
 const KEY = 'cookie-consent-v1';
 
@@ -14,35 +7,31 @@ export default function CookieBanner() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    // Init GA-config
-    initGA();
-
     const saved = localStorage.getItem(KEY);
+
     if (!saved) {
+      // Eerste bezoek → toon banner en stuur een cookieless page_view
       setOpen(true);
-      // Altijd minimale page_view op eerste bezoek (cookieless)
-      sendMinimalPageView();
+      sendPageView(); // cookieless door consent=denied
     } else if (saved === 'granted') {
-      updateConsentGranted().then(() => sendEnhancedPageView());
+      setConsentGranted().then(() => sendPageView());
     } else {
-      updateConsentDenied().then(() => sendMinimalPageView());
+      setConsentDenied().then(() => sendPageView()); // cookieless bevestiging
     }
   }, []);
 
   const grant = async () => {
     localStorage.setItem(KEY, 'granted');
-    await updateConsentGranted();
+    await setConsentGranted();
     setOpen(false);
-    // Direct enhanced page_view na akkoord
-    await sendEnhancedPageView();
+    await sendPageView(); // enhanced page_view na akkoord
   };
 
   const deny = async () => {
     localStorage.setItem(KEY, 'denied');
-    await updateConsentDenied();
+    await setConsentDenied();
     setOpen(false);
-    // Optioneel nogmaals minimal bevestigen
-    await sendMinimalPageView();
+    await sendPageView(); // blijft cookieless
   };
 
   if (!open) return null;
