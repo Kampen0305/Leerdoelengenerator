@@ -7,20 +7,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Leerdoelenmaker | DigitEd</title>
     <meta name="description" content="Eenvoudige tool voor docenten om traditionele leerdoelen om te vormen naar AI-ready versies volgens de Nederlandse visie op AI-bewust onderwijs." />
-    <!-- Consent Mode: standaard denied -->
+    <!-- Consent Mode v2: eerst default = denied, vóór het laden van gtag.js -->
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
+      function gtag(){ dataLayer.push(arguments); }
+      // Timestamp
       gtag('js', new Date());
+      // Alles denied tot akkoord (cookieless pings mogelijk)
       gtag('consent', 'default', {
         ad_storage: 'denied',
         analytics_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
         functionality_storage: 'denied',
         security_storage: 'granted'
       });
     </script>
+
+    <!-- Laad GA4 bibliotheek met jouw meet-ID (nodig voor detectie door GA UI) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-J1Q1DZ40PB"></script>
   </head>
   <body>
