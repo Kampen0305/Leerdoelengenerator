@@ -16,14 +16,18 @@ export default function CookieBanner() {
       analytics_storage: 'granted',
       functionality_storage: 'granted',
     })
+
     // Eerste page_view direct na akkoord
-    const id = import.meta.env.VITE_GA_ID
-    if (id) {
+    const id = import.meta.env.VITE_GA_ID as string | undefined
+    const isProd = import.meta.env.PROD
+
+    if (isProd && id) {
       ;(window as any).gtag?.('event', 'page_view', {
         page_location: window.location.href,
         page_title: document.title,
       })
     }
+
     setOpen(false)
   }
 
