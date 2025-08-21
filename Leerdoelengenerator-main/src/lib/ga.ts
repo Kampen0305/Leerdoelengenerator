@@ -19,7 +19,6 @@ export function updateConsent(granted: boolean) {
       page_path: window.location.pathname,
       page_title: document.title,
       page_location: window.location.href,
-      send_to: GA_ID,
     });
   }
 }
@@ -31,7 +30,6 @@ export function trackPage(path: string, title?: string) {
     page_path: path,
     page_title: title ?? document.title,
     page_location: window.location.href,
-    send_to: GA_ID,
   });
 }
 
