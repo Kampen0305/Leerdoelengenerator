@@ -766,6 +766,13 @@ function App() {
                   <Upload className="w-4 h-4" />
                   <span>KD Importeren</span>
                 </button>
+
+                <a
+                  href="/begrippen"
+                  className="text-sm font-medium text-gray-700 hover:underline"
+                >
+                  Begrippenlijst
+                </a>
               </div>
 
               <button
@@ -820,6 +827,14 @@ function App() {
                 <Upload className="w-4 h-4" />
                 <span>KD Importeren</span>
               </button>
+
+              <a
+                href="/begrippen"
+                className="text-center text-sm font-medium text-gray-700 hover:underline py-2"
+                onClick={() => setMenuOpen(false)}
+              >
+                Begrippenlijst
+              </a>
             </div>
           )}
         </div>
