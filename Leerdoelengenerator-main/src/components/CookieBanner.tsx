@@ -1,59 +1,54 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
+import { updateConsent } from '@/lib/ga';
 
-const KEY = 'cookie-consent-v1'
+const KEY = 'cookie-consent-v1';
 
 export default function CookieBanner() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem(KEY)
-    if (!saved) setOpen(true)
-  }, [])
+    const saved = localStorage.getItem(KEY);
+    if (!saved) {
+      setOpen(true);
+    } else {
+      updateConsent(saved === 'granted');
+    }
+  }, []);
 
   const grant = () => {
-    localStorage.setItem(KEY, 'granted')
-    ;(window as any).gtag?.('consent', 'update', {
-      analytics_storage: 'granted',
-      functionality_storage: 'granted',
-    })
-
-    // Eerste page_view direct na akkoord
-    const id = import.meta.env.VITE_GA_ID as string | undefined
-    const isProd = import.meta.env.PROD
-
-    if (isProd && id) {
-      ;(window as any).gtag?.('event', 'page_view', {
-        page_location: window.location.href,
-        page_title: document.title,
-      })
-    }
-
-    setOpen(false)
-  }
+    localStorage.setItem(KEY, 'granted');
+    updateConsent(true);
+    setOpen(false);
+  };
 
   const deny = () => {
-    localStorage.setItem(KEY, 'denied')
-    setOpen(false)
-  }
+    localStorage.setItem(KEY, 'denied');
+    updateConsent(false);
+    setOpen(false);
+  };
 
-  if (!open) return null
+  if (!open) return null;
 
   return (
-    <div style={{
-      position:'fixed', left:0, right:0, bottom:0, zIndex:9999,
-      padding:'12px 16px', background:'#111', color:'#fff',
-      display:'flex', gap:12, alignItems:'center', flexWrap:'wrap'
-    }}>
-      <span>
-        We gebruiken analytische cookies om bezoek te meten. Akkoord?
-        <a href="/privacy" style={{marginLeft:8, color:'#9cf', textDecoration:'underline'}}>
-          Privacyverklaring
-        </a>
-      </span>
-      <div style={{marginLeft:'auto', display:'flex', gap:8}}>
-        <button onClick={deny}>Weigeren</button>
-        <button onClick={grant}>Akkoord</button>
-      </div>
+    <div
+      style={{
+        position: 'fixed',
+        bottom: 16,
+        left: 16,
+        right: 16,
+        background: '#111',
+        color: '#fff',
+        padding: 16,
+        borderRadius: 8,
+      }}
+    >
+      <span>We gebruiken cookies voor anonieme analytics. Akkoord?</span>
+      <button onClick={deny} style={{ marginLeft: 8 }}>
+        Weigeren
+      </button>
+      <button onClick={grant} style={{ marginLeft: 8 }}>
+        Akkoord
+      </button>
     </div>
-  )
+  );
 }
