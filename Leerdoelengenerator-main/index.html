@@ -1,19 +1,14 @@
 <!doctype html>
 <html lang="nl">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Leerdoelenmaker | DigitEd</title>
-    <meta name="description" content="Eenvoudige tool voor docenten om traditionele leerdoelen om te vormen naar AI-ready versies volgens de Nederlandse visie op AI-bewust onderwijs." />
-    <!-- Consent Mode v2: eerst default = denied, vóór het laden van gtag.js -->
+    <!-- Google tag (gtag.js) — direct na <head>, precies één keer -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J1Q1DZ40PB"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){ dataLayer.push(arguments); }
-      // Timestamp
+
+      // Consent Mode v2: standaard alles denied (cookieless pings toegestaan)
       gtag('js', new Date());
-      // Alles denied tot akkoord (cookieless pings mogelijk)
       gtag('consent', 'default', {
         ad_storage: 'denied',
         analytics_storage: 'denied',
@@ -22,10 +17,23 @@
         functionality_storage: 'denied',
         security_storage: 'granted'
       });
+
+      // Eén centrale config (geen extra config-calls elders)
+      // We zetten send_page_view op false zodat wij zelf pageviews sturen (init + routewissels)
+      gtag('config', 'G-J1Q1DZ40PB', {
+        send_page_view: false,
+        anonymize_ip: true,
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false
+      });
     </script>
 
-    <!-- Laad GA4 bibliotheek met jouw meet-ID (nodig voor detectie door GA UI) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-J1Q1DZ40PB"></script>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Leerdoelenmaker | DigitEd</title>
+    <meta name="description" content="Eenvoudige tool voor docenten om traditionele leerdoelen om te vormen naar AI-ready versies volgens de Nederlandse visie op AI-bewust onderwijs." />
   </head>
   <body>
     <div id="root"></div>
