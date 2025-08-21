@@ -46,6 +46,9 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, error, onSave })
       <h4 className="font-medium text-gray-900 mb-1">Rationale</h4>
       <p className="text-gray-700 mb-4">{result.rationale}</p>
 
+      <h4 className="font-medium text-gray-900 mb-1">Publieke waarde</h4>
+      <p className="text-gray-700 mb-4">{result.publicValue}</p>
+
       {remainingWarnings.length > 0 && (
         <ul className="mb-4 p-2 bg-orange-50 border border-orange-200 rounded text-orange-800 text-sm list-disc list-inside">
           {remainingWarnings.map((w, idx) => (

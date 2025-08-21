@@ -86,6 +86,7 @@ export async function generateNormalizedObjective(
     processed.activities = processed.activities.map(repl);
     processed.assessments = processed.assessments.map(repl);
     processed.aiLiteracy = repl(processed.aiLiteracy);
+    processed.publicValue = repl(processed.publicValue);
   }
   return processed;
 }
