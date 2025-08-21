@@ -29,7 +29,6 @@ import { getVoGradeOptions } from "./utils/vo";
 import { LevelBadge } from "./components/LevelBadge";
 import { NiveauCheck } from "./components/NiveauCheck";
 import { LevelKey } from "./domain/levelProfiles";
-import CookieBanner from "./components/CookieBanner";
 
 /* --------------------- Helpers: opslag + delen --------------------- */
 const STORAGE_KEY = "ld-app-state-v2";
@@ -690,7 +689,6 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-green-50 via-white to-orange-50">
-      <CookieBanner />
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-green-100">
         <div className="max-w-screen-xl mx-auto px-4 lg:px-8 py-4">
