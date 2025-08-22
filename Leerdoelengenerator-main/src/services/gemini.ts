@@ -13,6 +13,7 @@ export interface GeminiResponse {
   activities: string[];
   assessments: string[];
   aiLiteracy: string;
+  publicValue: string;
   bloom?: string;
 }
 
@@ -111,6 +112,7 @@ export function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): stri
     "- Constructive alignment; Two-Lane approach (Baan 1=besluitvormend, beperkte AI; Baan 2=ontwikkelingsgericht, AI toegestaan/verplicht).",
     "- AI-geletterdheid (AI-GO): benoem kort welke kennis/vaardigheden/ethiek aan bod komen.",
     "- Referentiekader 2.0: wees transparant en ethisch; geen persoonsgegevens; geen hallucinaties.",
+    "- Benoem in één zin welke publieke waarde (rechtvaardigheid, menselijkheid of autonomie) het nieuwe leerdoel ondersteunt en waarom.",
     "Eisen:",
     "- 1 leerdoel, actief werkwoord + context + meetcriterium + condities + tijd.",
     "- Geen Engels.",
@@ -126,7 +128,8 @@ export function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): stri
     ' "activities": ["…","…","…"],',
     ' "assessments": ["[Baan X] …","…"],',
     ' "bloom": "apply",',
-    ' "aiLiteracy": "Kernpunten (kritisch denken/ethiek/vaardigheden)"',
+    ' "aiLiteracy": "Kernpunten (kritisch denken/ethiek/vaardigheden)",',
+    ' "publicValue": "Dit leerdoel sluit aan bij de waarde autonomie omdat ..."',
     "}"
   ].filter(Boolean).join("\n");
 }
@@ -205,11 +208,12 @@ export async function generateAIReadyObjective(
       activities: Array.isArray(data.activities) ? data.activities.map(String) : [],
       assessments: Array.isArray(data.assessments) ? data.assessments.map(String) : [],
       aiLiteracy: String(data.aiLiteracy ?? ""),
+      publicValue: String(data.publicValue ?? ""),
       bloom: data.bloom ? String(data.bloom) : undefined
     };
 
     // Minimale validatie
-    if (!safe.newObjective || safe.activities.length === 0 || !safe.aiLiteracy) {
+    if (!safe.newObjective || safe.activities.length === 0 || !safe.aiLiteracy || !safe.publicValue) {
       throw new Error("Onvolledige JSON-respons ontvangen van model.");
     }
 

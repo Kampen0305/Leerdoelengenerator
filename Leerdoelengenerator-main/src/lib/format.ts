@@ -11,6 +11,7 @@ export interface PostProcessedResponse {
   activities: string[];
   assessments: string[];
   aiLiteracy: string;
+  publicValue: string;
   bloom?: string;
   aiLiteracyFocus: string[];
   smart: SMARTCheck;
@@ -29,6 +30,7 @@ export function enforceDutchAndSMART(
     activities: string[];
     assessments: string[];
     aiLiteracy?: string;
+    publicValue?: string;
     bloom?: string;
   },
   lane: "baan1" | "baan2" = "baan1"
@@ -49,10 +51,11 @@ export function enforceDutchAndSMART(
   let activities = res.activities.map(a => replaceEnglish(a.trim())).filter(Boolean);
   let assessments = res.assessments.map(a => replaceEnglish(a.trim())).filter(Boolean);
   const aiLiteracy = replaceEnglish(res.aiLiteracy?.trim() || "");
+  const publicValue = replaceEnglish(res.publicValue?.trim() || "");
   const bloom = res.bloom?.trim();
 
   const englishPattern = /\b(the|and|with|without|to|for|on)\b/i;
-  if (englishPattern.test([newObjective, rationale, activities.join(" "), assessments.join(" "), aiLiteracy].join(" "))) {
+  if (englishPattern.test([newObjective, rationale, activities.join(" "), assessments.join(" "), aiLiteracy, publicValue].join(" "))) {
     warnings.push("Niet alle tekst is in het Nederlands.");
   }
 
@@ -113,6 +116,7 @@ export function enforceDutchAndSMART(
     activities,
     assessments,
     aiLiteracy,
+    publicValue,
     bloom,
     aiLiteracyFocus,
     smart: { badge: smartBadge, issues },
