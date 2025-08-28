@@ -812,6 +812,14 @@ function App() {
                   <Upload className="w-4 h-4" />
                   <span>KD Importeren</span>
                 </button>
+
+                <a
+                  href="/begrippen"
+                  className="flex items-center space-x-2 bg-gray-100 text-gray-800 h-11 px-4 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  <span>Begrippen</span>
+                </a>
               </div>
 
               <button
@@ -866,6 +874,15 @@ function App() {
                 <Upload className="w-4 h-4" />
                 <span>KD Importeren</span>
               </button>
+
+              <a
+                href="/begrippen"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center justify-center space-x-2 bg-gray-100 text-gray-800 h-11 px-4 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200 shadow-md hover:shadow-lg w-full"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Begrippen</span>
+              </a>
             </div>
           )}
         </div>
