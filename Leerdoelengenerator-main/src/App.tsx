@@ -21,7 +21,7 @@ import { KDStructure } from "./types/kd";
 import { KDParser } from "./utils/kdParser";
 import { ExportUtils } from "./utils/exportUtils";
 import { geminiService } from "./services/gemini";
-import FeedbackBar from "./components/FeedbackBar";
+import StarFeedback from "./components/StarFeedback";
 import type { Education, VoLevel, VSOCluster } from "./types/context";
 import { EDUCATION_TYPES, LEVEL_OPTIONS, VO_LEVELS, VSO_CLUSTERS } from "./constants/education";
 import InfoBox from "./components/InfoBox";
@@ -1419,7 +1419,7 @@ function App() {
                       )}
                     </div>
                   </div>
-                  <FeedbackBar />
+                  <StarFeedback path={typeof window !== "undefined" ? window.location.pathname : "/"} />
                 </div>
               </div>
 
