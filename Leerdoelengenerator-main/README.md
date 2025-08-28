@@ -15,3 +15,4 @@ Stel de volgende omgevingsvariabelen in om feedbackmails te ontvangen:
 - `SITE_NAME` (optioneel)
 
 De route `/api/feedback` verstuurt sterrenbeoordelingen en een optionele opmerking naar het opgegeven e-mailadres.
+Deze API-route draait op de Node-runtime zodat de Resend-SDK correct werkt.

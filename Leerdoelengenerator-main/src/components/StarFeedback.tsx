@@ -5,10 +5,12 @@ export default function StarFeedback({ path }: { path: string }) {
   const [stars, setStars] = useState<number>(0);
   const [comment, setComment] = useState("");
   const [sent, setSent] = useState<"idle" | "sending" | "done" | "error">("idle");
+  const [err, setErr] = useState("");
 
   async function submit() {
-    if (!stars) return;
+    if (!stars || sent === "sending") return;
     setSent("sending");
+    setErr("");
     try {
       const res = await fetch("/api/feedback", {
         method: "POST",
@@ -20,12 +22,17 @@ export default function StarFeedback({ path }: { path: string }) {
           ua: navigator.userAgent,
         }),
       });
-      setSent(res.ok ? "done" : "error");
-      if (res.ok) {
-        setComment("");
-        setStars(0);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setErr(typeof data?.error === "string" ? data.error : "Onbekende fout");
+        setSent("error");
+        return;
       }
-    } catch {
+      setSent("done");
+      setComment("");
+      setStars(0);
+    } catch (e: any) {
+      setErr(e?.message || "Netwerkfout");
       setSent("error");
     }
   }
@@ -70,9 +77,7 @@ export default function StarFeedback({ path }: { path: string }) {
         </p>
       )}
       {sent === "error" && (
-        <p className="text-red-600 text-sm mt-2">
-          Er ging iets mis. Probeer later opnieuw.
-        </p>
+        <p className="text-red-600 text-sm mt-2">{err}</p>
       )}
     </div>
   );
