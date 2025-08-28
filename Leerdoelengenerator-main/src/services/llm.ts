@@ -2,6 +2,8 @@ import type { KDContext, GeminiResponse } from "./gemini";
 import type { LearningObjectiveContext } from "../types/context";
 import { geminiService } from "./gemini";
 import { enforceDutchAndSMART, PostProcessedResponse } from "../lib/format";
+import { getSuggestions } from "@/data/suggestions";
+import { inferGoalOrientation, mapEducationLevel } from "@/utils/suggestionHelpers";
 
 /**
  * Probeer eenvoudige JSON-fouten te herstellen. Strip bijvoorbeeld
@@ -87,6 +89,9 @@ export async function generateNormalizedObjective(
     processed.assessments = processed.assessments.map(repl);
     processed.aiLiteracy = repl(processed.aiLiteracy);
   }
+  const orientation = inferGoalOrientation(processed.newObjective);
+  const level = mapEducationLevel(ctx);
+  processed.suggestions = getSuggestions(orientation, level);
   return processed;
 }
 

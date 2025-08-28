@@ -1,4 +1,5 @@
 import { normalizeObjective } from "./nlGoals";
+import type { SuggestionBundle } from "@/types/learning";
 
 export interface SMARTCheck {
   badge: "✅" | "❌";
@@ -15,6 +16,7 @@ export interface PostProcessedResponse {
   aiLiteracyFocus: string[];
   smart: SMARTCheck;
   warnings: string[];
+  suggestions?: SuggestionBundle;
 }
 
 /**
