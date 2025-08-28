@@ -1,16 +1,17 @@
 "use client";
 import { useState } from "react";
 
-export default function StarFeedback({ path }: { path: string }) {
-  const [stars, setStars] = useState<number>(0);
-  const [comment, setComment] = useState("");
-  const [sent, setSent] = useState<"idle" | "sending" | "done" | "error">("idle");
-  const [err, setErr] = useState("");
+export default function StarFeedback() {
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [comment, setComment] = useState<string>("");
+  const [stars, setStars] = useState<number>(5);
 
-  async function submit() {
-    if (!stars || sent === "sending") return;
-    setSent("sending");
-    setErr("");
+  async function submitFeedback() {
+    setSending(true);
+    setError(null);
+    setSuccess(false);
     try {
       const res = await fetch("/api/feedback", {
         method: "POST",
@@ -18,22 +19,20 @@ export default function StarFeedback({ path }: { path: string }) {
         body: JSON.stringify({
           stars,
           comment,
-          path,
-          ua: navigator.userAgent,
+          path: typeof window !== "undefined" ? window.location.pathname : "",
+          ua: typeof navigator !== "undefined" ? navigator.userAgent : "",
         }),
       });
+
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setErr(typeof data?.error === "string" ? data.error : "Onbekende fout");
-        setSent("error");
-        return;
-      }
-      setSent("done");
+      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+
+      setSuccess(true);
       setComment("");
-      setStars(0);
     } catch (e: any) {
-      setErr(e?.message || "Netwerkfout");
-      setSent("error");
+      setError(e?.message || "Er is iets misgegaan");
+    } finally {
+      setSending(false);
     }
   }
 
@@ -64,21 +63,16 @@ export default function StarFeedback({ path }: { path: string }) {
       />
 
       <button
-        onClick={submit}
-        disabled={sent === "sending" || !stars}
+        onClick={submitFeedback}
+        disabled={sending}
         className="mt-2 rounded bg-black px-3 py-2 text-white disabled:opacity-50"
       >
-        {sent === "sending" ? "Versturen…" : "Verstuur feedback"}
+        {sending ? "Versturen…" : "Verstuur feedback"}
       </button>
 
-      {sent === "done" && (
-        <p className="text-green-600 text-sm mt-2">
-          Dank! Je feedback is verzonden.
-        </p>
-      )}
-      {sent === "error" && (
-        <p className="text-red-600 text-sm mt-2">{err}</p>
-      )}
+      {error && <p className="text-red-600">{error}</p>}
+      {success && <p className="text-green-600">Bedankt! Je feedback is verzonden.</p>}
     </div>
   );
 }
+

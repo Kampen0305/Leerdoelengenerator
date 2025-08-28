@@ -1,26 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
-export const runtime = "nodejs";
+function escapeHtml(s?: string) {
+  return (s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function json(status: number, body: any) {
+  return NextResponse.json(body, { status });
+}
 
+// Healthcheck: GET /api/feedback/selftest
+export async function GET() {
+  const to = process.env.FEEDBACK_TO_EMAIL;
+  const hasKey = !!process.env.RESEND_API_KEY;
+  return json(200, {
+    ok: true,
+    env: {
+      FEEDBACK_TO_EMAIL: !!to,
+      RESEND_API_KEY: hasKey,
+      SITE_NAME: process.env.SITE_NAME ?? null,
+    },
+  });
+}
+
+// POST /api/feedback
 export async function POST(req: NextRequest) {
   try {
-    const { stars, comment, path, ua } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { stars, comment, path, ua } = body || {};
 
-    const n = Number(stars);
-    if (!Number.isFinite(n) || n < 1 || n > 5) {
-      return NextResponse.json({ ok: false, error: "Invalid stars (1–5)" }, { status: 400 });
+    const rating = Number(stars);
+    if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
+      return json(400, { error: "Invalid stars (1–5)" });
     }
+
     const to = process.env.FEEDBACK_TO_EMAIL;
-    if (!to) return NextResponse.json({ ok: false, error: "FEEDBACK_TO_EMAIL not set" }, { status: 500 });
+    if (!to) return json(500, { error: "FEEDBACK_TO_EMAIL not set" });
 
     const site = process.env.SITE_NAME || "LeerdoelenGenerator";
+    const resendKey = process.env.RESEND_API_KEY;
+    if (!resendKey) return json(500, { error: "RESEND_API_KEY not set" });
+
     const html = `
       <div style="font-family:system-ui,Segoe UI,Arial">
         <h2>Nieuwe feedback op ${escapeHtml(site)}</h2>
-        <p><strong>Sterren:</strong> ${"★".repeat(n)}${"☆".repeat(5 - n)} (${n}/5)</p>
+        <p><strong>Sterren:</strong> ${"★".repeat(rating)}${"☆".repeat(5 - rating)} (${rating}/5)</p>
         ${comment ? `<p><strong>Opmerking:</strong><br>${escapeHtml(comment)}</p>` : ""}
         <hr/>
         <p style="font-size:12px;color:#666">
@@ -31,20 +58,18 @@ export async function POST(req: NextRequest) {
       </div>
     `;
 
+    const resend = new Resend(resendKey);
     const { error } = await resend.emails.send({
-      from: "onboarding@resend.dev", // werkt zonder domeinvalidatie
+      from: "onboarding@resend.dev",
       to,
-      subject: `⭐ ${n}/5 feedback binnen op ${site}`,
+      subject: `⭐ ${rating}/5 feedback binnen op ${site}`,
       html,
     });
 
-    if (error) return NextResponse.json({ ok: false, error: String(error) }, { status: 500 });
-    return NextResponse.json({ ok: true });
+    if (error) return json(500, { error: String(error) });
+    return json(200, { ok: true });
   } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e?.message || "Server error" }, { status: 500 });
+    return json(500, { error: e?.message || "Failed to send" });
   }
 }
 
-function escapeHtml(s?: string) {
-  return (s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}

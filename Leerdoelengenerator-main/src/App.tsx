@@ -1419,7 +1419,7 @@ function App() {
                       )}
                     </div>
                   </div>
-                  <StarFeedback path={typeof window !== "undefined" ? window.location.pathname : "/"} />
+                  <StarFeedback />
                 </div>
               </div>
 
