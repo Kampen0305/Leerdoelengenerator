@@ -1442,8 +1442,9 @@ function App() {
         )}
       </div>
 
-      <footer className="mt-12 text-center text-sm text-gray-600">
+      <footer className="mt-12 text-center text-sm text-gray-600 space-x-4">
         <a href="/over" className="hover:underline">Transparantie & Verantwoording</a>
+        <a href="/begrippen" className="hover:underline">Begrippen</a>
       </footer>
 
       {/* Modals */}
