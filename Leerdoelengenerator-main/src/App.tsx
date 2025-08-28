@@ -1,7 +1,7 @@
 // src/App.tsx
 import React, { useEffect, useState } from "react";
 import {
-  BookOpen, Brain, Users, FileText, Download, ChevronRight, Lightbulb, Target,
+  BookOpen, Brain, FileText, Download, ChevronRight, Lightbulb, Target,
   CheckCircle, Upload, Database, ChevronDown, Save, FolderOpen, Library,
   BarChart3, Shield, Printer, Link2, Sparkles, Menu
 } from "lucide-react";
@@ -29,6 +29,10 @@ import { getVoGradeOptions } from "./utils/vo";
 import { LevelBadge } from "./components/LevelBadge";
 import { NiveauCheck } from "./components/NiveauCheck";
 import { LevelKey } from "./domain/levelProfiles";
+import Suggestions from "./components/Suggestions";
+import { getSuggestions } from "./data/suggestions";
+import { inferGoalOrientation, mapEducationLevel } from "./utils/suggestionHelpers";
+import type { SuggestionBundle } from "./types/learning";
 
 /* --------------------- Helpers: opslag + delen --------------------- */
 const STORAGE_KEY = "ld-app-state-v2";
@@ -138,6 +142,24 @@ function inferAIGOTags(
   return sorted.slice(0, 2).map(([k]) => k);
 }
 
+const attachSuggestions = (
+  obj: AIReadyOutput,
+  ctx: LearningObjective["context"],
+): AIReadyOutput => {
+  const level = mapEducationLevel({
+    original: "",
+    education: ctx.education,
+    level: ctx.level,
+    domain: "",
+    assessment: "",
+    voLevel: ctx.voLevel,
+    voGrade: ctx.voGrade,
+    vsoCluster: ctx.vsoCluster,
+  });
+  const orientation = inferGoalOrientation(obj.newObjective);
+  return { ...obj, suggestions: getSuggestions(orientation, level) };
+};
+
 /* ------------------------- Types uit jouw app ---------------------- */
 interface LearningObjective {
   original: string;
@@ -157,6 +179,7 @@ interface AIReadyOutput {
   activities: string[];
   assessments: string[];
   aiLiteracy: string;
+  suggestions: SuggestionBundle;
 }
 interface SavedObjective {
   id: string;
@@ -218,12 +241,15 @@ function App() {
       setCurrentStep(fromUrl.currentStep ?? 1);
       setFormData(fromUrl.formData ?? formData);
       setLane(fromUrl.lane ?? "");
-      setOutput(fromUrl.output ?? null);
+      const out = fromUrl.output
+        ? attachSuggestions(fromUrl.output, fromUrl.formData?.context ?? formData.context)
+        : null;
+      setOutput(out);
       setAiStatement(fromUrl.aiStatement ?? "");
       setGenerationSource(fromUrl.generationSource ?? null);
-      if (fromUrl.output) {
+      if (out) {
         setAiGoTags(
-          inferAIGOTags(fromUrl.output.newObjective, {
+          inferAIGOTags(out.newObjective, {
             withAI: (fromUrl.lane ?? "baan1") === "baan2",
             domain: fromUrl.formData?.context?.domain,
           })
@@ -240,9 +266,13 @@ function App() {
         if (saved.formData) setFormData(saved.formData);
         if (typeof saved.lane === "string") setLane(saved.lane);
         if (saved.output) {
-          setOutput(saved.output);
+          const out = attachSuggestions(
+            saved.output,
+            saved.formData?.context ?? formData.context,
+          );
+          setOutput(out);
           setAiGoTags(
-            inferAIGOTags(saved.output.newObjective, {
+            inferAIGOTags(out.newObjective, {
               withAI: saved.lane === "baan2",
               domain: saved.formData?.context?.domain,
             })
@@ -361,15 +391,18 @@ function App() {
           kdContext
         );
 
-        const adjusted: AIReadyOutput = {
-          ...geminiResponse,
-          newObjective:
-            lane === "baan2"
-              ? geminiResponse.newObjective
-              : geminiResponse.newObjective
-                  .replace(/met hulp van.*?,\s*/i, "")
-                  .replace(/\bAI-?tools?\b/gi, "hulpmiddelen"),
-        };
+        const adjusted: AIReadyOutput = attachSuggestions(
+          {
+            ...geminiResponse,
+            newObjective:
+              lane === "baan2"
+                ? geminiResponse.newObjective
+                : geminiResponse.newObjective
+                    .replace(/met hulp van.*?,\s*/i, "")
+                    .replace(/\bAI-?tools?\b/gi, "hulpmiddelen"),
+          },
+          formData.context,
+        );
 
     if (formData.context.education === "VO" || formData.context.education === "VSO") {
       const repl = (txt: string) =>
@@ -393,16 +426,19 @@ function App() {
         );
       } else {
         const generatedObjective = generateAIReadyObjective(formData, lane as Lane);
-        const aiOutput: AIReadyOutput = {
-          newObjective: generatedObjective,
-          rationale: generateRationale(formData),
-          activities: generateActivities(formData, lane as Lane),
-          assessments: generateAssessments(formData, lane as Lane),
-          aiLiteracy: inferAIGOTags(generatedObjective, {
-            withAI: lane === "baan2",
-            domain: formData.context.domain,
-          }).join(", ") || "kritisch denken, ethiek",
-        };
+        const aiOutput: AIReadyOutput = attachSuggestions(
+          {
+            newObjective: generatedObjective,
+            rationale: generateRationale(formData),
+            activities: generateActivities(formData, lane as Lane),
+            assessments: generateAssessments(formData, lane as Lane),
+            aiLiteracy: inferAIGOTags(generatedObjective, {
+              withAI: lane === "baan2",
+              domain: formData.context.domain,
+            }).join(", ") || "kritisch denken, ethiek",
+          },
+          formData.context,
+        );
         setOutput(aiOutput);
         setGenerationSource("fallback");
         console.log("[AI-check] Gebruik: fallback (geen Gemini)");
@@ -418,16 +454,19 @@ function App() {
     } catch (err) {
       console.error("[AI-check] Fout in AI-pad, val terug op fallback:", err);
       const fbObjective = generateAIReadyObjective(formData, lane as Lane);
-      const fallback: AIReadyOutput = {
-        newObjective: fbObjective,
-        rationale: generateRationale(formData),
-        activities: generateActivities(formData, lane as Lane),
-        assessments: generateAssessments(formData, lane as Lane),
-        aiLiteracy: inferAIGOTags(fbObjective, {
-          withAI: lane === "baan2",
-          domain: formData.context.domain,
-        }).join(", ") || "kritisch denken, ethiek",
-      };
+      const fallback: AIReadyOutput = attachSuggestions(
+        {
+          newObjective: fbObjective,
+          rationale: generateRationale(formData),
+          activities: generateActivities(formData, lane as Lane),
+          assessments: generateAssessments(formData, lane as Lane),
+          aiLiteracy: inferAIGOTags(fbObjective, {
+            withAI: lane === "baan2",
+            domain: formData.context.domain,
+          }).join(", ") || "kritisch denken, ethiek",
+        },
+        formData.context,
+      );
       setOutput(fallback);
       setGenerationSource("fallback");
 
@@ -574,16 +613,19 @@ function App() {
 
   const loadObjective = (objective: SavedObjective) => {
     setFormData({ original: objective.originalObjective, context: objective.context });
-    const o: AIReadyOutput = {
-      newObjective: objective.aiReadyObjective,
-      rationale: generateRationale({ original: objective.originalObjective, context: objective.context }),
-      activities: generateActivities({ original: objective.originalObjective, context: objective.context }, lane as Lane),
-      assessments: generateAssessments({ original: objective.originalObjective, context: objective.context }, lane as Lane),
-      aiLiteracy: inferAIGOTags(objective.aiReadyObjective, {
-        withAI: lane === "baan2",
-        domain: objective.context.domain,
-      }).join(", ") || "kritisch denken, ethiek",
-    };
+    const o: AIReadyOutput = attachSuggestions(
+      {
+        newObjective: objective.aiReadyObjective,
+        rationale: generateRationale({ original: objective.originalObjective, context: objective.context }),
+        activities: generateActivities({ original: objective.originalObjective, context: objective.context }, lane as Lane),
+        assessments: generateAssessments({ original: objective.originalObjective, context: objective.context }, lane as Lane),
+        aiLiteracy: inferAIGOTags(objective.aiReadyObjective, {
+          withAI: lane === "baan2",
+          domain: objective.context.domain,
+        }).join(", ") || "kritisch denken, ethiek",
+      },
+      objective.context,
+    );
     setOutput(o);
     setGenerationSource(null); // onbekend voor oudere items
     setAiGoTags(inferAIGOTags(o.newObjective, { withAI: lane === "baan2", domain: objective.context.domain }));
@@ -607,8 +649,12 @@ function App() {
       lane,
       aiReadyObjective: output.newObjective,
       rationale: output.rationale,
-      suggestedActivities: output.activities,
-      suggestedAssessments: output.assessments,
+      suggestedActivities: output.suggestions.activities.map(
+        (a) => `${a.title}: ${a.description}${a.duration ? ` (${a.duration})` : ''}`,
+      ),
+      suggestedAssessments: output.suggestions.assessments.map(
+        (t) => `${t.title}: ${t.description}`,
+      ),
       aiGoTags,
       aiStatement,
       generationSource,
@@ -1370,43 +1416,11 @@ function App() {
               </div>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-6">
-              {/* Learning Activities */}
+            {output.suggestions && (
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
-                  <Users className="w-5 h-5 text-green-600 mr-2" />
-                  Leeractiviteiten
-                </h3>
-                <ul className="space-y-3">
-                  {output.activities.map((activity, idx) => (
-                    <li key={idx} className="flex items-start space-x-3">
-                      <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-xs font-medium text-green-600">{idx + 1}</span>
-                      </div>
-                      <p className="text-gray-700 text-sm">{activity}</p>
-                    </li>
-                  ))}
-                </ul>
+                <Suggestions data={output.suggestions} />
               </div>
-
-              {/* Assessment Forms */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
-                  <FileText className="w-5 h-5 text-orange-500 mr-2" />
-                  Toetsvormen
-                </h3>
-                <ul className="space-y-3">
-                  {output.assessments.map((assessment, idx) => (
-                    <li key={idx} className="flex items-start space-x-3">
-                      <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-xs font-medium text-orange-600">{idx + 1}</span>
-                      </div>
-                      <p className="text-gray-700 text-sm">{assessment}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+            )}
           </div>
         )}
       </div>
