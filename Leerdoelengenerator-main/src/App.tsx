@@ -28,6 +28,7 @@ import InfoBox from "./components/InfoBox";
 import { getVoGradeOptions } from "./utils/vo";
 import { LevelBadge } from "./components/LevelBadge";
 import { NiveauCheck } from "./components/NiveauCheck";
+import { feature } from "@/config";
 import { LevelKey } from "./domain/levelProfiles";
 import Suggestions from "./components/Suggestions";
 import { getSuggestions } from "./data/suggestions";
@@ -1399,7 +1400,11 @@ function App() {
                         ))}
                       </div>
                     )}
-                    <div className="mt-4"><NiveauCheck levelKey={levelKey} objective={output.newObjective} /></div>
+                    {!feature.aiReadyGoalsV2 && (
+                      <div className="mt-4">
+                        <NiveauCheck levelKey={levelKey} objective={output.newObjective} />
+                      </div>
+                    )}
 
                     {/* BRON: duidelijk zichtbaar onder de leeruitkomst */}
                     <div className="mt-3 text-xs text-gray-500">
