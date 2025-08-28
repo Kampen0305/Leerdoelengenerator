@@ -16,3 +16,4 @@ Stel de volgende omgevingsvariabelen in om feedbackmails te ontvangen:
 
 De route `/api/feedback` verstuurt sterrenbeoordelingen en een optionele opmerking naar het opgegeven e-mailadres.
 Deze API-route draait op de Node-runtime zodat de Resend-SDK correct werkt.
+Met `GET /api/feedback/selftest` kun je een testmail naar hetzelfde adres sturen om de configuratie te controleren.
