@@ -1,3 +1,5 @@
+import type { BloomLevel, Lane } from "@/types/learningGoals";
+
 const GA_ID = 'G-J1Q1DZ40PB';
 
 function g() {
@@ -58,5 +60,22 @@ export async function setConsentDenied() {
     ad_user_data: 'denied',
     ad_personalization: 'denied',
     security_storage: 'granted'
+  });
+}
+
+/** Log een AI-ready goal event */
+export async function trackAiReadyGoal(
+  bloom: BloomLevel,
+  lane: Lane,
+  usedLLM: boolean
+) {
+  await gtagReady();
+  const gtag = g();
+  if (!gtag) return;
+  gtag('event', 'ai_ready_goal', {
+    bloom,
+    lane,
+    llm: usedLLM ? '1' : '0',
+    send_to: GA_ID,
   });
 }
