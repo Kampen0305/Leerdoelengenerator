@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { submitFeedback } from "@/services/feedback";
 
 export default function StarFeedback() {
   const [sending, setSending] = useState(false);
@@ -8,25 +9,17 @@ export default function StarFeedback() {
   const [comment, setComment] = useState<string>("");
   const [stars, setStars] = useState<number>(5);
 
-  async function submitFeedback() {
+  async function handleSubmit() {
     setSending(true);
     setError(null);
     setSuccess(false);
     try {
-      const res = await fetch("/api/feedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          stars,
-          comment,
-          path: typeof window !== "undefined" ? window.location.pathname : "",
-          ua: typeof navigator !== "undefined" ? navigator.userAgent : "",
-        }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
-
+      await submitFeedback(
+        stars,
+        comment,
+        typeof window !== "undefined" ? window.location.pathname : "",
+        { ua: typeof navigator !== "undefined" ? navigator.userAgent : "" }
+      );
       setSuccess(true);
       setComment("");
     } catch (e: any) {
@@ -63,7 +56,7 @@ export default function StarFeedback() {
       />
 
       <button
-        onClick={submitFeedback}
+        onClick={handleSubmit}
         disabled={sending}
         className="mt-2 rounded bg-black px-3 py-2 text-white disabled:opacity-50"
       >
@@ -75,4 +68,3 @@ export default function StarFeedback() {
     </div>
   );
 }
-
