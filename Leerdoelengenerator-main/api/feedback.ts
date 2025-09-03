@@ -9,6 +9,7 @@ type Payload = {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'GET') {
+    // Healthcheck zodat je direct 404 kunt uitsluiten
     return res.status(200).json({ ok: true, route: '/api/feedback' });
   }
   if (req.method !== 'POST') {
