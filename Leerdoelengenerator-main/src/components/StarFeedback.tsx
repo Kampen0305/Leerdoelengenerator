@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { sendFeedback } from "../utils/feedback";
 
 export default function StarFeedback() {
   const [sending, setSending] = useState(false);
@@ -13,19 +14,12 @@ export default function StarFeedback() {
     setError(null);
     setSuccess(false);
     try {
-      const res = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          rating: stars,
-          comment: (comment ?? '').trim() || undefined,
-          page: typeof window !== 'undefined' ? window.location.pathname : undefined,
-          ua: typeof navigator !== 'undefined' ? navigator.userAgent : undefined
-        })
+      await sendFeedback({
+        rating: stars,
+        comment: (comment ?? '').trim() || undefined,
+        page: typeof window !== 'undefined' ? window.location.pathname : undefined,
+        ua: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
       });
-
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
 
       setSuccess(true);
       setComment("");

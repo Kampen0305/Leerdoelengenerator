@@ -23,6 +23,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Invalid rating' });
     }
 
+    console.log('[feedback] rating=%s page=%s ua=%s', body.rating, body.page || '-', (body.ua || '').slice(0, 120));
+
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
     const RESEND_FROM = process.env.RESEND_FROM || 'feedback@onresend.com';
     const RESEND_TO = process.env.RESEND_TO || 'edwinspielhagen@gmail.com';
