@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="nl">
+<meta charset="utf-8" />
+<title>Feedback Test</title>
+<body style="font:16px system-ui;max-width:720px;margin:40px auto">
+  <h1>Feedback endpoint test</h1>
+  <label>Sterrenscore:
+    <input id="stars" type="number" min="1" max="5" value="5">
+  </label>
+  <br><br>
+  <label>Opmerking:<br>
+    <textarea id="comment" rows="3">Test via feedback-test.html</textarea>
+  </label>
+  <br><br>
+  <button id="send">Verstuur</button>
+  <pre id="out"></pre>
+
+  <script>
+    send.onclick = async () => {
+      out.textContent = "Versturen…";
+      const res = await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          stars: Number(stars.value),
+          comment: comment.value,
+          page: location.href,
+          ua: navigator.userAgent,
+          hp: ""
+        })
+      });
+      out.textContent = await res.text();
+    };
+  </script>
+</body>
+</html>
