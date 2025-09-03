@@ -19,7 +19,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const to = process.env.FEEDBACK_TO;
     const from = process.env.FEEDBACK_FROM;
     if (!process.env.RESEND_API_KEY || !to || !from) {
-      return res.status(500).json({ ok: false, error: 'Missing env: RESEND_API_KEY, FEEDBACK_TO, FEEDBACK_FROM' });
+      return res.status(500).json({
+        ok: false,
+        code: 'MISSING_ENV',
+        error: 'Missing env: RESEND_API_KEY, FEEDBACK_TO, FEEDBACK_FROM',
+        details: {
+          RESEND_API_KEY: !!process.env.RESEND_API_KEY,
+          FEEDBACK_FROM: !!from,
+          FEEDBACK_TO: !!to,
+        },
+      });
     }
 
     const subject = `Nieuwe feedback (${rating}/5)${page ? ` — ${page}` : ''}`;
@@ -34,7 +43,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     `;
 
     const result = await resend.emails.send({ from, to, subject, html });
-    if ((result as any)?.error) return res.status(502).json({ ok: false, error: String((result as any).error) });
+
+    if ((result as any)?.error) {
+      return res.status(502).json({
+        ok: false,
+        code: 'RESEND_ERROR',
+        error: String((result as any).error),
+      });
+    }
 
     return res.status(200).json({ ok: true });
   } catch (err: any) {
