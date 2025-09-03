@@ -30,6 +30,7 @@ import { NiveauCheck } from "./components/NiveauCheck";
 import { feature } from "@/config";
 import { LevelKey } from "./domain/levelProfiles";
 import Suggestions from "./components/Suggestions";
+import FeedbackWidget from "./components/FeedbackWidget";
 import { getSuggestions } from "./data/suggestions";
 import { inferGoalOrientation, mapEducationLevel } from "./utils/suggestionHelpers";
 import type { SuggestionBundle } from "./types/learning";
@@ -1444,6 +1445,8 @@ function App() {
           </div>
         )}
       </div>
+
+      <FeedbackWidget title="Hoe beoordeel je deze generator?" />
 
       <footer className="mt-12 text-center text-sm text-gray-600 space-x-4">
         <a href="/over" className="hover:underline">Transparantie & Verantwoording</a>
