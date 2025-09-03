@@ -13,15 +13,15 @@ export default function StarFeedback() {
     setError(null);
     setSuccess(false);
     try {
-      const res = await fetch("/api/feedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          stars,
-          comment,
-          path: typeof window !== "undefined" ? window.location.pathname : "",
-          ua: typeof navigator !== "undefined" ? navigator.userAgent : "",
-        }),
+          rating: stars,
+          comment: (comment ?? '').trim() || undefined,
+          page: typeof window !== 'undefined' ? window.location.pathname : undefined,
+          ua: typeof navigator !== 'undefined' ? navigator.userAgent : undefined
+        })
       });
 
       const data = await res.json().catch(() => ({}));
