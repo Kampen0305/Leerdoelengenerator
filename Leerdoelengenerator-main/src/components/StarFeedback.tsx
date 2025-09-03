@@ -9,6 +9,11 @@ export default function StarFeedback() {
   const [stars, setStars] = useState<number>(5);
 
   async function submitFeedback() {
+    if (stars < 1 || stars > 5) {
+      setError("Kies een beoordeling van 1 tot 5 sterren.");
+      return;
+    }
+
     setSending(true);
     setError(null);
     setSuccess(false);

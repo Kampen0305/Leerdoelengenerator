@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Resend } from 'resend';
 
+// Resend client is initialised lazily so tests can stub the API key
 const resend = new Resend(process.env.RESEND_API_KEY || '');
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -14,45 +15,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    const { rating, comment, page, meta } = body || {};
+    const { stars, comment, path, ua } = body || {};
 
-    if (typeof rating !== 'number' || rating < 1 || rating > 5) {
-      return res.status(400).json({ ok: false, error: 'Invalid rating (1–5 required)' });
+    const rating = Number(stars);
+    if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
+      return res.status(400).json({ ok: false, error: 'Invalid stars (1–5)' });
     }
 
-    const to = process.env.FEEDBACK_TO;
-    const from = process.env.FEEDBACK_FROM;
-    if (!process.env.RESEND_API_KEY || !to || !from) {
+    const to = process.env.FEEDBACK_TO_EMAIL;
+    if (!process.env.RESEND_API_KEY || !to) {
+      console.error('feedback missing env', {
+        RESEND_API_KEY: !!process.env.RESEND_API_KEY,
+        FEEDBACK_TO_EMAIL: !!to,
+      });
       return res.status(500).json({
         ok: false,
         code: 'MISSING_ENV',
-        error: 'Missing env: RESEND_API_KEY, FEEDBACK_TO, FEEDBACK_FROM',
-        details: {
-          RESEND_API_KEY: !!process.env.RESEND_API_KEY,
-          FEEDBACK_FROM: !!from,
-          FEEDBACK_TO: !!to,
-        },
+        error: 'Missing env: RESEND_API_KEY or FEEDBACK_TO_EMAIL',
       });
     }
 
-    const subject = `Nieuwe feedback (${rating}/5)${page ? ` — ${page}` : ''}`;
+    const site = process.env.SITE_NAME || 'LeerdoelenGenerator';
+    const subject = `⭐ ${rating}/5 feedback binnen op ${site}`;
     const html = `
-      <div style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif">
-        <h2>Nieuwe feedback</h2>
-        <p><strong>Rating:</strong> ${rating}/5</p>
-        ${comment ? `<p><strong>Commentaar:</strong> ${escapeHtml(comment)}</p>` : ''}
-        ${page ? `<p><strong>Pagina:</strong> ${escapeHtml(page)}</p>` : ''}
-        ${
-          meta
-            ? `<pre style="background:#f6f8fa;padding:12px;border-radius:6px">${escapeHtml(
-                JSON.stringify(meta, null, 2)
-              )}</pre>`
-            : ''
-        }
-      </div>
-    `;
+      <div style="font-family:system-ui,Segoe UI,Arial">
+        <h2>Nieuwe feedback op ${escapeHtml(site)}</h2>
+        <p><strong>Sterren:</strong> ${'★'.repeat(rating)}${'☆'.repeat(5 - rating)} (${rating}/5)</p>
+        ${comment ? `<p><strong>Opmerking:</strong><br>${escapeHtml(comment)}</p>` : ''}
+        <hr/>
+        <p style="font-size:12px;color:#666">
+          Pagina: ${escapeHtml(path || '-') }<br/>
+          User-Agent: ${escapeHtml(ua || '-') }<br/>
+          Timestamp: ${new Date().toISOString()}
+        </p>
+      </div>`;
 
-    const result = await resend.emails.send({ from, to, subject, html });
+    const result = await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to,
+      subject,
+      html,
+    });
     if ((result as any)?.error) {
       return res.status(502).json({ ok: false, code: 'RESEND_ERROR', error: String((result as any).error) });
     }
@@ -65,5 +68,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 function escapeHtml(s: string) {
-  return s.replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]!));
+  return (s ?? '').replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]!));
 }
