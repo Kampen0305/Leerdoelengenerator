@@ -34,6 +34,7 @@ import FeedbackWidget from "./components/FeedbackWidget";
 import { getSuggestions } from "./data/suggestions";
 import { inferGoalOrientation, mapEducationLevel } from "./utils/suggestionHelpers";
 import type { SuggestionBundle } from "./types/learning";
+import GoalFeedbackModal from "./components/GoalFeedbackModal";
 
 /* --------------------- Helpers: opslag + delen --------------------- */
 const STORAGE_KEY = "ld-app-state-v2";
@@ -219,6 +220,7 @@ function App() {
   const [showQualityChecker, setShowQualityChecker] = useState(false);
   const levelKey: LevelKey = toLevelKey(formData.context);
   const [showEducationGuidance, setShowEducationGuidance] = useState(false);
+  const [showGoalFeedback, setShowGoalFeedback] = useState(false);
   const [generationSource, setGenerationSource] = useState<GenerationSource>(null); // NIEUW: bron van de laatste generatie
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -416,6 +418,7 @@ function App() {
     }
 
         setOutput(adjusted);
+        setShowGoalFeedback(true);
         setGenerationSource("gemini");
         console.log("[AI-check] Gebruik: Gemini (AI)");
 
@@ -441,6 +444,7 @@ function App() {
           formData.context,
         );
         setOutput(aiOutput);
+        setShowGoalFeedback(true);
         setGenerationSource("fallback");
         console.log("[AI-check] Gebruik: fallback (geen Gemini)");
 
@@ -469,6 +473,7 @@ function App() {
         formData.context,
       );
       setOutput(fallback);
+      setShowGoalFeedback(true);
       setGenerationSource("fallback");
 
       setAiGoTags(
@@ -1457,6 +1462,11 @@ function App() {
       {showKDImport && <KDImport onKDImported={handleKDImported} onClose={() => setShowKDImport(false)} />}
       {showSavedObjectives && <SavedObjectives onLoadObjective={loadObjective} onClose={() => setShowSavedObjectives(false)} />}
       {showTemplateLibrary && <TemplateLibrary onUseTemplate={useTemplate} onClose={() => setShowTemplateLibrary(false)} />}
+      <GoalFeedbackModal
+        open={showGoalFeedback}
+        onClose={() => setShowGoalFeedback(false)}
+        goalText={output?.newObjective ?? ""}
+      />
 
       {/* Click outside to close export menu */}
       {showExportMenu && <div className="fixed inset-0 z-5" onClick={() => setShowExportMenu(false)} />}

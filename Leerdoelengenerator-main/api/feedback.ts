@@ -15,6 +15,7 @@ export default async function handler(req: Request): Promise<Response> {
     const body = await req.json().catch(() => ({}));
     const stars = Number(body?.stars);
     const comment = (body?.comment ?? "").toString().slice(0, 2000);
+    const goal = (body?.goal ?? "").toString().slice(0, 1600);
     const page = (body?.page ?? "").toString().slice(0, 500);
     const email = (body?.email ?? "").toString().slice(0, 320);
     const ua = (body?.ua ?? "").toString().slice(0, 500);
@@ -42,10 +43,11 @@ export default async function handler(req: Request): Promise<Response> {
       body: JSON.stringify({
         from: RESEND_FROM,
         to: FEEDBACK_TO,
-        subject: `Nieuwe feedback (${stars}⭐)`,
+        subject: `Beoordeling leerdoel (${stars}⭐)`,
         text: [
           `Sterren: ${stars}`,
           `Opmerking: ${comment || "-"}`,
+          `Leerdoel: ${goal || "-"}`,
           `Pagina: ${page || "-"}`,
           `Email (optioneel): ${email || "-"}`,
           `User-Agent: ${ua || "-"}`,
