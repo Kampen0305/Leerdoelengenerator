@@ -7,6 +7,7 @@ import GlossaryPage from '@/pages/begrippen';
 import Layout from '@/components/Layout';
 import RouteTracker from '@/components/RouteTracker';
 import CookieBanner from '@/components/CookieBanner';
+import '@/styles/brand.css';
 import './index.css';
 
 const rootElement = document.getElementById('root')!;

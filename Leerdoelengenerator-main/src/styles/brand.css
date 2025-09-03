@@ -1,0 +1,28 @@
+/* styles/brand.css */
+/* Pas de kleuren hier aan je huisstijl aan */
+:root{
+  --brand-bg:            #fffaf5; /* pagina-achtergrond (fallback) */
+  --brand-card:          #ffffff; /* kaart-achtergrond */
+  --brand-border:        #e5e7eb; /* kaart-rand */
+  --brand-text:          #111827; /* primaire tekst */
+  --brand-muted:         #6b7280; /* secundaire tekst */
+  --brand-accent:        #facc15; /* ACCENT (sterren/hover)  = geel */
+  --brand-btn-bg:        #111827; /* knop bg */
+  --brand-btn-text:      #ffffff; /* knop tekst */
+  --brand-btn-bg-hover:  #000000; /* knop hover */
+  --brand-success:       #16a34a; /* succesmelding */
+  --brand-error:         #dc2626; /* foutmelding */
+}
+
+@media (prefers-color-scheme: dark){
+  :root{
+    --brand-bg:           #0b0b0b;
+    --brand-card:         #101010;
+    --brand-border:       #262626;
+    --brand-text:         #fafafa;
+    --brand-muted:        #a3a3a3;
+    --brand-btn-bg:       #fafafa;
+    --brand-btn-text:     #0b0b0b;
+    --brand-btn-bg-hover: #ffffff;
+  }
+}
