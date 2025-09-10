@@ -28,8 +28,13 @@ const DEFAULT_ETHICS = ['privacy', 'bias', 'bronvermelding'];
  */
 export function generateTwoLaneOutput(ctx: LearningObjectiveContext): TwoLaneOutput {
   const lane = ctx.lane === 'baan2' ? 'baan2' : 'baan1';
-  const aiUsage: 'verboden' | 'beperkt' | 'toegestaan' | 'verplicht' =
-    ctx.ai_usage ?? (lane === 'baan2' ? 'toegestaan' : 'beperkt');
+  let aiUsage: 'verboden' | 'beperkt' | 'toegestaan' | 'verplicht';
+  if (lane === 'baan2') {
+    // In baan 2 mag AI altijd worden ingezet; alleen 'verplicht' blijft expliciet verplicht
+    aiUsage = ctx.ai_usage === 'verplicht' ? 'verplicht' : 'toegestaan';
+  } else {
+    aiUsage = ctx.ai_usage ?? 'beperkt';
+  }
 
   if (lane === 'baan1') {
     const objective = `Na afloop van deze les kan de student, zonder AI, ${ctx.original}`;
