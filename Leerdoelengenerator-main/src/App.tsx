@@ -34,6 +34,7 @@ import FeedbackInline from "@/components/FeedbackInline";
 import { getSuggestions } from "./data/suggestions";
 import { inferGoalOrientation, mapEducationLevel } from "./utils/suggestionHelpers";
 import type { SuggestionBundle } from "./types/learning";
+import { resolveLevelStrict } from "@/utils/levels";
 
 /* --------------------- Helpers: opslag + delen --------------------- */
 const STORAGE_KEY = "ld-app-state-v2";
@@ -46,43 +47,63 @@ function decodeState<T = any>(q: string | null): T | null {
   try { return JSON.parse(atob(decodeURIComponent(q))) as T; } catch { return null; }
 }
 
-function toLevelKey(ctx: { education: Education; level: string; voLevel?: VoLevel; vsoCluster?: VSOCluster }): LevelKey {
-  switch (ctx.education) {
-    case "MBO":
-      if (ctx.level === "Niveau 1") return "MBO-1";
-      if (ctx.level === "Niveau 2") return "MBO-2";
-      if (ctx.level === "Niveau 3") return "MBO-3";
-      if (ctx.level === "Niveau 4") return "MBO-4";
-      break;
-    case "HBO":
-      if (ctx.level === "Associate Degree") return "HBO-AD";
-      if (ctx.level === "Bachelor") return "HBO-Bachelor";
-      if (ctx.level === "Master") return "HBO-Master";
-      break;
-    case "WO":
-      if (ctx.level === "Bachelor") return "WO-Bachelor";
-      if (ctx.level === "Master") return "WO-Master";
-      break;
-    case "VO":
-      switch (ctx.voLevel) {
-        case "vmbo-bb":
-        case "vmbo-kb":
-          return "VO-vmbo-bbkb";
-        case "vmbo-gl-tl":
-          return "VO-vmbo-gtl";
-        case "havo":
-          return "VO-havo";
-        case "vwo":
-          return "VO-vwo";
-      }
-      break;
-    case "VSO":
-      if (ctx.level === "Vervolgonderwijsroute") return "VSO-vervolgonderwijs";
-      if (ctx.level === "Arbeidsmarktgerichte route") return "VSO-arbeidsmarkt";
-      if (ctx.level === "Dagbestedingsroute") return "VSO-dagbesteding";
-      break;
+function toLevelKey(ctx: {
+  education: Education;
+  level: string;
+  voLevel?: VoLevel;
+  vsoCluster?: VSOCluster;
+}): LevelKey {
+  try {
+    const level = resolveLevelStrict({
+      raw: `${ctx.education} ${ctx.level}`.trim(),
+      opleidingstype: ctx.education,
+    });
+
+    switch (level) {
+      case "MBO-1":
+      case "MBO-2":
+      case "MBO-3":
+      case "MBO-4":
+        return level;
+      case "HBO-Ad":
+        return "HBO-AD";
+      case "HBO-Bachelor":
+        return "HBO-Bachelor";
+      case "HBO-Master":
+        return "HBO-Master";
+      case "WO-Bachelor":
+        return "WO-Bachelor";
+      case "WO-Master":
+        return "WO-Master";
+      case "VO":
+        switch (ctx.voLevel) {
+          case "vmbo-bb":
+          case "vmbo-kb":
+            return "VO-vmbo-bbkb";
+          case "vmbo-gl-tl":
+            return "VO-vmbo-gtl";
+          case "havo":
+            return "VO-havo";
+          case "vwo":
+            return "VO-vwo";
+        }
+        break;
+      case "VSO":
+        if (ctx.level === "Vervolgonderwijsroute") return "VSO-vervolgonderwijs";
+        if (ctx.level === "Arbeidsmarktgerichte route") return "VSO-arbeidsmarkt";
+        if (ctx.level === "Dagbestedingsroute") return "VSO-dagbesteding";
+        break;
+    }
+  } catch (err) {
+    console.warn(
+      `Niveau onbekend: education="${ctx.education}", level="${ctx.level}", voLevel="${ctx.voLevel}", vsoCluster="${ctx.vsoCluster}"; val terug op HBO-Bachelor`
+    );
+    return "HBO-Bachelor";
   }
-  console.warn("Onbekend niveau, val terug op HBO-Bachelor");
+
+  console.warn(
+    `Niveau onbekend: education="${ctx.education}", level="${ctx.level}", voLevel="${ctx.voLevel}", vsoCluster="${ctx.vsoCluster}"; val terug op HBO-Bachelor`
+  );
   return "HBO-Bachelor";
 }
 
@@ -217,7 +238,10 @@ function App() {
   const [importedKD, setImportedKD] = useState<KDStructure | null>(null);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showQualityChecker, setShowQualityChecker] = useState(false);
-  const levelKey: LevelKey = toLevelKey(formData.context);
+  const levelKey: LevelKey =
+    formData.context.education && formData.context.level
+      ? toLevelKey(formData.context)
+      : "HBO-Bachelor";
   const [showEducationGuidance, setShowEducationGuidance] = useState(false);
   const [generationSource, setGenerationSource] = useState<GenerationSource>(null); // NIEUW: bron van de laatste generatie
   const [menuOpen, setMenuOpen] = useState(false);
