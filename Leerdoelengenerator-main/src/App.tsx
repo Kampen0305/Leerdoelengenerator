@@ -47,48 +47,64 @@ function decodeState<T = any>(q: string | null): T | null {
   try { return JSON.parse(atob(decodeURIComponent(q))) as T; } catch { return null; }
 }
 
-function toLevelKey(ctx: { education: Education; level: string; voLevel?: VoLevel; vsoCluster?: VSOCluster }): LevelKey {
-  const level = resolveLevelStrict({
-    raw: `${ctx.education} ${ctx.level}`.trim(),
-    opleidingstype: ctx.education,
-  });
+function toLevelKey(ctx: {
+  education: Education;
+  level: string;
+  voLevel?: VoLevel;
+  vsoCluster?: VSOCluster;
+}): LevelKey {
+  try {
+    const level = resolveLevelStrict({
+      raw: `${ctx.education} ${ctx.level}`.trim(),
+      opleidingstype: ctx.education,
+    });
 
-  switch (level) {
-    case "MBO-1":
-    case "MBO-2":
-    case "MBO-3":
-    case "MBO-4":
-      return level;
-    case "HBO-Ad":
-      return "HBO-AD";
-    case "HBO-Bachelor":
-      return "HBO-Bachelor";
-    case "HBO-Master":
-      return "HBO-Master";
-    case "WO-Bachelor":
-      return "WO-Bachelor";
-    case "WO-Master":
-      return "WO-Master";
-    case "VO":
-      switch (ctx.voLevel) {
-        case "vmbo-bb":
-        case "vmbo-kb":
-          return "VO-vmbo-bbkb";
-        case "vmbo-gl-tl":
-          return "VO-vmbo-gtl";
-        case "havo":
-          return "VO-havo";
-        case "vwo":
-          return "VO-vwo";
-      }
-      break;
-    case "VSO":
-      if (ctx.level === "Vervolgonderwijsroute") return "VSO-vervolgonderwijs";
-      if (ctx.level === "Arbeidsmarktgerichte route") return "VSO-arbeidsmarkt";
-      if (ctx.level === "Dagbestedingsroute") return "VSO-dagbesteding";
-      break;
+    switch (level) {
+      case "MBO-1":
+      case "MBO-2":
+      case "MBO-3":
+      case "MBO-4":
+        return level;
+      case "HBO-Ad":
+        return "HBO-AD";
+      case "HBO-Bachelor":
+        return "HBO-Bachelor";
+      case "HBO-Master":
+        return "HBO-Master";
+      case "WO-Bachelor":
+        return "WO-Bachelor";
+      case "WO-Master":
+        return "WO-Master";
+      case "VO":
+        switch (ctx.voLevel) {
+          case "vmbo-bb":
+          case "vmbo-kb":
+            return "VO-vmbo-bbkb";
+          case "vmbo-gl-tl":
+            return "VO-vmbo-gtl";
+          case "havo":
+            return "VO-havo";
+          case "vwo":
+            return "VO-vwo";
+        }
+        break;
+      case "VSO":
+        if (ctx.level === "Vervolgonderwijsroute") return "VSO-vervolgonderwijs";
+        if (ctx.level === "Arbeidsmarktgerichte route") return "VSO-arbeidsmarkt";
+        if (ctx.level === "Dagbestedingsroute") return "VSO-dagbesteding";
+        break;
+    }
+  } catch (err) {
+    console.warn(
+      `Niveau onbekend: education="${ctx.education}", level="${ctx.level}", voLevel="${ctx.voLevel}", vsoCluster="${ctx.vsoCluster}"; val terug op HBO-Bachelor`
+    );
+    return "HBO-Bachelor";
   }
-  throw new Error(`Niveau onbekend: education="${ctx.education}", level="${ctx.level}", voLevel="${ctx.voLevel}", vsoCluster="${ctx.vsoCluster}"`);
+
+  console.warn(
+    `Niveau onbekend: education="${ctx.education}", level="${ctx.level}", voLevel="${ctx.voLevel}", vsoCluster="${ctx.vsoCluster}"; val terug op HBO-Bachelor`
+  );
+  return "HBO-Bachelor";
 }
 
 /* ===== AI-GO: automatische labeling (regelgebaseerd) ===== */
@@ -222,7 +238,10 @@ function App() {
   const [importedKD, setImportedKD] = useState<KDStructure | null>(null);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showQualityChecker, setShowQualityChecker] = useState(false);
-  const levelKey: LevelKey = toLevelKey(formData.context);
+  const levelKey: LevelKey =
+    formData.context.education && formData.context.level
+      ? toLevelKey(formData.context)
+      : "HBO-Bachelor";
   const [showEducationGuidance, setShowEducationGuidance] = useState(false);
   const [generationSource, setGenerationSource] = useState<GenerationSource>(null); // NIEUW: bron van de laatste generatie
   const [menuOpen, setMenuOpen] = useState(false);
