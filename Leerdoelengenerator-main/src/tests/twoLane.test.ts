@@ -33,6 +33,21 @@ describe('Two-Lane generator', () => {
     expect(out.rubric).toContain('AI-geletterdheid (keuze, promptkwaliteit, evaluatie)');
   });
 
+  it('Baan 2 negeert expliciet AI-verbod en staat gebruik toe', () => {
+    const ctx: LearningObjectiveContext = {
+      original: 'eenvoudige wondverzorging uitvoeren bij een gesimuleerde cliënt, conform richtlijnen',
+      education: 'MBO',
+      level: 'Niveau 2',
+      domain: 'Zorg',
+      lane: 'baan2',
+      ai_usage: 'verboden',
+    } as any;
+    const out = generateTwoLaneOutput(ctx);
+    expect(out.aiUsage).toBe('toegestaan');
+    expect(out.objective).toContain('toegestaan');
+    expect(out.objective).not.toContain('verboden');
+  });
+
   it('Business-domein met verplicht AI-gebruik vermeldt verplicht in doel', () => {
     const ctx: LearningObjectiveContext = {
       original: 'een financieel plan opstellen voor een start-up',
