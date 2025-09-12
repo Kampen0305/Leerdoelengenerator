@@ -1,0 +1,26 @@
+{
+  "BURGERSCHAP": [
+    {
+      "id": "SLO-B-POVO-01",
+      "titel": "Democratie & participatie",
+      "beschrijving": "Leerlingen oefenen met meepraten, meebeslissen en respectvol debat. Focus op actieve bijdrage binnen school en samenleving."
+    },
+    {
+      "id": "SLO-B-POVO-02",
+      "titel": "Identiteit, diversiteit & inclusie",
+      "beschrijving": "Bewustwording van eigen waarden, omgaan met verschillen en sociale veiligheid. Aandacht voor gelijke kansen en inclusie."
+    }
+  ],
+  "DG": [
+    {
+      "id": "SLO-DG-POVO-01",
+      "titel": "Informatievaardigheden",
+      "beschrijving": "Zoeken, selecteren en beoordelen van bronnen. Leren citeren, checken en verantwoord gebruiken van informatie."
+    },
+    {
+      "id": "SLO-DG-POVO-02",
+      "titel": "Mediawijsheid & digitale veiligheid",
+      "beschrijving": "Omgaan met privacy, wachtwoorden, (des)informatie en online gedrag. Herkennen van risico’s en veilig handelen."
+    }
+  ]
+}
