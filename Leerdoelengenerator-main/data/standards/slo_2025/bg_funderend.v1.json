@@ -1,0 +1,13 @@
+[
+  {
+    "id": "BG-VO-02",
+    "sectors": ["VO_ONDERBOUW", "VSO", "PO", "SO"],
+    "leergebied": "BURGERSCHAP",
+    "kernzin": "<exacte SLO-kernzin>",
+    "subdoelen": [
+      { "code": "BG-VO-02-a", "tekst": "<exact subdoel>" }
+    ],
+    "status": "definitieve_concepten_2025",
+    "bron": { "doc": "SLO-2025", "ref": "Burgerschap: secties PO/SO/VO-onderbouw/VSO" }
+  }
+]
