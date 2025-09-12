@@ -1,6 +1,11 @@
 import type React from 'react';
+import { GoalItemHeader } from './GoalItemHeader';
+import type { EducationLevel } from '@/types/education';
 
-export function OutputView({ text, onRetry }: { text: string; onRetry?: () => void }) {
+type OutputResult = { text: string; meta: { level: EducationLevel } };
+
+export function OutputView({ result, onRetry }: { result: OutputResult; onRetry?: () => void }) {
+  const { text, meta } = result;
   const hasBasis = /(?:\n|^)Basis:\n- /.test(text);
 
   if (!hasBasis) {
@@ -21,6 +26,7 @@ export function OutputView({ text, onRetry }: { text: string; onRetry?: () => vo
 
   return (
     <div className="space-y-4">
+      <GoalItemHeader level={meta.level} />
       <pre className="whitespace-pre-wrap">{content}</pre>
       <div>
         <h4 className="font-medium">Basis:</h4>

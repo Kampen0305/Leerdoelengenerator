@@ -24,5 +24,6 @@ export async function generate(reqBody: unknown) {
   if (outLevel !== level) {
     throw new Error(`VALIDATION_ERROR: Niveau mismatch (gekozen ${level}, output ${outLevel})`);
   }
-  return result;
+  const meta = { level };
+  return { ...result, meta };
 }
