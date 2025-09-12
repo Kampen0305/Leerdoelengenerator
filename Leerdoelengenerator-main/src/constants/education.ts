@@ -1,13 +1,15 @@
 export const EDUCATION_TYPES = [
+  "PO",
+  "SO",
+  "VO",
+  "VSO",
   "MBO",
   "HBO",
   "WO",
-  "VO",
-  "VSO",
 ] as const;
 export type Education = typeof EDUCATION_TYPES[number];
 
-export const LEVEL_OPTIONS: Record<Exclude<Education, "VO">, string[]> = {
+export const LEVEL_OPTIONS: Partial<Record<Education, string[]>> = {
   MBO: ["Niveau 1", "Niveau 2", "Niveau 3", "Niveau 4"],
   HBO: ["Bachelor", "Associate Degree", "Master"],
   WO: ["Bachelor", "Master"],

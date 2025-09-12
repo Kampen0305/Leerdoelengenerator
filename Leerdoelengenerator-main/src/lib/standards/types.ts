@@ -7,8 +7,8 @@ export type Sector =
   | 'HBO'
   | 'WO';
 
-export interface FunderendFlowState {
-  sector: Sector;
+export interface FlowState {
+  sector: Sector | null;
   voSublevel?: 'onderbouw' | 'bovenbouw';
 }
 
