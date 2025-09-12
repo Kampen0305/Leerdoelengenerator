@@ -1,0 +1,13 @@
+[
+  {
+    "id": "DG-PO-01",
+    "sectors": ["PO", "SO", "VO_ONDERBOUW", "VSO"],
+    "leergebied": "DG",
+    "kernzin": "<exacte SLO-kernzin>",
+    "subdoelen": [
+      { "code": "DG-PO-01-a", "tekst": "<exact subdoel>" }
+    ],
+    "status": "definitieve_concepten_2025",
+    "bron": { "doc": "SLO-2025", "ref": "DG: Kerndoelen PO/SO en VO-onderbouw/VSO" }
+  }
+]
