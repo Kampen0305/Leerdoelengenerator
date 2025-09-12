@@ -10,7 +10,8 @@ import { KDImport } from "./components/KDImport";
 import { SavedObjectives } from "./components/SavedObjectives";
 import { TemplateLibrary } from "./components/TemplateLibrary";
 import { Hero } from "./components/Hero";
-import ExamplesPanel from "./components/ExamplesPanel";
+import Voorbeeldcases from "@/features/examples/Voorbeeldcases";
+import type { VoorbeeldCase } from "@/lib/examples";
 
 /** Paneel-knoppen werken weer via named exports zoals voorheen */
 import { QualityChecker } from "./components/QualityChecker";
@@ -249,9 +250,18 @@ function App() {
   const [generationSource, setGenerationSource] = useState<GenerationSource>(null); // NIEUW: bron van de laatste generatie
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleExampleSelect = (example: LearningObjective) => {
-    setFormData(example);
-    setSector(example.context.education as Sector);
+  const handleExampleSelect = (ex: VoorbeeldCase) => {
+    setSector(ex.sector);
+    setFormData({
+      original: ex.korteBeschrijving || ex.titel,
+      context: {
+        education: ex.sector,
+        level: "",
+        domain: ex.leergebied ?? "",
+        assessment: "",
+      },
+    });
+    setLane(ex.baan === 2 ? "baan2" : "baan1");
   };
 
   /* ---------- Hydrate bij laden (eerst URL, anders localStorage) ---------- */
@@ -966,7 +976,7 @@ function App() {
         {currentStep === 1 && (
           <div className="grid lg:grid-cols-4 gap-8">
             <div className="lg:col-span-1">
-              <ExamplesPanel onSelectExample={handleExampleSelect} />
+              <Voorbeeldcases currentSector={sector} debug onSelect={handleExampleSelect} />
             </div>
             <div className="lg:col-span-2">
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
