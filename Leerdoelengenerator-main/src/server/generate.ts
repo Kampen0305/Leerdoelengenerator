@@ -2,14 +2,16 @@ import { GeneratePayload } from '@/api/schema';
 import { LEVEL_TO_GROUP, type EducationLevel } from '@/types/education';
 import { buildPrompt } from '@/generator/prompt';
 import { llmGenerate } from '@/features/generator/llm';
+import { getSourcesForLevel } from '@/config/sources';
 
 export async function generate(reqBody: unknown) {
   const parsed = GeneratePayload.parse(reqBody);
   const level = parsed.level as EducationLevel;
   const group = LEVEL_TO_GROUP[level];
+  const sources = getSourcesForLevel(level);
 
   // safety net: prompt krijgt level + group ingebakken
-  const prompt = buildPrompt({ ...parsed, level, group });
+  const prompt = buildPrompt({ ...parsed, level, group, sources: sources.map((s) => s.title) });
 
   const result = await llmGenerate(prompt);
 
