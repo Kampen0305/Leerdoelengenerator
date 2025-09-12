@@ -1,15 +1,18 @@
+import { useMemo } from 'react';
 import { getAllVoorbeeldcases, getSectorCounts /*, getCasesBySector */ } from '@/lib/examples';
 import type { VoorbeeldCase } from '@/lib/examples';
 import { compareByLevel, LevelKey } from '@/utils/levelOrder';
+import { filterBySectorOrCategory, Sector } from '@/core/education/ui-adapters';
 
 export default function Voorbeeldcases({ currentSector, debug = false, onSelect }:{
   currentSector?: string | null;
   debug?: boolean;
   onSelect?: (c: VoorbeeldCase) => void;
 }) {
-  // TIJDELIJK: zet filter uit om zichtbaarheid te verifiëren:
-  // const cases = getCasesBySector(currentSector as any);
-  const cases = getAllVoorbeeldcases().sort((a, b) => compareByLevel(a.titel, b.titel));
+  const cases = useMemo(() => {
+    const all = getAllVoorbeeldcases().sort((a, b) => compareByLevel(a.titel, b.titel));
+    return currentSector ? filterBySectorOrCategory(all, currentSector as Sector) : all;
+  }, [currentSector]);
 
   const counts = getSectorCounts();
   const countsLine = (['WO','HBO','MBO','VO','VSO','PO','SO'] as LevelKey[])

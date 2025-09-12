@@ -25,11 +25,11 @@ import { geminiService } from "./services/gemini";
 import type { Education, VoLevel, VSOCluster } from "./types/context";
 import { LEVEL_OPTIONS, VO_LEVELS, VSO_CLUSTERS } from "./constants/education";
 import SectorSelector from "@/features/sector/SectorSelector";
-import type { Sector } from "@/lib/standards/types";
-import { isFunderend } from "@/features/sector/utils";
+import { Sector, toCategory, isBaanApplicable } from "@/core/education/ui-adapters";
 import { getVoGradeOptions } from "./utils/vo";
 import NiveauBadge from "@/components/NiveauBadge";
-import { OnderwijsSector, isFunderend } from "@/domain/niveau";
+import { OnderwijsSector } from "@/domain/niveau";
+import { isFunderend } from "@/features/sector/utils";
 import { NiveauCheck } from "./components/NiveauCheck";
 import { feature } from "@/config";
 import { LevelKey } from "./domain/levelProfiles";
@@ -657,6 +657,7 @@ function App() {
   const handleSectorChange = (s: Sector) => {
     setSector(s);
     handleInputChange("education", s);
+    setLane((prev) => (isBaanApplicable(s) ? prev : ""));
   };
   const handleKDImported = (kd: KDStructure) => setImportedKD(kd);
 
@@ -1007,10 +1008,17 @@ function App() {
                     <>
                       {/* Two-Lane keuze */}
                       <ObjectiveForm
+                        sector={sector}
                         lane={lane}
                         onLaneChange={setLane}
                         geminiAvailable={geminiService.isAvailable()}
                       />
+
+                      <div className="source-badge" style={{ marginTop: 8, fontSize: 12, opacity: 0.9 }}>
+                        {toCategory(sector) === 'FUNDEREND'
+                          ? 'Bron: SLO-kerndoelen (funderend onderwijs)'
+                          : 'Bron: Npuls-visie & handreikingen (beroepsonderwijs)'}
+                      </div>
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
