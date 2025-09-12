@@ -1,24 +1,28 @@
 import React from "react";
 import InfoBox from "./components/InfoBox";
+import { Sector, isBaanApplicable } from "@/core/education/ui-adapters";
 
 type Lane = "baan1" | "baan2";
 
 interface ObjectiveFormProps {
+  sector: Sector;
   lane: "" | Lane;
   onLaneChange: (lane: Lane) => void;
   geminiAvailable: boolean;
 }
 
-export function ObjectiveForm({ lane, onLaneChange, geminiAvailable }: ObjectiveFormProps) {
+export function ObjectiveForm({ sector, lane, onLaneChange, geminiAvailable }: ObjectiveFormProps) {
+  const baanEnabled = isBaanApplicable(sector);
   return (
-    <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-      <div className="text-sm font-medium text-slate-700 mb-2">Kies aanpak *</div>
+    <fieldset className="bg-slate-50 border border-slate-200 rounded-lg p-4" aria-disabled={!baanEnabled}>
+      <legend className="text-sm font-medium text-slate-700 mb-2">Kies aanpak *</legend>
       <div className="flex flex-wrap gap-4">
         <label className="inline-flex items-center gap-2">
           <input
             type="radio"
             name="lane"
             value="baan1"
+            disabled={!baanEnabled}
             checked={lane === "baan1"}
             onChange={() => onLaneChange("baan1")}
             required
@@ -37,9 +41,9 @@ export function ObjectiveForm({ lane, onLaneChange, geminiAvailable }: Objective
             type="radio"
             name="lane"
             value="baan2"
+            disabled={!baanEnabled || !geminiAvailable}
             checked={lane === "baan2"}
             onChange={() => onLaneChange("baan2")}
-            disabled={!geminiAvailable}
             required
           />
           <span>
@@ -52,7 +56,12 @@ export function ObjectiveForm({ lane, onLaneChange, geminiAvailable }: Objective
           </span>
         </label>
       </div>
-    </div>
+      {!baanEnabled && (
+        <p className="hint mt-2 text-sm text-gray-600">
+          Baan-keuze is alleen van toepassing op het <strong>beroepsonderwijs</strong> (MBO/HBO/WO).
+        </p>
+      )}
+    </fieldset>
   );
 }
 
