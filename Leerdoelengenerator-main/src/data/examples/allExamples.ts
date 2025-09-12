@@ -12,15 +12,9 @@ export interface VoorbeeldCase {
   expected: string[];
 }
 
-// -- Bestaande cases (haal uit je huidige bronbestanden of plak hier over):
-export const mboHboCases: VoorbeeldCase[] = [
-  { id:'mbo-zorg',  titel:'mbo-zorg',  sector:'MBO', leergebied:'ALGEMEEN', korteBeschrijving:'', baan:2, inputs:[], expected:[] },
-  { id:'mbo-sport', titel:'mbo-sport', sector:'MBO', leergebied:'ALGEMEEN', korteBeschrijving:'', baan:1, inputs:[], expected:[] },
-  { id:'hbo-ict',   titel:'hbo-ict',   sector:'HBO', leergebied:'ALGEMEEN', korteBeschrijving:'', baan:2, inputs:[], expected:[] },
-];
-
-// -- Nieuwe funderend + WO cases (zoals eerder aangeleverd):
-// --- Herschreven MBO + HBO cases in uniforme stijl ---
+/* =========================
+   MBO + HBO (alleen deze 3)
+   ========================= */
 export const mboHboCases: VoorbeeldCase[] = [
   {
     id: 'mbo-sport-fairplay',
@@ -33,13 +27,13 @@ export const mboHboCases: VoorbeeldCase[] = [
       'Sector=MBO',
       'Leergebied=Burgerschap',
       'Kerndoel: democratische cultuur en sociale/morele ontwikkeling',
-      'Context: beroepssituatie Sport & Bewegen',
+      'Context: beroepssituatie Sport & Bewegen'
     ],
     expected: [
       'Koppeling met burgerschapsdoelen',
       'Werkvorm: rollenspel en groepsgesprek',
-      'Bewijsvorm: reflectieverslag of presentatie',
-    ],
+      'Bewijsvorm: reflectieverslag of presentatie'
+    ]
   },
   {
     id: 'mbo-zorg-beroepsdilemma',
@@ -52,13 +46,13 @@ export const mboHboCases: VoorbeeldCase[] = [
       'Sector=MBO',
       'Leergebied=Algemeen',
       'Kerndoel: kritisch denken en beroepsethiek',
-      'Context: simulatie in zorgpraktijk',
+      'Context: simulatie in zorgpraktijk'
     ],
     expected: [
       'Koppeling met beroepspraktijk',
       'Werkvorm: casusbespreking met AI-hulp',
-      'Bewijsvorm: reflectieverslag en observatie',
-    ],
+      'Bewijsvorm: reflectieverslag en observatie'
+    ]
   },
   {
     id: 'hbo-ict-dataethiek',
@@ -71,14 +65,20 @@ export const mboHboCases: VoorbeeldCase[] = [
       'Sector=HBO',
       'Leergebied=Digitale geletterdheid',
       'Kerndoel: kritisch en ethisch gebruik van AI',
-      'Context: beroepsopdracht ICT',
+      'Context: beroepsopdracht ICT'
     ],
     expected: [
       'Toepassing AI-bewustzijn in beroepscontext',
       'Werkvorm: reflectieverslag + bronnenanalyse',
-      'Bewijsvorm: verslag en beoordeling door docent',
-    ],
-  },
+      'Bewijsvorm: verslag en beoordeling door docent'
+    ]
+  }
+];
+
+/* =====================================
+   Funderend + WO (alles wat al goed stond)
+   ===================================== */
+export const funderendWoCases: VoorbeeldCase[] = [
   {
     id: 'po-dg-mediawijsheid',
     titel: 'PO – DG: Mediawijs nieuwsbericht',
@@ -86,8 +86,18 @@ export const mboHboCases: VoorbeeldCase[] = [
     leergebied: 'DG',
     korteBeschrijving: 'Leerlingen vergelijken twee kinderberichten en checken bron, bedoeling en betrouwbaarheid.',
     baan: 2,
-    inputs: ['Sector=PO, Leergebied=Digitale geletterdheid','Kerndoel: media & informatievaardigheid','TOS: taalvereenvoudiging=licht'],
-    expected: ['Officiële kerndoeltekst','Didactische leerdoelen in kindtaal','Werkvorm Baan 1 & Baan 2','Reflectievragen over juistheid en bias']
+    inputs: [
+      'Sector=PO',
+      'Leergebied=Digitale geletterdheid',
+      'Kerndoel: media & informatievaardigheid',
+      'TOS: taalvereenvoudiging=licht'
+    ],
+    expected: [
+      'Officiële kerndoeltekst',
+      'Didactische leerdoelen in kindtaal',
+      'Werkvorm Baan 1 & Baan 2',
+      'Reflectievragen over juistheid en bias'
+    ]
   },
   {
     id: 'po-burg-klassafspraken',
@@ -96,8 +106,16 @@ export const mboHboCases: VoorbeeldCase[] = [
     leergebied: 'BURGERSCHAP',
     korteBeschrijving: 'Klas maakt gezamenlijke afspraken na een kringgesprek over samen spelen/delen.',
     baan: 1,
-    inputs: ['Sector=PO, Leergebied=Burgerschap','Kerndoel: democratische cultuur of sociale/morele ontwikkeling'],
-    expected: ['Officiële kerndoeltekst','Werkvorm zonder AI + differentiatie','Bewijsvorm: observatie + klasposter']
+    inputs: [
+      'Sector=PO',
+      'Leergebied=Burgerschap',
+      'Kerndoel: democratische cultuur of sociale/morele ontwikkeling'
+    ],
+    expected: [
+      'Officiële kerndoeltekst',
+      'Werkvorm zonder AI + differentiatie',
+      'Bewijsvorm: observatie + klasposter'
+    ]
   },
   {
     id: 'so-dg-spraak-naar-tekst',
@@ -106,8 +124,18 @@ export const mboHboCases: VoorbeeldCase[] = [
     leergebied: 'DG',
     korteBeschrijving: 'Leerlingen met TOS dicteren een kort verhaal en redigeren samen.',
     baan: 2,
-    inputs: ['Sector=SO, Leergebied=DG','TOS: spraakNaarTekst=true, taalvereenvoudiging=sterk, visueleHints=true'],
-    expected: ['Officiële kerndoeltekst','Baan-2: transparantie + logboek','TOS-tips en pictogram-stappenplan']
+    inputs: [
+      'Sector=SO',
+      'Leergebied=DG',
+      'TOS: spraakNaarTekst=true',
+      'Taalvereenvoudiging=sterk',
+      'VisueleHints=true'
+    ],
+    expected: [
+      'Officiële kerndoeltekst',
+      'Baan-2: transparantie + logboek',
+      'TOS-tips en pictogram-stappenplan'
+    ]
   },
   {
     id: 'so-burg-rollen-en-regels',
@@ -116,8 +144,15 @@ export const mboHboCases: VoorbeeldCase[] = [
     leergebied: 'BURGERSCHAP',
     korteBeschrijving: 'Rollenspel “Wat doe je als…?” rond schoolplein- en online regels.',
     baan: 1,
-    inputs: ['Sector=SO, Leergebied=Burgerschap'],
-    expected: ['Officiële kerndoeltekst','Duidelijke stappen zonder AI','Observatie + nabespreking']
+    inputs: [
+      'Sector=SO',
+      'Leergebied=Burgerschap'
+    ],
+    expected: [
+      'Officiële kerndoeltekst',
+      'Duidelijke stappen zonder AI',
+      'Observatie + nabespreking'
+    ]
   },
   {
     id: 'vo-dg-factcheck',
@@ -126,8 +161,18 @@ export const mboHboCases: VoorbeeldCase[] = [
     leergebied: 'DG',
     korteBeschrijving: 'Leerlingen onderzoeken een viraal bericht: waar of niet?',
     baan: 2,
-    inputs: ['Sector=VO, Leergebied=DG','Kerndoel: informatievaardigheid','Baan=2, Reflectie verplicht'],
-    expected: ['Officiële kerndoeltekst','Werkvorm met AI + bronvermelding prompts','Logboek + reflectie']
+    inputs: [
+      'Sector=VO',
+      'Leergebied=DG',
+      'Kerndoel: informatievaardigheid',
+      'Baan=2',
+      'Reflectie verplicht'
+    ],
+    expected: [
+      'Officiële kerndoeltekst',
+      'Werkvorm met AI + bronvermelding prompts',
+      'Logboek + reflectie'
+    ]
   },
   {
     id: 'vo-burg-debat',
@@ -136,8 +181,15 @@ export const mboHboCases: VoorbeeldCase[] = [
     leergebied: 'BURGERSCHAP',
     korteBeschrijving: 'Teams debatteren over een actuele schoolkwestie.',
     baan: 1,
-    inputs: ['Sector=VO, Leergebied=Burgerschap'],
-    expected: ['Officiële kerndoeltekst','Werkvorm zonder AI + rubric','Peer-feedback']
+    inputs: [
+      'Sector=VO',
+      'Leergebied=Burgerschap'
+    ],
+    expected: [
+      'Officiële kerndoeltekst',
+      'Werkvorm zonder AI + rubric',
+      'Peer-feedback'
+    ]
   },
   {
     id: 'vso-dg-veilig-online',
@@ -146,8 +198,16 @@ export const mboHboCases: VoorbeeldCase[] = [
     leergebied: 'DG',
     korteBeschrijving: 'Sterk wachtwoord, 2FA instellen en phishing herkennen.',
     baan: 2,
-    inputs: ['Sector=VSO, Leergebied=DG','TOS: visueleHints=true'],
-    expected: ['Officiële kerndoeltekst','Checklist + bewijs','Transparantie & korte reflectie']
+    inputs: [
+      'Sector=VSO',
+      'Leergebied=DG',
+      'TOS: visueleHints=true'
+    ],
+    expected: [
+      'Officiële kerndoeltekst',
+      'Checklist + bewijs',
+      'Transparantie & korte reflectie'
+    ]
   },
   {
     id: 'vso-burg-mededeling',
@@ -156,8 +216,15 @@ export const mboHboCases: VoorbeeldCase[] = [
     leergebied: 'BURGERSCHAP',
     korteBeschrijving: 'Korte mededeling maken voor buurthuis-activiteit.',
     baan: 1,
-    inputs: ['Sector=VSO, Leergebied=Burgerschap'],
-    expected: ['Officiële kerndoeltekst','Observatielijst sociaal-communicatief','Eenvoudige rubric (3 niveaus)']
+    inputs: [
+      'Sector=VSO',
+      'Leergebied=Burgerschap'
+    ],
+    expected: [
+      'Officiële kerndoeltekst',
+      'Observatielijst sociaal-communicatief',
+      'Eenvoudige rubric (3 niveaus)'
+    ]
   },
   {
     id: 'wo-ai-ethiek-essay',
@@ -166,13 +233,23 @@ export const mboHboCases: VoorbeeldCase[] = [
     leergebied: 'ALGEMEEN',
     korteBeschrijving: 'Essay (±1200 woorden) met transparante AI-inzet.',
     baan: 2,
-    inputs: ['Sector=WO','Eigen leeruitkomst + ethiek/kritisch denken','Promptlog verplicht'],
-    expected: ['Didactische leeruitkomsten','Transparantie, logboek, reflectie','Beoordeling: argumentatie + bronnen + proces']
+    inputs: [
+      'Sector=WO',
+      'Eigen leeruitkomst + ethiek/kritisch denken',
+      'Promptlog verplicht'
+    ],
+    expected: [
+      'Didactische leeruitkomsten',
+      'Transparantie, logboek, reflectie',
+      'Beoordeling: argumentatie + bronnen + proces'
+    ]
   }
 ];
 
+/* =========================
+   Gecombineerde export
+   ========================= */
 export const allVoorbeeldcases: VoorbeeldCase[] = [
   ...mboHboCases,
-  ...funderendWoCases,
+  ...funderendWoCases
 ];
-
