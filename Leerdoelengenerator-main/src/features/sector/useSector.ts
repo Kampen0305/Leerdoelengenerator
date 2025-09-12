@@ -1,7 +1,12 @@
 import { useState } from 'react';
-import type { Sector } from '../../constants/sector';
+import type { FunderendFlowState, Sector } from '../../lib/standards/types';
 
-export function useSector(initial: Sector = 'MBO') {
-  const [sector, setSector] = useState<Sector>(initial);
-  return { sector, setSector };
+export function useSector(
+  initial: FunderendFlowState = { sector: 'MBO', voSublevel: 'onderbouw' }
+) {
+  const [state, setState] = useState<FunderendFlowState>(initial);
+  const setSector = (sector: Sector) => setState((s) => ({ ...s, sector }));
+  const setVoSublevel = (voSublevel: 'onderbouw' | 'bovenbouw') =>
+    setState((s) => ({ ...s, voSublevel }));
+  return { ...state, setSector, setVoSublevel };
 }

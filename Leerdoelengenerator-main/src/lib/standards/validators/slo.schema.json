@@ -8,7 +8,9 @@
       "id": { "type": "string" },
       "sectors": {
         "type": "array",
-        "items": { "type": "string" }
+        "items": {
+          "enum": ["PO", "SO", "VO", "VSO", "MBO", "HBO", "WO"]
+        }
       },
       "leergebied": { "type": "string" },
       "kernzin": { "type": "string" },

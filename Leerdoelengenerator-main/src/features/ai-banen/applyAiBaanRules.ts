@@ -1,10 +1,12 @@
 import type { AiBaanSettings } from '../../lib/standards/types';
+import { track } from '../../services/telemetry';
 
 interface Section {
   content: string[];
 }
 
 export function applyAiBaanRules(sections: Section, settings: AiBaanSettings): Section {
+  track('ai_baan_selected', { baan: settings.baan });
   if (settings.baan === 2) {
     return {
       content: [

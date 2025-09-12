@@ -1,7 +1,7 @@
 export const SECTORS = [
   'PO',
   'SO',
-  'VO_ONDERBOUW',
+  'VO',
   'VSO',
   'MBO',
   'HBO',
