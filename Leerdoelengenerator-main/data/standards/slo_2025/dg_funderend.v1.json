@@ -1,7 +1,7 @@
 [
   {
     "id": "DG-PO-01",
-    "sectors": ["PO", "SO", "VO_ONDERBOUW", "VSO"],
+    "sectors": ["PO", "SO", "VO", "VSO"],
     "leergebied": "DG",
     "kernzin": "<exacte SLO-kernzin>",
     "subdoelen": [

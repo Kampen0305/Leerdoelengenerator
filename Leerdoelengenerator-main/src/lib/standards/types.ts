@@ -1,11 +1,16 @@
 export type Sector =
   | 'PO'
   | 'SO'
-  | 'VO_ONDERBOUW'
+  | 'VO'
   | 'VSO'
   | 'MBO'
   | 'HBO'
   | 'WO';
+
+export interface FunderendFlowState {
+  sector: Sector;
+  voSublevel?: 'onderbouw' | 'bovenbouw';
+}
 
 export type Leergebied = 'BURGERSCHAP' | 'DG';
 

@@ -1,7 +1,7 @@
 [
   {
     "id": "BG-VO-02",
-    "sectors": ["VO_ONDERBOUW", "VSO", "PO", "SO"],
+    "sectors": ["PO", "SO", "VO", "VSO"],
     "leergebied": "BURGERSCHAP",
     "kernzin": "<exacte SLO-kernzin>",
     "subdoelen": [
