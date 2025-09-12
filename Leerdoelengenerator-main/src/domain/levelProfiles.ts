@@ -235,7 +235,7 @@ export const LEVEL_PROFILES: Record<LevelKey, LevelProfile> = {
     ],
   },
   "HBO-AD": {
-    label: "HBO – Associate degree",
+    label: "HBO Associate degree",
     verbBands: {
       rememberUnderstand: ["verklaart (basis)"],
       apply: ["past toe", "implementeert (beperkt)"],
@@ -253,7 +253,7 @@ export const LEVEL_PROFILES: Record<LevelKey, LevelProfile> = {
     ],
   },
   "HBO-Bachelor": {
-    label: "HBO – Bachelor",
+    label: "HBO Bachelor",
     verbBands: {
       rememberUnderstand: ["verklaart"],
       apply: ["ontwerpt", "realiseert", "implementeert"],
@@ -271,7 +271,7 @@ export const LEVEL_PROFILES: Record<LevelKey, LevelProfile> = {
     ],
   },
   "HBO-Master": {
-    label: "HBO – Master",
+    label: "HBO Master",
     verbBands: {
       rememberUnderstand: ["conceptualiseert (kort)"],
       apply: ["implementeert (geavanceerd)"],

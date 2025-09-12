@@ -28,7 +28,8 @@ import SectorSelector from "@/features/sector/SectorSelector";
 import type { Sector } from "@/lib/standards/types";
 import { isFunderend } from "@/features/sector/utils";
 import { getVoGradeOptions } from "./utils/vo";
-import { LevelBadge } from "./components/LevelBadge";
+import NiveauBadge from "@/components/NiveauBadge";
+import { OnderwijsSector, isFunderend } from "@/domain/niveau";
 import { NiveauCheck } from "./components/NiveauCheck";
 import { feature } from "@/config";
 import { LevelKey } from "./domain/levelProfiles";
@@ -242,10 +243,25 @@ function App() {
   const [importedKD, setImportedKD] = useState<KDStructure | null>(null);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showQualityChecker, setShowQualityChecker] = useState(false);
-  const levelKey: LevelKey =
+  const levelKey: LevelKey | null =
     formData.context.education && formData.context.level
       ? toLevelKey(formData.context)
-      : "HBO-Bachelor";
+      : null;
+  const levelInfo = levelKey
+    ? (() => {
+        const [sectorPart, ...rest] = levelKey.split("-");
+        const sector = sectorPart as OnderwijsSector;
+        if (isFunderend(sector)) return { sector };
+        const raw = rest.join("-");
+        const subtype =
+          sector === "HBO"
+            ? raw === "AD"
+              ? "Associate degree"
+              : raw
+            : raw || undefined;
+        return { sector, subtype };
+      })()
+    : null;
   const [showEducationGuidance, setShowEducationGuidance] = useState(false);
   const [generationSource, setGenerationSource] = useState<GenerationSource>(null); // NIEUW: bron van de laatste generatie
   const [menuOpen, setMenuOpen] = useState(false);
@@ -1382,7 +1398,11 @@ function App() {
                     <p className="text-red-700">{formData.original}</p>
                   </div>
                   <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <div className="mb-2"><LevelBadge levelKey={levelKey} /></div>
+                    <div className="mb-2">
+                      {levelInfo ? (
+                        <NiveauBadge sector={levelInfo.sector} subtype={levelInfo.subtype} />
+                      ) : null}
+                    </div>
                     <p className="text-sm font-medium text-green-800 mb-2">AI-ready:</p>
                     <p className="text-green-700">{output.newObjective}</p>
                     <p className="text-xs text-gray-600 mt-2">
@@ -1422,7 +1442,7 @@ function App() {
                         ))}
                       </div>
                     )}
-                    {!feature.aiReadyGoalsV2 && (
+                    {!feature.aiReadyGoalsV2 && levelKey && (
                       <div className="mt-4">
                         <NiveauCheck levelKey={levelKey} objective={output.newObjective} />
                       </div>

@@ -8,7 +8,9 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:no-hbo": "vitest run tests/no-hbo-hardcode.spec.ts",
+    "test:ui": "vitest"
   },
   "dependencies": {
     "@google/generative-ai": "^0.2.1",

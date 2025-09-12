@@ -60,8 +60,8 @@ export function buildGenerationContext(input: {
 }) {
   const { sector, programSubtype } = input;
   // Lazy import om circulaire deps te vermijden
-  const { getNiveauBadge } = require('./niveau') as typeof import('./niveau');
-  const badge = getNiveauBadge(sector, programSubtype);
+  const { badgeFor } = require('./niveau') as typeof import('./niveau');
+  const badge = badgeFor(sector, programSubtype);
   const sources = getSourcesForSector(sector);
   return { badge, sources };
 }
