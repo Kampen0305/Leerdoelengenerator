@@ -1,28 +1,25 @@
-import React from 'react';
-import { allVoorbeeldcases } from '@/lib/examples';
-import { useSector } from '@/features/sector/useSector';
+import { getCasesBySector } from '@/lib/examples';
+import type { VoorbeeldCase } from '@/lib/examples';
 
-export function Voorbeeldcases() {
-  const { sector } = useSector();
-  const visibleCases = allVoorbeeldcases.filter(
-    (c) => !sector || c.sector === sector
-  );
-
-  if (visibleCases.length === 0) {
-    return null;
-  }
+export default function Voorbeeldcases({ currentSector, onSelect }:{
+  currentSector?: string | null;
+  onSelect?: (c: VoorbeeldCase) => void;
+}) {
+  const cases = getCasesBySector(currentSector as any);
 
   return (
-    <div className="flex flex-col gap-2">
-      {visibleCases.map((c) => (
-        <div key={c.id} className="rounded border p-2">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold">{c.titel}</h3>
-            <span className="rounded bg-gray-200 px-2 text-xs">Baan {c.baan}</span>
-          </div>
-          <p className="text-sm text-gray-600">{c.korteBeschrijving}</p>
-        </div>
+    <div className="space-y-2">
+      {cases.map((c) => (
+        <button
+          key={c.id}
+          type="button"
+          onClick={() => onSelect?.(c)}
+          className="w-full text-left px-4 py-2 bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg text-sm"
+        >
+          {c.titel}
+        </button>
       ))}
     </div>
   );
 }
+
