@@ -1,0 +1,135 @@
+[
+  {
+    "slug": "kerndoelen",
+    "titel": "Kerndoelen",
+    "definitie": "Landelijk vastgestelde doelen voor het funderend onderwijs die richting geven aan wat leerlingen moeten leren. Ze vormen de basis voor curriculum, didactiek en toetsing.",
+    "categorie": "Kerndoelen",
+    "zieOok": ["digitale-geletterdheid", "burgerschap", "doorlopende-leerlijnen"]
+  },
+  {
+    "slug": "digitale-geletterdheid",
+    "titel": "Digitale geletterdheid",
+    "definitie": "Verzamelbegrip binnen de kerndoelen: informatievaardigheden, computational thinking, mediawijsheid en digitale communicatie/samenwerking.",
+    "categorie": "Digitale Geletterdheid",
+    "zieOok": ["informatievaardigheden", "mediawijsheid", "computational-thinking", "digitale-communicatie"]
+  },
+  {
+    "slug": "informatievaardigheden",
+    "titel": "Informatievaardigheden",
+    "definitie": "Vinden, beoordelen, selecteren en verantwoord gebruiken van informatie uit analoge en digitale bronnen.",
+    "categorie": "Digitale Geletterdheid",
+    "zieOok": ["digitale-geletterdheid", "mediawijsheid"]
+  },
+  {
+    "slug": "mediawijsheid",
+    "titel": "Mediawijsheid",
+    "definitie": "Bewust, kritisch en actief omgaan met media, inclusief beeldvorming, desinformatie en veilig online gedrag.",
+    "categorie": "Digitale Geletterdheid",
+    "zieOok": ["informatievaardigheden", "digitale-communicatie"]
+  },
+  {
+    "slug": "computational-thinking",
+    "titel": "Computational thinking",
+    "definitie": "Problemen oplossen met denkstappen als decompositie, patroonherkenning en algoritmisch redeneren, met of zonder programmeren.",
+    "categorie": "Digitale Geletterdheid",
+    "zieOok": ["algoritme", "digitale-geletterdheid"]
+  },
+  {
+    "slug": "digitale-communicatie",
+    "titel": "Digitale communicatie & samenwerking",
+    "definitie": "Effectief, veilig en doelgericht communiceren en samenwerken met digitale middelen.",
+    "categorie": "Digitale Geletterdheid",
+    "zieOok": ["mediawijsheid", "informatievaardigheden"]
+  },
+  {
+    "slug": "doorlopende-leerlijnen",
+    "titel": "Doorlopende leerlijnen",
+    "definitie": "Opbouw en samenhang van leerontwikkeling over jaren en onderwijsniveaus heen, zodat doelen logisch voortbouwen.",
+    "categorie": "Kerndoelen",
+    "zieOok": ["kerndoelen"]
+  },
+  {
+    "slug": "aanbodsdoelen",
+    "titel": "Aanbodsdoelen",
+    "definitie": "Doelen die richting geven aan het onderwijsaanbod (wat scholen aanbieden) binnen de kerndoelen.",
+    "categorie": "Kerndoelen",
+    "zieOok": ["beheersingsdoelen", "ervaringsdoelen", "kerndoelen"]
+  },
+  {
+    "slug": "beheersingsdoelen",
+    "titel": "Beheersingsdoelen",
+    "definitie": "Doelen die beschrijven wat leerlingen moeten laten zien of kunnen beheersen.",
+    "categorie": "Kerndoelen",
+    "zieOok": ["aanbodsdoelen", "ervaringsdoelen"]
+  },
+  {
+    "slug": "ervaringsdoelen",
+    "titel": "Ervaringsdoelen",
+    "definitie": "Doelen die zich richten op de ervaringen van leerlingen, zoals oriëntatie, beleving en exploratie.",
+    "categorie": "Kerndoelen",
+    "zieOok": ["aanbodsdoelen", "beheersingsdoelen"]
+  },
+  {
+    "slug": "ai-geletterdheid",
+    "titel": "AI-geletterdheid",
+    "definitie": "Kennis, vaardigheden, houding en ethiek om AI-toepassingen te begrijpen en verantwoord in te zetten in onderwijs en samenleving.",
+    "categorie": "Didactische principes",
+    "zieOok": ["two-lane-approach", "validiteit", "transparantie-verantwoording"]
+  },
+  {
+    "slug": "two-lane-approach",
+    "titel": "Two-Lane approach (Baan 1 & 2)",
+    "definitie": "Baan 1: AI-hulp beperken/uitsluiten bij beoordelen van individuele beheersing; Baan 2: AI bewust integreren in leren, met expliciete verantwoording.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": ["open-book-toetsen", "logboek-versiegeschiedenis", "menselijk-toezicht-ai"]
+  },
+  {
+    "slug": "validiteit",
+    "titel": "Validiteit",
+    "definitie": "Mate waarin een toets meet wat hij beoogt te meten, in lijn met de beoogde leeruitkomsten.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": ["betrouwbaarheid", "authenticiteit", "constructive-alignment"]
+  },
+  {
+    "slug": "betrouwbaarheid",
+    "titel": "Betrouwbaarheid",
+    "definitie": "Mate van consistentie en reproduceerbaarheid van toetsresultaten, ongeacht beoordelaar of moment.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": ["validiteit", "authenticiteit"]
+  },
+  {
+    "slug": "authenticiteit",
+    "titel": "Authenticiteit",
+    "definitie": "De mate waarin de taak/assessment de werkelijkheid en beroepspraktijk benadert.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": ["portfolio", "peer-assessment"]
+  },
+  {
+    "slug": "constructive-alignment",
+    "titel": "Constructive alignment",
+    "definitie": "Afstemming van leerdoelen, onderwijsactiviteiten en toetsing rondom dezelfde beoogde leeruitkomsten.",
+    "categorie": "Didactische principes",
+    "zieOok": ["validiteit", "leeruitkomsten"]
+  },
+  {
+    "slug": "algoritme",
+    "titel": "Algoritme",
+    "definitie": "Eenduidige reeks instructies of regels om een probleem op te lossen of een taak uit te voeren, met of zonder AI.",
+    "categorie": "Kaders & Wetgeving",
+    "zieOok": ["ai-systeem", "computational-thinking"]
+  },
+  {
+    "slug": "ai-systeem",
+    "titel": "AI-systeem",
+    "definitie": "Systeem dat met behulp van modellen en data outputs genereert (zoals voorspellingen, inhoud of beslissingen) met zekere mate van autonomie.",
+    "categorie": "Kaders & Wetgeving",
+    "zieOok": ["menselijk-toezicht-ai", "transparantie-verantwoording"]
+  },
+  {
+    "slug": "transparantie-verantwoording",
+    "titel": "Transparantie & verantwoording",
+    "definitie": "Helder vastleggen en tonen hoe AI is gebruikt bij leren en beoordelen (bijv. prompts, iteraties, bronnen).",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": ["logboek-versiegeschiedenis", "open-book-toetsen"]
+  }
+]
