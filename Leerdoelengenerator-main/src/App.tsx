@@ -22,8 +22,10 @@ import { KDParser } from "./utils/kdParser";
 import { ExportUtils } from "./utils/exportUtils";
 import { geminiService } from "./services/gemini";
 import type { Education, VoLevel, VSOCluster } from "./types/context";
-import { EDUCATION_TYPES, LEVEL_OPTIONS, VO_LEVELS, VSO_CLUSTERS } from "./constants/education";
-import InfoBox from "./components/InfoBox";
+import { LEVEL_OPTIONS, VO_LEVELS, VSO_CLUSTERS } from "./constants/education";
+import SectorSelector from "@/features/sector/SectorSelector";
+import type { Sector } from "@/lib/standards/types";
+import { isFunderend } from "@/features/sector/utils";
 import { getVoGradeOptions } from "./utils/vo";
 import { LevelBadge } from "./components/LevelBadge";
 import { NiveauCheck } from "./components/NiveauCheck";
@@ -227,6 +229,7 @@ function App() {
     original: "",
     context: { education: "", level: "", domain: "", assessment: "", voLevel: undefined, voGrade: undefined, vsoCluster: undefined },
   });
+  const [sector, setSector] = useState<Sector | null>(null);
   const [lane, setLane] = useState<"" | Lane>(""); // Two-Lane keuze
   const [output, setOutput] = useState<AIReadyOutput | null>(null);
   const [aiGoTags, setAiGoTags] = useState<AIGOTagKey[]>([]);
@@ -248,6 +251,7 @@ function App() {
 
   const handleExampleSelect = (example: LearningObjective) => {
     setFormData(example);
+    setSector(example.context.education as Sector);
   };
 
   /* ---------- Hydrate bij laden (eerst URL, anders localStorage) ---------- */
@@ -265,6 +269,7 @@ function App() {
     if (fromUrl) {
       setCurrentStep(fromUrl.currentStep ?? 1);
       setFormData(fromUrl.formData ?? formData);
+      setSector(fromUrl.formData?.context.education as Sector);
       setLane(fromUrl.lane ?? "");
       const out = fromUrl.output
         ? attachSuggestions(fromUrl.output, fromUrl.formData?.context ?? formData.context)
@@ -288,7 +293,10 @@ function App() {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const saved = JSON.parse(raw);
-        if (saved.formData) setFormData(saved.formData);
+        if (saved.formData) {
+          setFormData(saved.formData);
+          setSector(saved.formData.context.education as Sector);
+        }
         if (typeof saved.lane === "string") setLane(saved.lane);
         if (saved.output) {
           const out = attachSuggestions(
@@ -318,10 +326,10 @@ function App() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
   }, [currentStep, formData, lane, output, aiStatement, importedKD, generationSource]);
 
-  const educationTypes: Education[] = [...EDUCATION_TYPES];
   const voLevels: VoLevel[] = [...VO_LEVELS];
   const levels = LEVEL_OPTIONS;
   const vsoClusters: VSOCluster[] = [...VSO_CLUSTERS];
+  const funderend = isFunderend(sector);
 
   const examples = [
     {
@@ -341,13 +349,15 @@ function App() {
   const isFormDataComplete = () =>
     lane !== "" &&
     formData.original.trim() !== "" &&
-    formData.context.education.trim() !== "" &&
+    sector !== null &&
     formData.context.domain.trim() !== "" &&
-    (formData.context.education === "VO"
+    (sector === "VO"
       ? Boolean(formData.context.voLevel && formData.context.voGrade)
-      : formData.context.education === "VSO"
-        ? formData.context.level.trim() !== "" && Boolean(formData.context.vsoCluster)
-        : formData.context.level.trim() !== "");
+      : sector === "VSO"
+        ? Boolean(formData.context.vsoCluster)
+        : !funderend
+          ? formData.context.level.trim() !== ""
+          : true);
 
   /* -------------------- Step-switch → automatisch genereren -------------------- */
   useEffect(() => {
@@ -617,6 +627,10 @@ function App() {
         return next;
       });
     }
+  };
+  const handleSectorChange = (s: Sector) => {
+    setSector(s);
+    handleInputChange("education", s);
   };
   const handleKDImported = (kd: KDStructure) => setImportedKD(kd);
 
@@ -962,178 +976,152 @@ function App() {
                 </h2>
 
                 <div className="space-y-6">
-                  {/* Two-Lane keuze */}
-                  <ObjectiveForm
-                    lane={lane}
-                    onLaneChange={setLane}
-                    geminiAvailable={geminiService.isAvailable()}
-                  />
+                  <SectorSelector value={sector} onChange={handleSectorChange} />
+                  {sector && (
+                    <>
+                      {/* Two-Lane keuze */}
+                      <ObjectiveForm
+                        lane={lane}
+                        onLaneChange={setLane}
+                        geminiAvailable={geminiService.isAvailable()}
+                      />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Huidige leeruitkomst *
-                    </label>
-                    <textarea
-                      value={formData.original}
-                      onChange={(e) => handleInputChange("original", e.target.value)}
-                      placeholder={`Bijvoorbeeld: De ${['VO','VSO'].includes(formData.context.education) ? 'leerling' : 'student'} kan een zakelijke e-mail schrijven in correct Nederlands.`}
-                      className="w-full h-24 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none transition-all duration-200"
-                    />
-                    {importedKD && formData.original && (
-                      <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <p className="text-sm text-green-700">
-                          <strong>KD Context:</strong>{" "}
-                          {KDParser.extractContextForObjective(importedKD, formData.original).suggestedContext}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="grid lg:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Niveau opleiding *
-                        {formData.context.education === "VSO" && (
-                          <InfoBox>
-                            <p>
-                              VSO: differentieer op leerroutes en werk handelingsgericht.
-                            </p>
-                          </InfoBox>
-                        )}
-                      </label>
-                      <select
-                        value={formData.context.education}
-                        onChange={(e) => handleInputChange("education", e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                      >
-                        <option value="">Kies type</option>
-                        {educationTypes.map((type) => (
-                          <option key={type} value={type}>
-                            {type}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {formData.context.education !== "VO" && (
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Niveau *
+                          Huidige leeruitkomst *
                         </label>
-                        <select
-                          value={formData.context.level}
-                          onChange={(e) => handleInputChange("level", e.target.value)}
-                          disabled={!formData.context.education}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50"
-                        >
-                          <option value="">Kies niveau</option>
-                          {formData.context.education &&
-                            levels[formData.context.education as keyof typeof levels]?.map((level) => (
-                              <option key={level} value={level}>
-                                {level}
+                        <textarea
+                          value={formData.original}
+                          onChange={(e) => handleInputChange("original", e.target.value)}
+                          placeholder={`Bijvoorbeeld: De ${['VO','VSO'].includes(sector ?? '') ? 'leerling' : 'student'} kan een zakelijke e-mail schrijven in correct Nederlands.`}
+                          className="w-full h-24 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none transition-all duration-200"
+                        />
+                        {importedKD && formData.original && (
+                          <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <p className="text-sm text-green-700">
+                              <strong>KD Context:</strong>{" "}
+                              {KDParser.extractContextForObjective(importedKD, formData.original).suggestedContext}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {!funderend && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Niveau *
+                          </label>
+                          <select
+                            value={formData.context.level}
+                            onChange={(e) => handleInputChange("level", e.target.value)}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                          >
+                            <option value="">Kies niveau</option>
+                            {sector &&
+                              levels[sector as keyof typeof levels]?.map((level) => (
+                                <option key={level} value={level}>
+                                  {level}
+                                </option>
+                              ))}
+                          </select>
+                        </div>
+                      )}
+
+                      {sector === 'VSO' && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            VSO-cluster *
+                          </label>
+                          <select
+                            value={formData.context.vsoCluster || ""}
+                            onChange={(e) => handleInputChange("vsoCluster", e.target.value)}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                          >
+                            <option value="">Kies cluster</option>
+                            {vsoClusters.map((cluster) => (
+                              <option key={cluster} value={cluster}>
+                                {cluster}
                               </option>
                             ))}
-                        </select>
-                      </div>
-                    )}
-                  </div>
+                          </select>
+                        </div>
+                      )}
 
-                  {formData.context.education === "VSO" && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        VSO-cluster *
-                      </label>
-                      <select
-                        value={formData.context.vsoCluster || ""}
-                        onChange={(e) => handleInputChange("vsoCluster", e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                      {sector === 'VO' && (
+                        <div className="grid lg:grid-cols-2 gap-6">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              VO-niveau *
+                            </label>
+                            <select
+                              value={formData.context.voLevel || ""}
+                              onChange={(e) => handleInputChange("voLevel", e.target.value)}
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                            >
+                              <option value="">Kies VO-niveau</option>
+                              {voLevels.map((level) => (
+                                <option key={level} value={level}>
+                                  {level}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Leerjaar *
+                            </label>
+                            <select
+                              value={formData.context.voGrade ?? ""}
+                              onChange={(e) => handleInputChange("voGrade", parseInt(e.target.value))}
+                              disabled={!formData.context.voLevel}
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50"
+                            >
+                              <option value="">Kies leerjaar</option>
+                              {getVoGradeOptions(formData.context.voLevel).map((grade) => (
+                                <option key={grade} value={grade}>
+                                  {grade}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="grid lg:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Vakgebied *
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.context.domain}
+                            onChange={(e) => handleInputChange("domain", e.target.value)}
+                            placeholder="Bijvoorbeeld: Marketing, Zorg, ICT"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"/>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Huidige toetsvorm
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.context.assessment}
+                            onChange={(e) => handleInputChange("assessment", e.target.value)}
+                            placeholder="Bijvoorbeeld: Portfolio, Examen"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"/>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => setCurrentStep(2)}
+                        disabled={!isFormDataComplete()}
+                        className="w-full bg-gradient-to-r from-green-600 to-orange-500 text-white py-3.5 px-6 rounded-lg font-medium hover:from-green-700 hover:to-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
                       >
-                        <option value="">Kies cluster</option>
-                        {vsoClusters.map((cluster) => (
-                          <option key={cluster} value={cluster}>
-                            {cluster}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                        Omzetten naar AI-ready onderwijs
+                        <ChevronRight className="w-5 h-5 ml-2" />
+                      </button>
+                    </>
                   )}
-
-                  {formData.context.education === "VO" && (
-                    <div className="grid lg:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          VO-niveau *
-                        </label>
-                        <select
-                          value={formData.context.voLevel || ""}
-                          onChange={(e) => handleInputChange("voLevel", e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                        >
-                          <option value="">Kies VO-niveau</option>
-                          {voLevels.map((level) => (
-                            <option key={level} value={level}>
-                              {level}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Leerjaar *
-                        </label>
-                        <select
-                          value={formData.context.voGrade ?? ""}
-                          onChange={(e) => handleInputChange("voGrade", parseInt(e.target.value))}
-                          disabled={!formData.context.voLevel}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50"
-                        >
-                          <option value="">Kies leerjaar</option>
-                          {getVoGradeOptions(formData.context.voLevel).map((grade) => (
-                            <option key={grade} value={grade}>
-                              {grade}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="grid lg:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Vakgebied *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.context.domain}
-                        onChange={(e) => handleInputChange("domain", e.target.value)}
-                        placeholder="Bijvoorbeeld: Marketing, Zorg, ICT"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Huidige toetsvorm
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.context.assessment}
-                        onChange={(e) => handleInputChange("assessment", e.target.value)}
-                        placeholder="Bijvoorbeeld: Portfolio, Examen"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => setCurrentStep(2)}
-                    disabled={!isFormDataComplete()}
-                    className="w-full bg-gradient-to-r from-green-600 to-orange-500 text-white py-3.5 px-6 rounded-lg font-medium hover:from-green-700 hover:to-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
-                  >
-                    Omzetten naar AI-ready onderwijs
-                    <ChevronRight className="w-5 h-5 ml-2" />
-                  </button>
                 </div>
               </div>
             </div>
