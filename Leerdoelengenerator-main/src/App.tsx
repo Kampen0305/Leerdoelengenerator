@@ -10,7 +10,7 @@ import { KDImport } from "./components/KDImport";
 import { SavedObjectives } from "./components/SavedObjectives";
 import { TemplateLibrary } from "./components/TemplateLibrary";
 import { Hero } from "./components/Hero";
-import ExamplesPanel from "./components/ExamplesPanel";
+import Voorbeeldcases from "@/features/examples/Voorbeeldcases";
 
 /** Paneel-knoppen werken weer via named exports zoals voorheen */
 import { QualityChecker } from "./components/QualityChecker";
@@ -248,11 +248,6 @@ function App() {
   const [showEducationGuidance, setShowEducationGuidance] = useState(false);
   const [generationSource, setGenerationSource] = useState<GenerationSource>(null); // NIEUW: bron van de laatste generatie
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const handleExampleSelect = (example: LearningObjective) => {
-    setFormData(example);
-    setSector(example.context.education as Sector);
-  };
 
   /* ---------- Hydrate bij laden (eerst URL, anders localStorage) ---------- */
   useEffect(() => {
@@ -966,7 +961,7 @@ function App() {
         {currentStep === 1 && (
           <div className="grid lg:grid-cols-4 gap-8">
             <div className="lg:col-span-1">
-              <ExamplesPanel onSelectExample={handleExampleSelect} />
+              <Voorbeeldcases currentSector={sector} debug />
             </div>
             <div className="lg:col-span-2">
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
