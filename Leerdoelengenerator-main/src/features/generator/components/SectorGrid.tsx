@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { compareByLevel, LevelKey } from "@/utils/levelOrder";
 
 export function SectorGrid({ value, onChange }: {
   value: { PO?:boolean; SO?:boolean; VO?:boolean; VSO?:boolean; MBO?:boolean; HBO?:boolean; WO?:boolean };
@@ -24,7 +25,7 @@ export function SectorGrid({ value, onChange }: {
     <div className="space-y-2">
       {/* render jouw 7 knoppen/velden; hieronder pseudo */}
       <div className="grid grid-cols-2 gap-2">
-        {["PO","SO","VO","VSO","MBO","HBO","WO"].map(k => (
+        {(['PO','SO','VO','VSO','MBO','HBO','WO'] as LevelKey[]).sort(compareByLevel).map(k => (
           <button
             key={k}
             type="button"
