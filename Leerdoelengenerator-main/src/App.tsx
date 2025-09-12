@@ -34,6 +34,7 @@ import { NiveauCheck } from "./components/NiveauCheck";
 import { feature } from "@/config";
 import { LevelKey } from "./domain/levelProfiles";
 import Suggestions from "./components/Suggestions";
+import SupportPanel from "@/components/support/SupportPanel";
 import FeedbackInline from "@/components/FeedbackInline";
 import { getSuggestions } from "./data/suggestions";
 import { inferGoalOrientation, mapEducationLevel } from "./utils/suggestionHelpers";
@@ -1183,7 +1184,8 @@ function App() {
             </div>
 
             {/* Examples Sidebar */}
-            <div className="lg:col-span-1 space-y-6">
+            <aside className="lg:col-span-1 space-y-6">
+              {sector && <SupportPanel sector={sector} />}
               <div className="bg-green-50 border border-green-200 rounded-xl p-6">
                 <h3 className="font-semibold text-green-800 mb-3 flex items-center">
                   <Lightbulb className="w-5 h-5 mr-2" />
@@ -1253,7 +1255,7 @@ function App() {
                   <p><strong>Inclusie:</strong> alternatieven zonder betaalde tools</p>
                 </div>
               </div>
-            </div>
+            </aside>
           </div>
         )}
 
