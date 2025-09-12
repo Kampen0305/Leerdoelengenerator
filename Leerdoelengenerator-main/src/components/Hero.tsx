@@ -12,12 +12,13 @@ export function Hero() {
           Leerdoelengenerator
         </h1>
         <p className="text-lg text-gray-700 dark:text-gray-300">
-          Genereer toetsbare leerdoelen in helder Nederlands, afgestemd op Npuls-richtlijnen (AI-bewuste toetsing, AI-geletterdheid)
+          Genereer toetsbare leerdoelen in helder Nederlands, afgestemd op Npuls-richtlijnen, AI-GO en de SLO-kerndoelen.
         </p>
         <ul className="mx-auto w-fit list-disc list-inside space-y-2 text-left text-gray-700 dark:text-gray-300">
-          <li>Conform Two-Lane approach</li>
-          <li>SMART en toetsbaar</li>
-          <li>Transparant over AI-gebruik</li>
+          <li>Conform Two-Lane approach: onderscheid tussen toetsing zonder en mét AI</li>
+          <li>SMART en toetsbaar, met constructive alignment als kompas</li>
+          <li>Transparant over AI-gebruik en ingebed in publieke waarden (rechtvaardigheid, menselijkheid, autonomie)</li>
+          <li>Geïnspireerd door het AI-GO Raamwerk en de nieuwe SLO-kerndoelen digitale geletterdheid en burgerschap</li>
         </ul>
         <button
           onClick={scrollToForm}
