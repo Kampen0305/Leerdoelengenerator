@@ -1,16 +1,16 @@
-export type GlossaryCategory =
-  | 'AI & Geletterdheid'
+export type BegripCategorie =
+  | 'Kerndoelen'
+  | 'Digitale Geletterdheid'
   | 'Toetsing & Examinering'
+  | 'Didactische principes'
   | 'Kaders & Wetgeving'
-  | 'Didactiek & Curriculum'
-  | 'Datagebruik & Privacy'
-  | 'Onderwijsniveaus';
+  | 'Onderwijsniveaus'
+  | 'Datagebruik & Privacy';
 
-export interface GlossaryItem {
-  id: string;            // slug
-  term: string;          // getoonde term
-  definition: string;    // korte, heldere uitleg (2–6 zinnen)
-  category: GlossaryCategory;
-  alsoKnownAs?: string[]; // synoniemen
-  seeAlso?: string[];     // verwijzingen naar andere ids
+export interface Begrip {
+  slug: string;            // url-slug, uniek
+  titel: string;           // kaarttitel
+  definitie: string;       // 1–2 zinnen, geen markdown
+  categorie: BegripCategorie;
+  zieOok?: string[];       // lijst van andere slugs
 }

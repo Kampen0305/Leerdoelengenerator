@@ -1,28 +1,25 @@
-import data from '@/data/glossary.json';
-import { GlossaryItem, GlossaryCategory } from '@/types/glossary';
-
-export function getAll(): GlossaryItem[] { return data as GlossaryItem[]; }
+import { getAllBegrippen } from '@/lib/glossary';
+import type { Begrip, BegripCategorie } from '@/types/glossary';
 
 export function filterGlossary(params: {
   q?: string;
   letter?: string;
-  category?: GlossaryCategory | 'Alle';
-}): GlossaryItem[] {
-  let items = getAll();
+  category?: BegripCategorie | 'Alle';
+}): Begrip[] {
+  let items = getAllBegrippen();
   const { q, letter, category } = params;
 
   if (letter && letter !== 'Alle') {
-    items = items.filter(i => i.term.toUpperCase().startsWith(letter.toUpperCase()));
+    items = items.filter(i => i.titel.toUpperCase().startsWith(letter.toUpperCase()));
   }
   if (category && category !== 'Alle') {
-    items = items.filter(i => i.category === category);
+    items = items.filter(i => i.categorie === category);
   }
   if (q && q.trim()) {
     const t = q.toLowerCase();
     items = items.filter(i =>
-      (i.term + ' ' + i.definition + ' ' + (i.alsoKnownAs ?? []).join(' '))
-      .toLowerCase().includes(t)
+      (i.titel + ' ' + i.definitie).toLowerCase().includes(t)
     );
   }
-  return items.sort((a,b)=> a.term.localeCompare(b.term, 'nl'));
+  return items.sort((a, b) => a.titel.localeCompare(b.titel, 'nl'));
 }

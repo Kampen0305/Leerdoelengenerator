@@ -1,24 +1,24 @@
 'use client';
-import { GlossaryCategory } from '@/types/glossary';
+import type { BegripCategorie } from '@/types/glossary';
 
 const letters = ['Alle',...Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ')];
-const categories: (GlossaryCategory|'Alle')[] = [
-  'Alle','AI & Geletterdheid','Toetsing & Examinering','Kaders & Wetgeving',
-  'Didactiek & Curriculum','Datagebruik & Privacy','Onderwijsniveaus'
+const categories: (BegripCategorie|'Alle')[] = [
+  'Alle','Kerndoelen','Digitale Geletterdheid','Toetsing & Examinering',
+  'Didactische principes','Kaders & Wetgeving','Onderwijsniveaus','Datagebruik & Privacy'
 ];
 
 export default function Filters({
   q, letter, category, onChange
 }: {
-  q: string; letter: string; category: (GlossaryCategory|'Alle');
-  onChange: (v:{q?:string;letter?:string;category?:(GlossaryCategory|'Alle')})=>void;
+  q: string; letter: string; category: (BegripCategorie|'Alle');
+  onChange: (v:{q?:string;letter?:string;category?:(BegripCategorie|'Alle')})=>void;
 }) {
   return (
     <div className="space-y-3">
       <input
         aria-label="Zoeken in begrippen"
         className="w-full border rounded-xl px-3 py-2"
-        placeholder="Zoek op term, betekenis of synoniem…"
+        placeholder="Zoek op term of betekenis…"
         value={q}
         onChange={e=>onChange({q:e.target.value})}
       />

@@ -1,0 +1,323 @@
+[
+  {
+    "slug": "ai-ready-leerdoel",
+    "titel": "AI-ready leerdoel",
+    "definitie": "Een leerdoel dat duidelijk maakt wat een student moet aantonen in een context waar AI bestaat. Het specificeert of AI-gebruik is toegestaan of juist uitgesloten, en wat de student zélf moet kunnen (met of zonder AI). Dit borgt validiteit van toetsing en bereidt voor op AI-rijke beroepspraktijk.",
+    "categorie": "Didactische principes",
+    "zieOok": [
+      "two-lane-approach",
+      "constructive-alignment"
+    ]
+  },
+  {
+    "slug": "two-lane-approach",
+    "titel": "Two-Lane approach (Baan 1 & Baan 2)",
+    "definitie": "Een toetsprogramma heeft idealiter beide sporen: Baan 1 (zonder AI) borgt cruciale basiskennis en -vaardigheden en de diplomawaarde; Baan 2 (met AI) bereidt voor op realistische beroepssituaties waarin AI gangbaar is. Samen zorgen ze voor constructieve afstemming en geloofwaardige diplomawaarde.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": [
+      "authenticiteit",
+      "validiteit",
+      "open-book-open-web"
+    ]
+  },
+  {
+    "slug": "blooms-taxonomie",
+    "titel": "Bloom’s taxonomie",
+    "definitie": "Een hiërarchie van cognitieve niveaus: Onthouden, Begrijpen, Toepassen, Analyseren, Evalueren, Creëren. Helpt bij het formuleren van leerdoelen en het kiezen van passende activiteiten en toetsvormen.",
+    "categorie": "Didactische principes",
+    "zieOok": [
+      "constructive-alignment"
+    ]
+  },
+  {
+    "slug": "ai-go",
+    "titel": "AI-GO raamwerk (AI-geletterdheid)",
+    "definitie": "Raamwerk voor AI-geletterdheid in het onderwijs met vier componenten in samenhang: Kennis, Vaardigheden, Attitudes en Ethiek. Benadrukt pedagogische dimensie en beïnvloedende factoren (individu, team, organisatie, beleid).",
+    "categorie": "Digitale Geletterdheid",
+    "zieOok": [
+      "ethiek",
+      "kritisch-denken"
+    ]
+  },
+  {
+    "slug": "publieke-waarden",
+    "titel": "Publieke waarden (rechtvaardigheid, menselijkheid, autonomie)",
+    "definitie": "Waardenkader voor verantwoord gebruik van studiedata en AI. Rechtvaardigheid (inclusie, eerlijkheid, veiligheid, transparantie), Menselijkheid (betekenisvol contact, menselijke blik), Autonomie (zelfbeschikking van student en docent, privacybalans).",
+    "categorie": "Kaders & Wetgeving",
+    "zieOok": [
+      "avg",
+      "ai-act"
+    ]
+  },
+  {
+    "slug": "studiedata",
+    "titel": "Studiedata",
+    "definitie": "Gegevens die in en rond onderwijs ontstaan (bijv. cijfers, aanwezigheid, LMS-logs, ingeleverd werk). Worden gebruikt voor leren, begeleiden, kwaliteitszorg en onderzoek — met strikte aandacht voor privacy en doelbinding.",
+    "categorie": "Datagebruik & Privacy",
+    "zieOok": [
+      "avg",
+      "privacy-by-design"
+    ]
+  },
+  {
+    "slug": "avg",
+    "titel": "AVG (privacy)",
+    "definitie": "Algemene Verordening Gegevensbescherming. Bij gebruik van studiedata en AI gelden o.a. doelbinding, grondslag, minimale gegevensverwerking, juistheid, bewaartermijnen, beveiliging, rechten van betrokkenen en soms een DPIA.",
+    "categorie": "Kaders & Wetgeving",
+    "zieOok": [
+      "dpia",
+      "privacy-by-design"
+    ]
+  },
+  {
+    "slug": "ai-act",
+    "titel": "AI Act (EU)",
+    "definitie": "Europese verordening voor AI-systemen met risicoklassen: verboden, hoog risico (met strenge vereisten), transparantie, minimaal risico. In onderwijs zijn o.a. systemen voor toelating, evaluatie en proctoring vaak hoog risico.",
+    "categorie": "Kaders & Wetgeving",
+    "zieOok": [
+      "risicobeoordeling",
+      "menselijk-toezicht"
+    ]
+  },
+  {
+    "slug": "constructive-alignment",
+    "titel": "Constructive alignment",
+    "definitie": "Het op elkaar afstemmen van leerdoelen, leeractiviteiten en toetsing. Bij AI-integratie bepaalt dit ook wanneer AI wel/niet gepast is en wat studenten zélf moeten aantonen.",
+    "categorie": "Didactische principes",
+    "zieOok": [
+      "ai-ready-leerdoel",
+      "two-lane-approach"
+    ]
+  },
+  {
+    "slug": "authenticiteit",
+    "titel": "Authenticiteit",
+    "definitie": "Mate waarin een toets echte, relevante taken uit de praktijk benadert. Verkleint kans op generieke AI-antwoorden en verhoogt betekenisvol leren.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": [
+      "mondeling-toetsen",
+      "portfolio"
+    ]
+  },
+  {
+    "slug": "validiteit",
+    "titel": "Validiteit",
+    "definitie": "Toetst de toets wat hij beoogt te toetsen? Cruciaal bij AI: beoordeel of het individuele kunnen zichtbaar blijft, óók wanneer AI is toegestaan.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": [
+      "betrouwbaarheid",
+      "two-lane-approach"
+    ]
+  },
+  {
+    "slug": "betrouwbaarheid",
+    "titel": "Betrouwbaarheid",
+    "definitie": "Consistentie van beoordeling. Verhoog via heldere criteria, rubrics, kalibratie en waar nodig toezicht/condities.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": [
+      "rubric"
+    ]
+  },
+  {
+    "slug": "formatief",
+    "titel": "Formatief handelen",
+    "definitie": "Doel: leren versterken. Feedback, tussenproducten en iteraties (ook met AI) om het leerproces te sturen. Geen cijfer als eindbeslissing.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": [
+      "summatief",
+      "procesvorm"
+    ]
+  },
+  {
+    "slug": "summatief",
+    "titel": "Summatief toetsen",
+    "definitie": "Eindoordeel met gevolgen (slagen/zakken, studiepunten). Voor kernbekwaamheden vaak in Baan 1 (zonder AI) of onder strikte condities.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": [
+      "formatief",
+      "two-lane-approach"
+    ]
+  },
+  {
+    "slug": "rubric",
+    "titel": "Rubric",
+    "definitie": "Beoordelingsmatrix met criteria en prestatieniveaus. Vergroot transparantie, betrouwbaarheid en gerichte feedback.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": null
+  },
+  {
+    "slug": "portfolio",
+    "titel": "Portfolio",
+    "definitie": "Verzameling van bewijzen (producten, proceslog, reflecties) die groei en bekwaamheid aantonen. Goed inzetbaar bij AI-bewuste beoordeling.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": null
+  },
+  {
+    "slug": "peer-assessment",
+    "titel": "Peer assessment",
+    "definitie": "Studenten beoordelen elkaars werk (formatief of deels summatief) op basis van criteria/rubrics; versterkt feedbackgeletterdheid.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": null
+  },
+  {
+    "slug": "open-book-open-web",
+    "titel": "Open-book / Open-web toetsen",
+    "definitie": "Toetsvormen waarbij bronnen (incl. AI) zijn toegestaan; items focussen op toepassing, analyse en verantwoording, niet op reproduceerbare kennis.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": [
+      "two-lane-approach"
+    ]
+  },
+  {
+    "slug": "mondeling-toetsen",
+    "titel": "Mondeling toetsen",
+    "definitie": "Mondelinge verdediging/demonstratie om eigen inzicht, redenering en herkomst van werk zichtbaar te maken. Verkleint ongewenst AI-gebruik.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": null
+  },
+  {
+    "slug": "procesvorm",
+    "titel": "Procesvorm",
+    "definitie": "De aanpak/werkwijze (samenwerken, onderzoek, itereren, reflectie) die leidde tot het product. Belangrijk om AI-bijdragen en leren zichtbaar te maken.",
+    "categorie": "Didactische principes",
+    "zieOok": [
+      "productvorm"
+    ]
+  },
+  {
+    "slug": "productvorm",
+    "titel": "Productvorm",
+    "definitie": "Het tastbare resultaat (verslag, ontwerp, video, code). Bij AI-bewuste opdrachten gaat de aandacht óók naar het proces en verantwoording.",
+    "categorie": "Didactische principes",
+    "zieOok": [
+      "procesvorm"
+    ]
+  },
+  {
+    "slug": "adaptieve-simulaties",
+    "titel": "Adaptieve AI & simulaties",
+    "definitie": "AI-gestuurde oefen- en praktijksituaties die zich aanpassen aan handelen van de student. Geschikt voor authentieke, rijke beoordeling.",
+    "categorie": "Didactische principes",
+    "zieOok": null
+  },
+  {
+    "slug": "kritisch-denken",
+    "titel": "Kritisch denken (AI)",
+    "definitie": "AI-output beoordelen op correctheid, bias en toepasbaarheid; afwegen welke rol AI mag spelen in beslissingen en bewijsvoering.",
+    "categorie": "Digitale Geletterdheid",
+    "zieOok": null
+  },
+  {
+    "slug": "privacy-by-design",
+    "titel": "Privacy by design/default",
+    "definitie": "Privacy is vanaf het ontwerp geborgd (dataminimalisatie, veilige opslag, standaard ‘uit’). Belangrijk bij inzet van AI-tools in onderwijs.",
+    "categorie": "Datagebruik & Privacy",
+    "zieOok": [
+      "avg",
+      "dpia"
+    ]
+  },
+  {
+    "slug": "dpia",
+    "titel": "DPIA",
+    "definitie": "Data Protection Impact Assessment. Verplicht bij verwerkingen met hoog privacyrisico. In kaart brengen, risicobeperking plannen en vastleggen.",
+    "categorie": "Datagebruik & Privacy",
+    "zieOok": [
+      "avg"
+    ]
+  },
+  {
+    "slug": "examencommissie",
+    "titel": "Examencommissie (rol bij AI)",
+    "definitie": "Bewaakt kwaliteit en rechtmatigheid van toetsing, adviseert bij AI-vraagstukken (authenticiteit, fraude, beleid) en casuïstiek.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": [
+      "validiteit",
+      "betrouwbaarheid"
+    ]
+  },
+  {
+    "slug": "risicobeoordeling",
+    "titel": "Risicobeoordeling (AI in toetsing)",
+    "definitie": "Systematisch risico’s in kaart brengen (fraude, ongelijkheid, privacy), prioriteren en maatregelen nemen; periodiek herzien.",
+    "categorie": "Kaders & Wetgeving",
+    "zieOok": [
+      "ai-act",
+      "avg"
+    ]
+  },
+  {
+    "slug": "werkgroepen",
+    "titel": "Werkgroepen / governance",
+    "definitie": "Formele adviesgroepen en informele communities om AI-beleid, didactiek en tooling te ontwikkelen, toetsen en borgen.",
+    "categorie": "Kaders & Wetgeving",
+    "zieOok": null
+  },
+  {
+    "slug": "onderwijsniveaus",
+    "titel": "Onderwijsniveaus (VO/MBO/HBO/WO/VSO)",
+    "definitie": "VO: vmbo/havo/vwo. MBO: niveau 1–4. HBO/WO: ba/ma. VSO-uitstroomprofielen: vervolgonderwijs, arbeidsmarktgericht, dagbesteding.",
+    "categorie": "Onderwijsniveaus",
+    "zieOok": null
+  },
+  {
+    "slug": "uitstroomprofielen-vso",
+    "titel": "Uitstroomprofielen VSO",
+    "definitie": "Richting waarin de leerling zich voorbereidt: vervolgonderwijs, arbeidsmarktgericht of dagbesteding; beïnvloedt formulering en beoordeling van leerdoelen.",
+    "categorie": "Onderwijsniveaus",
+    "zieOok": [
+      "onderwijsniveaus"
+    ]
+  },
+  {
+    "slug": "menselijk-toezicht",
+    "titel": "Menselijk toezicht (AI)",
+    "definitie": "AI mag geen autonoom examenbesluit nemen. Bij hoog-risico AI zijn menselijk toezicht en logging/traceerbaarheid verplicht.",
+    "categorie": "Kaders & Wetgeving",
+    "zieOok": [
+      "ai-act"
+    ]
+  },
+  {
+    "slug": "transparantie-verantwoording",
+    "titel": "Transparantie & verantwoording",
+    "definitie": "Duidelijk zijn over wanneer en hoe AI is gebruikt, inclusief motivatie en effecten. Studenten leggen gebruik vast en lichten toe.",
+    "categorie": "Digitale Geletterdheid",
+    "zieOok": [
+      "procesvorm"
+    ]
+  },
+  {
+    "slug": "feedbackgeletterdheid",
+    "titel": "Feedbackgeletterdheid",
+    "definitie": "Vaardigheid om feedback (ook AI-feedback) te zoeken, begrijpen en vertalen naar verbeteracties; essentieel bij formatief handelen.",
+    "categorie": "Didactische principes",
+    "zieOok": null
+  },
+  {
+    "slug": "ethiek",
+    "titel": "Ethiek (AI)",
+    "definitie": "Morele afwegingen: fairness, schadebeperking, uitlegplicht, impact op mens en maatschappij. Fundament onder AI-geletterdheid.",
+    "categorie": "Digitale Geletterdheid",
+    "zieOok": null
+  },
+  {
+    "slug": "detectietools-beperking",
+    "titel": "Beperkingen AI-detectietools",
+    "definitie": "AI-detectie (bv. ‘AI-percentage’) is niet sluitend en vraagt altijd menselijk onderzoek, hoor- en wederhoor en aanvullende bewijzen.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": [
+      "examencommissie"
+    ]
+  },
+  {
+    "slug": "logboek-versiegeschiedenis",
+    "titel": "Logboek & versiegeschiedenis",
+    "definitie": "Procesbewijzen (prompts, iteraties, bronnen, versieverschillen) die laten zien hoe werk tot stand kwam en wat de student leerde.",
+    "categorie": "Toetsing & Examinering",
+    "zieOok": [
+      "procesvorm",
+      "transparantie-verantwoording"
+    ]
+  }
+]
