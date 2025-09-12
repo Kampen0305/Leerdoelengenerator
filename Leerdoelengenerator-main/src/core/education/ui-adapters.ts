@@ -1,4 +1,13 @@
-export type Sector = 'PO'|'SO'|'VSO'|'VO'|'MBO'|'HBO'|'WO';
+export type Sector = 'PO'|'SO'|'VO'|'VSO'|'MBO'|'HBO'|'WO';
+
+export type Baan = 1 | 2 | null;
+
+export interface GeneratorFormState {
+  sector: Sector;
+  // ... andere velden
+  baan: Baan; // was 1|2 → nu ook null toegestaan
+}
+
 export type EducationCategory = 'FUNDEREND'|'BEROEPSONDERWIJS';
 export type Lane = 'BAAN_1'|'BAAN_2';
 
