@@ -18,6 +18,7 @@
       "@/*": ["src/*"]
     },
     "resolveJsonModule": true,
+    "esModuleInterop": true,
 
     /* Linting */
     "strict": true,

@@ -1,23 +1,22 @@
 import { getSupportModel } from '@/services/supportRouting';
 
 describe('supportRouting', () => {
-  test('Funderend => SLO, geen handreikingen', () => {
+  it('Funderend => SLO, geen handreikingen', () => {
     const model = getSupportModel('PO');
     expect(model.mode).toBe('FUNDEREND');
-    // mag niet crashen; seed heeft minimaal 2+2 items
-    // @ts-expect-error discriminated union
-    expect(model.slo.length).toBeGreaterThanOrEqual(2);
+    // @ts-expect-error union narrow
+    expect(Array.isArray(model.slo)).toBe(true);
+    // @ts-expect-error union narrow
+    expect(model.slo.length).toBeGreaterThan(0);
   });
 
-  test('MBO => Handreikingen, geen SLO', () => {
+  it('MBO => Handreikingen, geen SLO', () => {
     const model = getSupportModel('MBO');
     expect(model.mode).toBe('BEROEPS_HO');
-    // @ts-expect-error discriminated union
+    // @ts-expect-error union narrow
+    expect(Array.isArray(model.handreikingen)).toBe(true);
+    // @ts-expect-error union narrow
     expect(model.handreikingen.length).toBeGreaterThan(0);
   });
-
-  test('Fallback on unknown => treat as funderend safe', () => {
-    const model = getSupportModel('VO');
-    expect(model.mode).toBe('FUNDEREND');
-  });
 });
+

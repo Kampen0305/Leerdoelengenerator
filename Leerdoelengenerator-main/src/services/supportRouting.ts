@@ -1,9 +1,10 @@
+// src/services/supportRouting.ts
 import type { Sector, LeergebiedKey, SupportItem, HandreikingItem } from '@/types';
 import SLO_INDEX from '@/content/sloKerndoelenIndex.json';
 import { HANDREIKINGEN } from '@/content/handreikingen';
 
-const FUNDEREND: Sector[] = ['PO','SO','VO','VSO'];
-const BER/HBO_WO: Sector[] = ['MBO','HBO','WO'];
+const FUNDEREND: Sector[] = ['PO', 'SO', 'VO', 'VSO'];
+const BEROEPS_EN_HO: Sector[] = ['MBO', 'HBO', 'WO'];
 
 export type SupportModel =
   | { mode: 'FUNDEREND'; slo: SupportItem[] }
@@ -14,9 +15,12 @@ export type SupportModel =
  * - FUNDEREND: SLO-ondersteuning tonen (geen handreikingen)
  * - MBO/HBO/WO: Handreikingen tonen (geen SLO)
  */
-export function getSupportModel(sector: Sector, leergebieden: LeergebiedKey[] = ['BURGERSCHAP','DG']): SupportModel {
+export function getSupportModel(
+  sector: Sector,
+  leergebieden: LeergebiedKey[] = ['BURGERSCHAP', 'DG']
+): SupportModel {
   if (FUNDEREND.includes(sector)) {
-    const items: SupportItem[] = leergebieden.flatMap(lg => {
+    const items: SupportItem[] = leergebieden.flatMap((lg) => {
       const arr = (SLO_INDEX as Record<string, any[]>)[lg] || [];
       return arr.map((x) => ({
         id: x.id,
@@ -27,11 +31,13 @@ export function getSupportModel(sector: Sector, leergebieden: LeergebiedKey[] = 
     });
     return { mode: 'FUNDEREND', slo: items };
   }
-  if (BER/HBO_WO.includes(sector)) {
+
+  if (BEROEPS_EN_HO.includes(sector)) {
     return { mode: 'BEROEPS_HO', handreikingen: HANDREIKINGEN };
   }
-  // Fallback — behandel onbekend als funderend veilig:
-  const items: SupportItem[] = (['BURGERSCHAP','DG'] as LeergebiedKey[]).flatMap(lg => {
+
+  // Fallback — behandel onbekend als funderend (veilig)
+  const items: SupportItem[] = (['BURGERSCHAP', 'DG'] as LeergebiedKey[]).flatMap((lg) => {
     const arr = (SLO_INDEX as Record<string, any[]>)[lg] || [];
     return arr.map((x) => ({
       id: x.id,
@@ -42,3 +48,4 @@ export function getSupportModel(sector: Sector, leergebieden: LeergebiedKey[] = 
   });
   return { mode: 'FUNDEREND', slo: items };
 }
+
