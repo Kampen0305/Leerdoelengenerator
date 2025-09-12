@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import {
   BookOpen, Brain, FileText, Download, ChevronRight, Lightbulb, Target,
-  CheckCircle, Upload, Database, ChevronDown, Save, FolderOpen, Library,
+  CheckCircle, Database, ChevronDown, Save, FolderOpen, Library,
   BarChart3, Shield, Printer, Link2, Sparkles, Menu
 } from "lucide-react";
 
@@ -894,14 +894,6 @@ function App() {
                   <span>Opgeslagen</span>
                 </button>
 
-                <button
-                  onClick={() => setShowKDImport(true)}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 text-white h-11 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg"
-                >
-                  <Upload className="w-4 h-4" />
-                  <span>KD Importeren</span>
-                </button>
-
                 <a
                   href="/begrippen"
                   className="flex items-center space-x-2 bg-gray-100 text-gray-800 h-11 px-4 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200 shadow-md hover:shadow-lg"
@@ -951,17 +943,6 @@ function App() {
               >
                 <FolderOpen className="w-4 h-4" />
                 <span>Opgeslagen</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setShowKDImport(true);
-                  setMenuOpen(false);
-                }}
-                className="flex items-center justify-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 text-white h-11 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg w-full"
-              >
-                <Upload className="w-4 h-4" />
-                <span>KD Importeren</span>
               </button>
 
               <a
