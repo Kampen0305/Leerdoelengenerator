@@ -1,5 +1,6 @@
 import { getAllVoorbeeldcases, getSectorCounts /*, getCasesBySector */ } from '@/lib/examples';
 import type { VoorbeeldCase } from '@/lib/examples';
+import { compareByLevel, LevelKey } from '@/utils/levelOrder';
 
 export default function Voorbeeldcases({ currentSector, debug = false, onSelect }:{
   currentSector?: string | null;
@@ -8,16 +9,19 @@ export default function Voorbeeldcases({ currentSector, debug = false, onSelect 
 }) {
   // TIJDELIJK: zet filter uit om zichtbaarheid te verifiëren:
   // const cases = getCasesBySector(currentSector as any);
-  const cases = getAllVoorbeeldcases();
+  const cases = getAllVoorbeeldcases().sort((a, b) => compareByLevel(a.titel, b.titel));
 
   const counts = getSectorCounts();
+  const countsLine = (['WO','HBO','MBO','VO','VSO','PO','SO'] as LevelKey[])
+    .map((lvl) => `${lvl}:${counts[lvl] ?? 0}`)
+    .join(' • ');
 
   return (
     <div className="space-y-2">
       {debug && (
         <div className="text-xs text-gray-600 p-2 border rounded">
-          <div className="font-semibold mb-1">Debug voorbeelden:</div>
-          <div>PO:{counts.PO ?? 0} • SO:{counts.SO ?? 0} • VO:{counts.VO ?? 0} • VSO:{counts.VSO ?? 0} • MBO:{counts.MBO ?? 0} • HBO:{counts.HBO ?? 0} • WO:{counts.WO ?? 0}</div>
+          <div className="font-semibold mb-1">Overkoepelende kaders & visies</div>
+          <div>{countsLine}</div>
         </div>
       )}
       {cases.map((c) => (
