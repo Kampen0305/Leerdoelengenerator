@@ -20,7 +20,65 @@ export const mboHboCases: VoorbeeldCase[] = [
 ];
 
 // -- Nieuwe funderend + WO cases (zoals eerder aangeleverd):
-export const funderendWoCases: VoorbeeldCase[] = [
+// --- Herschreven MBO + HBO cases in uniforme stijl ---
+export const mboHboCases: VoorbeeldCase[] = [
+  {
+    id: 'mbo-sport-fairplay',
+    titel: 'MBO – Burgerschap: Sport & fair play',
+    sector: 'MBO',
+    leergebied: 'BURGERSCHAP',
+    korteBeschrijving: 'Studenten onderzoeken hoe sport bijdraagt aan fair play en respect in de samenleving.',
+    baan: 1,
+    inputs: [
+      'Sector=MBO',
+      'Leergebied=Burgerschap',
+      'Kerndoel: democratische cultuur en sociale/morele ontwikkeling',
+      'Context: beroepssituatie Sport & Bewegen',
+    ],
+    expected: [
+      'Koppeling met burgerschapsdoelen',
+      'Werkvorm: rollenspel en groepsgesprek',
+      'Bewijsvorm: reflectieverslag of presentatie',
+    ],
+  },
+  {
+    id: 'mbo-zorg-beroepsdilemma',
+    titel: 'MBO – Zorg: Praktijksimulatie beroepsdilemma',
+    sector: 'MBO',
+    leergebied: 'ALGEMEEN',
+    korteBeschrijving: 'Studenten werken een zorgdilemma uit waarbij AI als hulpmiddel wordt ingezet.',
+    baan: 2,
+    inputs: [
+      'Sector=MBO',
+      'Leergebied=Algemeen',
+      'Kerndoel: kritisch denken en beroepsethiek',
+      'Context: simulatie in zorgpraktijk',
+    ],
+    expected: [
+      'Koppeling met beroepspraktijk',
+      'Werkvorm: casusbespreking met AI-hulp',
+      'Bewijsvorm: reflectieverslag en observatie',
+    ],
+  },
+  {
+    id: 'hbo-ict-dataethiek',
+    titel: 'HBO – DG: Data-ethiek & bronvermelding',
+    sector: 'HBO',
+    leergebied: 'DG',
+    korteBeschrijving: 'Studenten analyseren de rol van AI in data-ethiek en oefenen met correcte bronvermelding.',
+    baan: 2,
+    inputs: [
+      'Sector=HBO',
+      'Leergebied=Digitale geletterdheid',
+      'Kerndoel: kritisch en ethisch gebruik van AI',
+      'Context: beroepsopdracht ICT',
+    ],
+    expected: [
+      'Toepassing AI-bewustzijn in beroepscontext',
+      'Werkvorm: reflectieverslag + bronnenanalyse',
+      'Bewijsvorm: verslag en beoordeling door docent',
+    ],
+  },
   {
     id: 'po-dg-mediawijsheid',
     titel: 'PO – DG: Mediawijs nieuwsbericht',
