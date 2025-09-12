@@ -1,0 +1,20 @@
+[
+  {
+    "id": "hbo-ict-code-review",
+    "titel": "HBO ICT – AI code review",
+    "sector": "HBO",
+    "leergebied": "DG",
+    "korteBeschrijving": "Studenten gebruiken AI om code te reviewen en verbeteren.",
+    "baan": 2,
+    "inputs": [
+      "Sector=HBO, Profiel=ICT",
+      "Onderwerp: code kwaliteit",
+      "Baan=2"
+    ],
+    "expected": [
+      "AI review suggesties",
+      "Transparantie logboek",
+      "Reflectie op verbeteringen"
+    ]
+  }
+]
