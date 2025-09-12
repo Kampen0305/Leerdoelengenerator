@@ -25,11 +25,11 @@ import { geminiService } from "./services/gemini";
 import type { Education, VoLevel, VSOCluster } from "./types/context";
 import { LEVEL_OPTIONS, VO_LEVELS, VSO_CLUSTERS } from "./constants/education";
 import SectorSelector from "@/features/sector/SectorSelector";
-import { Sector, toCategory, isBaanApplicable } from "@/core/education/ui-adapters";
+import { Sector, Baan, toCategory } from "@/core/education/ui-adapters";
 import { getVoGradeOptions } from "./utils/vo";
 import NiveauBadge from "@/components/NiveauBadge";
 import { OnderwijsSector } from "@/domain/niveau";
-import { isFunderend } from "@/features/sector/utils";
+import { isFunderend, isBeroepsonderwijs } from "@/features/sector/utils";
 import { NiveauCheck } from "./components/NiveauCheck";
 import { feature } from "@/config";
 import { LevelKey } from "./domain/levelProfiles";
@@ -39,6 +39,7 @@ import { getSuggestions } from "./data/suggestions";
 import { inferGoalOrientation, mapEducationLevel } from "./utils/suggestionHelpers";
 import type { SuggestionBundle } from "./types/learning";
 import { resolveLevelStrict } from "@/utils/levels";
+import { toast } from "@/components/useToast";
 
 /* --------------------- Helpers: opslag + delen --------------------- */
 const STORAGE_KEY = "ld-app-state-v2";
@@ -232,7 +233,7 @@ function App() {
     context: { education: "", level: "", domain: "", assessment: "", voLevel: undefined, voGrade: undefined, vsoCluster: undefined },
   });
   const [sector, setSector] = useState<Sector | null>(null);
-  const [lane, setLane] = useState<"" | Lane>(""); // Two-Lane keuze
+  const [baan, setBaan] = useState<Baan>(null); // Two-Lane keuze
   const [output, setOutput] = useState<AIReadyOutput | null>(null);
   const [aiGoTags, setAiGoTags] = useState<AIGOTagKey[]>([]);
   const [aiStatement, setAiStatement] = useState<string>("");
@@ -277,7 +278,7 @@ function App() {
         assessment: "",
       },
     });
-    setLane(ex.baan === 2 ? "baan2" : "baan1");
+    setBaan(isBeroepsonderwijs(ex.sector) ? (ex.baan ?? null) : null);
   };
 
   /* ---------- Hydrate bij laden (eerst URL, anders localStorage) ---------- */
@@ -285,7 +286,7 @@ function App() {
     const fromUrl = decodeState<{
       currentStep: number;
       formData: LearningObjective;
-      lane?: Lane;
+      baan?: Baan;
       output: AIReadyOutput | null;
       aiStatement?: string;
       importedKD?: KDStructure | null;
@@ -296,7 +297,8 @@ function App() {
       setCurrentStep(fromUrl.currentStep ?? 1);
       setFormData(fromUrl.formData ?? formData);
       setSector(fromUrl.formData?.context.education as Sector);
-      setLane(fromUrl.lane ?? "");
+      const decodedSector = fromUrl.formData?.context.education as Sector;
+      setBaan(isFunderend(decodedSector) ? null : fromUrl.baan ?? null);
       const out = fromUrl.output
         ? attachSuggestions(fromUrl.output, fromUrl.formData?.context ?? formData.context)
         : null;
@@ -306,7 +308,7 @@ function App() {
       if (out) {
         setAiGoTags(
           inferAIGOTags(out.newObjective, {
-            withAI: (fromUrl.lane ?? "baan1") === "baan2",
+            withAI: (fromUrl.baan ?? 1) === 2,
             domain: fromUrl.formData?.context?.domain,
           })
         );
@@ -322,8 +324,14 @@ function App() {
         if (saved.formData) {
           setFormData(saved.formData);
           setSector(saved.formData.context.education as Sector);
+          setBaan(
+            isFunderend(saved.formData.context.education as Sector)
+              ? null
+              : (saved.baan ?? null)
+          );
+        } else if (typeof saved.baan === "number") {
+          setBaan(saved.baan);
         }
-        if (typeof saved.lane === "string") setLane(saved.lane);
         if (saved.output) {
           const out = attachSuggestions(
             saved.output,
@@ -332,7 +340,7 @@ function App() {
           setOutput(out);
           setAiGoTags(
             inferAIGOTags(out.newObjective, {
-              withAI: saved.lane === "baan2",
+              withAI: saved.baan === 2,
               domain: saved.formData?.context?.domain,
             })
           );
@@ -348,14 +356,14 @@ function App() {
 
   /* ---------------- Autosave naar localStorage ---------------- */
   useEffect(() => {
-    const state = { currentStep, formData, lane, output, aiStatement, importedKD, generationSource };
+    const state = { currentStep, formData, baan, output, aiStatement, importedKD, generationSource };
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
-  }, [currentStep, formData, lane, output, aiStatement, importedKD, generationSource]);
+  }, [currentStep, formData, baan, output, aiStatement, importedKD, generationSource]);
 
   const voLevels: VoLevel[] = [...VO_LEVELS];
   const levels = LEVEL_OPTIONS;
   const vsoClusters: VSOCluster[] = [...VSO_CLUSTERS];
-  const funderend = isFunderend(sector);
+  const funderend = sector ? isFunderend(sector) : false;
 
   const examples = [
     {
@@ -373,7 +381,7 @@ function App() {
   ];
 
   const isFormDataComplete = () =>
-    lane !== "" &&
+    (funderend || baan !== null) &&
     formData.original.trim() !== "" &&
     sector !== null &&
     formData.context.domain.trim() !== "" &&
@@ -423,6 +431,18 @@ function App() {
       return;
     }
     setIsProcessing(true);
+
+    let lane: Lane = baan === 2 ? "baan2" : "baan1";
+    if (funderend) {
+      setBaan(null); // extra safety net
+      lane = "baan1";
+    } else {
+      if (baan !== 1 && baan !== 2) {
+        toast("Kies Baan 1 of 2 voor MBO/HBO/WO.");
+        setIsProcessing(false);
+        return;
+      }
+    }
 
     // Duidelijke console‑log per pad
     console.log(
@@ -657,7 +677,7 @@ function App() {
   const handleSectorChange = (s: Sector) => {
     setSector(s);
     handleInputChange("education", s);
-    setLane((prev) => (isBaanApplicable(s) ? prev : ""));
+    setBaan((prev) => (isFunderend(s) ? null : prev));
   };
   const handleKDImported = (kd: KDStructure) => setImportedKD(kd);
 
@@ -679,6 +699,7 @@ function App() {
 
   const loadObjective = (objective: SavedObjective) => {
     setFormData({ original: objective.originalObjective, context: objective.context });
+    const lane: Lane = baan === 2 ? "baan2" : "baan1";
     const o: AIReadyOutput = attachSuggestions(
       {
         newObjective: objective.aiReadyObjective,
@@ -686,7 +707,7 @@ function App() {
         activities: generateActivities({ original: objective.originalObjective, context: objective.context }, lane as Lane),
         assessments: generateAssessments({ original: objective.originalObjective, context: objective.context }, lane as Lane),
         aiLiteracy: inferAIGOTags(objective.aiReadyObjective, {
-          withAI: lane === "baan2",
+          withAI: baan === 2,
           domain: objective.context.domain,
         }).join(", ") || "kritisch denken, ethiek",
       },
@@ -694,7 +715,7 @@ function App() {
     );
     setOutput(o);
     setGenerationSource(null); // onbekend voor oudere items
-    setAiGoTags(inferAIGOTags(o.newObjective, { withAI: lane === "baan2", domain: objective.context.domain }));
+    setAiGoTags(inferAIGOTags(o.newObjective, { withAI: baan === 2, domain: objective.context.domain }));
     setCurrentStep(3);
     setShowSavedObjectives(false);
   };
@@ -709,6 +730,7 @@ function App() {
 
   const getExportData = () => {
     if (!output) return null;
+    const lane: Lane = baan === 2 ? "baan2" : "baan1";
     return {
       originalObjective: formData.original,
       context: formData.context,
@@ -757,7 +779,7 @@ function App() {
   const resetForm = () => {
     setCurrentStep(1);
     setFormData({ original: "", context: { education: "", level: "", domain: "", assessment: "" } });
-    setLane("baan1");
+    setBaan(null);
     setOutput(null);
     setAiGoTags([]);
     setAiStatement("");
@@ -769,7 +791,7 @@ function App() {
 
   /* ---------- Deelbare link + Print + AI-statement ---------- */
   const shareLink = () => {
-    const payload = encodeState({ currentStep, formData, lane, output, aiStatement, importedKD, generationSource });
+    const payload = encodeState({ currentStep, formData, baan, output, aiStatement, importedKD, generationSource });
     const url = new URL(window.location.href);
     url.searchParams.set("data", payload);
     navigator.clipboard.writeText(url.toString());
@@ -777,7 +799,7 @@ function App() {
   };
   const printPdf = () => window.print();
   const buildAIStatement = () => {
-    const withAI = lane === "baan2";
+    const withAI = baan === 2;
     const contextLine =
       formData.context.education === "VO"
         ? `${formData.context.education} – ${formData.context.voLevel} leerjaar ${formData.context.voGrade} – ${formData.context.domain}`
@@ -1009,8 +1031,8 @@ function App() {
                       {/* Two-Lane keuze */}
                       <ObjectiveForm
                         sector={sector}
-                        lane={lane}
-                        onLaneChange={setLane}
+                        baan={baan}
+                        onBaanChange={setBaan}
                         geminiAvailable={geminiService.isAvailable()}
                       />
 

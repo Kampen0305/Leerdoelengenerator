@@ -1,31 +1,29 @@
 import React from "react";
 import InfoBox from "./components/InfoBox";
-import { Sector, isBaanApplicable } from "@/core/education/ui-adapters";
-
-type Lane = "baan1" | "baan2";
+import { Sector, Baan } from "@/core/education/ui-adapters";
+import { isFunderend } from "@/features/sector/utils";
 
 interface ObjectiveFormProps {
   sector: Sector;
-  lane: "" | Lane;
-  onLaneChange: (lane: Lane) => void;
+  baan: Baan;
+  onBaanChange: (baan: Baan) => void;
   geminiAvailable: boolean;
 }
 
-export function ObjectiveForm({ sector, lane, onLaneChange, geminiAvailable }: ObjectiveFormProps) {
-  const baanEnabled = isBaanApplicable(sector);
+export function ObjectiveForm({ sector, baan, onBaanChange, geminiAvailable }: ObjectiveFormProps) {
+  const baanDisabled = isFunderend(sector);
   return (
-    <fieldset className="bg-slate-50 border border-slate-200 rounded-lg p-4" aria-disabled={!baanEnabled}>
+    <fieldset className="bg-slate-50 border border-slate-200 rounded-lg p-4" aria-disabled={baanDisabled}>
       <legend className="text-sm font-medium text-slate-700 mb-2">Kies aanpak *</legend>
       <div className="flex flex-wrap gap-4">
         <label className="inline-flex items-center gap-2">
           <input
             type="radio"
-            name="lane"
-            value="baan1"
-            disabled={!baanEnabled}
-            checked={lane === "baan1"}
-            onChange={() => onLaneChange("baan1")}
-            required
+            name="baan"
+            value="1"
+            onChange={() => onBaanChange(1)}
+            checked={baan === 1}
+            disabled={baanDisabled}
           />
           <span>
             Baan 1 (besluitvormend, beperkt AI)
@@ -39,12 +37,11 @@ export function ObjectiveForm({ sector, lane, onLaneChange, geminiAvailable }: O
         <label className="inline-flex items-center gap-2">
           <input
             type="radio"
-            name="lane"
-            value="baan2"
-            disabled={!baanEnabled || !geminiAvailable}
-            checked={lane === "baan2"}
-            onChange={() => onLaneChange("baan2")}
-            required
+            name="baan"
+            value="2"
+            onChange={() => onBaanChange(2)}
+            checked={baan === 2}
+            disabled={baanDisabled || !geminiAvailable}
           />
           <span>
             Baan 2 (ontwikkelingsgericht, AI toegestaan/verplicht)
@@ -56,8 +53,8 @@ export function ObjectiveForm({ sector, lane, onLaneChange, geminiAvailable }: O
           </span>
         </label>
       </div>
-      {!baanEnabled && (
-        <p className="hint mt-2 text-sm text-gray-600">
+      {baanDisabled && (
+        <p className="hint">
           Baan-keuze is alleen van toepassing op het <strong>beroepsonderwijs</strong> (MBO/HBO/WO).
         </p>
       )}

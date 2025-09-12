@@ -1,5 +1,4 @@
-import type { Sector } from '@/lib/standards/types';
+import type { Sector } from '@/core/education/ui-adapters';
 
-export function isFunderend(sector: Sector | null): boolean {
-  return ['PO', 'SO', 'VO', 'VSO'].includes(sector ?? '');
-}
+export const isBeroepsonderwijs = (s: Sector) => s === 'MBO' || s === 'HBO' || s === 'WO';
+export const isFunderend = (s: Sector) => s === 'PO' || s === 'SO' || s === 'VO' || s === 'VSO';
