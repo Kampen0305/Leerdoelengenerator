@@ -1,0 +1,35 @@
+[
+  {
+    "id": "mbo-zorg-digitaal-dossier",
+    "titel": "MBO Zorg – Veilig digitaal dossier",
+    "sector": "MBO",
+    "leergebied": "DG",
+    "korteBeschrijving": "Studenten oefenen met veilig bijhouden van patiëntinformatie.",
+    "baan": 2,
+    "inputs": [
+      "Sector=MBO, Profiel=Zorg",
+      "Onderwerp: privacy en gegevensbescherming"
+    ],
+    "expected": [
+      "Leerdoel over AVG",
+      "Werkvorm met AI",
+      "Reflectie op privacy"
+    ]
+  },
+  {
+    "id": "mbo-sport-trainingsplan",
+    "titel": "MBO Sport – Trainingsplan analyseren",
+    "sector": "MBO",
+    "leergebied": "ALGEMEEN",
+    "korteBeschrijving": "Studenten maken en bespreken een trainingsplan.",
+    "baan": 1,
+    "inputs": [
+      "Sector=MBO, Profiel=Sport",
+      "Onderwerp: planning en evaluatie"
+    ],
+    "expected": [
+      "Leerdoel over analyseren",
+      "Werkvorm zonder AI"
+    ]
+  }
+]
