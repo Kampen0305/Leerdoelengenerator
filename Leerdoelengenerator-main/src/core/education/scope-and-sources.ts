@@ -75,14 +75,14 @@ const BEROEP_SOURCES: SourceBundle = {
         'Visie op toetsing en examinering in het tijdperk van AI (Npuls, 2025)',
       publisher: 'Npuls',
       year: '2025',
-      url: '/docs/npuls/visie-toetsing-ai.pdf',
+      url: 'https://npuls.nl/kennisbank/visie-op-toetsing-examinering-en-ai-handreikingen',
     },
     {
       id: 'npuls-handreiking-1',
       title: 'Handreiking 1: Toetsing en examinering in het tijdperk van AI',
       publisher: 'Npuls',
       year: '2025',
-      url: '/docs/npuls/handreiking-1.pdf',
+      url: 'https://npuls.nl/kennisbank/visie-op-toetsing-examinering-en-ai-handreikingen',
     },
     {
       id: 'npuls-handreiking-2',
@@ -110,14 +110,14 @@ const BEROEP_SOURCES: SourceBundle = {
       title: 'AI-GO! Raamwerk AI-geletterdheid (Npuls, 2025)',
       publisher: 'Npuls',
       year: '2025',
-      url: '/docs/npuls/ai-go.pdf',
+      url: 'https://npuls.nl/kennisbank/ai-go-een-raamwerk-voor-ai-geletterdheid-in-het-onderwijs',
     },
     {
       id: 'npuls-referentiekader-2.0-2025',
       title: 'Referentiekader 2.0 Verantwoord gebruik studiedata & AI (Npuls)',
       publisher: 'Npuls',
       year: '2025',
-      url: '/docs/npuls/referentiekader-2.0.pdf',
+      url: 'https://npuls.nl/kennisbank/referentiekader-2-0-verantwoord-gebruik-van-studiedata-en-ai',
     },
   ],
 };
