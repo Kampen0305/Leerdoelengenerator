@@ -51,8 +51,8 @@ export class ExportUtils {
       }
     };
 
-    // Header with DigitEd branding
-    addText('DigitEd', 24, true, '#059669');
+    // Header
+    addText('AI Leerdoelenmaker', 24, true, '#059669');
     addText('AI Curriculum Designer', 20, true, '#ea580c');
     addText('AI-Ready Leeruitkomst Rapport', 16, true, '#374151');
     yPosition += 10;
@@ -125,7 +125,7 @@ export class ExportUtils {
     }
 
     // Save the PDF
-    const fileName = `digited-ai-ready-leerdoel-${new Date().toISOString().split('T')[0]}.pdf`;
+    const fileName = `ai-ready-leerdoel-${new Date().toISOString().split('T')[0]}.pdf`;
     pdf.save(fileName);
   }
 
@@ -134,17 +134,17 @@ export class ExportUtils {
       sections: [{
         properties: {},
         children: [
-          // Header with DigitEd branding
+          // Header
           new Paragraph({
             children: [
               new TextRun({
-                text: "DigitEd",
+                text: "AI Leerdoelenmaker",
                 bold: true,
                 size: 36,
                 color: "059669"
               }),
               new TextRun({
-                text: " AI Curriculum Designer",
+                text: " – AI Curriculum Designer",
                 bold: true,
                 size: 32,
                 color: "ea580c"
@@ -397,13 +397,14 @@ export class ExportUtils {
 
     // Generate and save the document
     const buffer = await Packer.toBuffer(doc);
-    const fileName = `digited-ai-ready-leerdoel-${new Date().toISOString().split('T')[0]}.docx`;
+    const fileName = `ai-ready-leerdoel-${new Date().toISOString().split('T')[0]}.docx`;
     saveAs(new Blob([buffer]), fileName);
   }
 
   static exportToJSON(data: ExportData): void {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const fileName = `digited-ai-ready-leerdoel-${new Date().toISOString().split('T')[0]}.json`;
+    const fileName = `ai-ready-leerdoel-${new Date().toISOString().split('T')[0]}.json`;
     saveAs(blob, fileName);
   }
 }
+

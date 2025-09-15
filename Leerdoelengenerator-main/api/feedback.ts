@@ -25,7 +25,7 @@ export default async function handler(req: Request): Promise<Response> {
       return json({ error: "Invalid stars" }, 400);
 
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
-    const RESEND_FROM = process.env.RESEND_FROM || "Feedback <feedback@digited.nl>";
+    const RESEND_FROM = process.env.RESEND_FROM || "Feedback <feedback@leerdoelenmaker.nl>";
     const FEEDBACK_TO =
       process.env.FEEDBACK_TO?.split(",").map((s) => s.trim()).filter(Boolean) ??
       ["edwinspielhagen@gmail.com"];

@@ -747,7 +747,7 @@ function App() {
         : null,
       nationalVisionCompliance: true,
       exportDate: new Date().toLocaleDateString("nl-NL"),
-      generatedBy: "DigitEd AI Curriculum Designer v2.0",
+      generatedBy: "AI Leerdoelengenerator v2.0",
     };
   };
 
@@ -820,41 +820,26 @@ function App() {
         <div className="max-w-screen-xl mx-auto px-4 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              {/* DigitEd Logo */}
-              <a
-                href="https://www.digited.nl"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center hover:opacity-80 transition-opacity cursor-pointer"
-                title="Ga naar DigitEd website"
-              >
-                <img src="/logo5.png" alt="DigitEd Logo" className="h-12 w-auto" />
-              </a>
-
-              <div className="border-l border-gray-300 pl-4">
-                <div className="flex items-center space-x-3">
-                  <div className="bg-gradient-to-r from-green-600 to-orange-500 p-2 rounded-lg">
-                    <Brain className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent">
-                      AI Leerdoelengenerator
-                    </h1>
-                    <p className="text-sm text-gray-600 flex items-center">
-                      <Shield className="w-4 h-4 mr-1 text-green-600" />
-                      Maak leeruitkomsten geschikt voor AI en eerlijke kansen (gratis tools)
-                      {/* Altijd zichtbaar AI-statuslabel */}
-                      <span
-                        className={`text-xs font-semibold ml-2 ${
-                          geminiService.isAvailable() ? "text-purple-600" : "text-gray-400"
-                        }`}
-                        title={geminiService.isAvailable() ? "Gemini actief" : "Fallback actief"}
-                      >
-                        {geminiService.isAvailable() ? "• AI actief (Gemini)" : "• AI uit (fallback)"}
-                      </span>
-                    </p>
-                  </div>
-                </div>
+              <div className="bg-gradient-to-r from-green-600 to-orange-500 p-2 rounded-lg">
+                <Brain className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent">
+                  AI Leerdoelengenerator
+                </h1>
+                <p className="text-sm text-gray-600 flex items-center">
+                  <Shield className="w-4 h-4 mr-1 text-green-600" />
+                  Maak leeruitkomsten geschikt voor AI en eerlijke kansen (gratis tools)
+                  {/* Altijd zichtbaar AI-statuslabel */}
+                  <span
+                    className={`text-xs font-semibold ml-2 ${
+                      geminiService.isAvailable() ? "text-purple-600" : "text-gray-400"
+                    }`}
+                    title={geminiService.isAvailable() ? "Gemini actief" : "Fallback actief"}
+                  >
+                    {geminiService.isAvailable() ? "• AI actief (Gemini)" : "• AI uit (fallback)"}
+                  </span>
+                </p>
               </div>
             </div>
 
