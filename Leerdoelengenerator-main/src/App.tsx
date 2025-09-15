@@ -1,7 +1,7 @@
 // src/App.tsx
 import React, { useEffect, useState } from "react";
 import {
-  BookOpen, Brain, FileText, Download, ChevronRight, Lightbulb, Target,
+  BookOpen, Brain, FileText, Download, ChevronRight, Target,
   CheckCircle, Database, ChevronDown, Save, FolderOpen, Library,
   BarChart3, Shield, Printer, Link2, Sparkles, Menu
 } from "lucide-react";
@@ -365,21 +365,6 @@ function App() {
   const levels = LEVEL_OPTIONS;
   const vsoClusters: VSOCluster[] = [...VSO_CLUSTERS];
   const funderend = sector ? isFunderend(sector) : false;
-
-  const examples = [
-    {
-      original: "De student kan een zakelijke e-mail schrijven in correct Nederlands.",
-      context: "MBO niveau 3, secretarieel medewerker",
-      newObjective:
-        "De student kan met hulp van AI-tools een zakelijke e-mail maken, de AI-tekst controleren en verbeteren, en zelf de juiste toon kiezen voor de ontvanger.",
-    },
-    {
-      original: "De student kan een marktanalyse uitvoeren voor een nieuwe product.",
-      context: "HBO Bachelor, Marketing",
-      newObjective:
-        "De student kan een marktanalyse maken waarbij AI-tools helpen met data verzamelen, de AI-resultaten controleren op juistheid, en zelf conclusies trekken voor het product.",
-    },
-  ];
 
   const isFormDataComplete = () =>
     (funderend || baan !== null) &&
@@ -1164,26 +1149,9 @@ function App() {
               </div>
             </div>
 
-            {/* Examples Sidebar */}
+            {/* Sidebar */}
             <aside className="lg:col-span-1 space-y-6">
               {sector && <SupportPanel sector={sector} />}
-              <div className="bg-green-50 border border-green-200 rounded-xl p-6">
-                <h3 className="font-semibold text-green-800 mb-3 flex items-center">
-                  <Lightbulb className="w-5 h-5 mr-2" />
-                  Voorbeelden (Nederlandse Visie)
-                </h3>
-                <div className="space-y-4">
-                  {examples.map((example, idx) => (
-                    <div key={idx} className="bg-white rounded-lg p-4 border border-green-100">
-                      <p className="text-sm text-gray-600 mb-2">{example.context}</p>
-                      <p className="text-sm font-medium text-gray-800 mb-2">Origineel:</p>
-                      <p className="text-sm text-gray-700 mb-3 italic">"{example.original}"</p>
-                      <p className="text-sm font-medium text-green-700 mb-2">AI-ready (Eerlijke kansen):</p>
-                      <p className="text-sm text-green-800 italic">"{example.newObjective}"</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
               {importedKD && (
                 <div className="bg-orange-50 border border-orange-200 rounded-xl p-6">
