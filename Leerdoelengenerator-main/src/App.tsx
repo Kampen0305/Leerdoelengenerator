@@ -9,6 +9,7 @@ import {
 import { KDImport } from "./components/KDImport";
 import { SavedObjectives } from "./components/SavedObjectives";
 import { TemplateLibrary } from "./components/TemplateLibrary";
+import type { TemplateItem } from '@/types';
 import { Hero } from "./components/Hero";
 import Voorbeeldcases from "@/features/examples/Voorbeeldcases";
 import type { VoorbeeldCase } from "@/lib/examples";
@@ -706,10 +707,15 @@ function App() {
     setShowSavedObjectives(false);
   };
 
-  const useTemplate = (template: any) => {
+  const useTemplate = (template: TemplateItem) => {
     setFormData({
-      original: template.originalObjective,
-      context: { education: template.education, level: template.level, domain: template.domain, assessment: "" },
+      original: template.origineelLeerdoel,
+      context: {
+        education: template.sector,
+        level: template.niveau ?? '',
+        domain: template.leergebied,
+        assessment: "",
+      },
     });
     setShowTemplateLibrary(false);
   };
