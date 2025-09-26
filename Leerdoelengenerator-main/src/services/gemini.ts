@@ -145,7 +145,11 @@ export async function checkGeminiAvailable(): Promise<boolean> {
       generationConfig: { temperature: 0.1, maxOutputTokens: 8 }
     });
     const txt = res.response.text().trim();
-    return txt.toUpperCase().includes("OK");
+    const ok = txt.toUpperCase().includes("OK");
+    if (ok) {
+      console.info("[AI-check] Gemini online met model:", MODEL_NAME);
+    }
+    return ok;
   } catch (e) {
     console.error("[gemini] Beschikbaarheidscheck faalde:", e);
     return false;
