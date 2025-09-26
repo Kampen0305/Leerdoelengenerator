@@ -13,7 +13,6 @@
     "test:ui": "vitest"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.2.1",
     "docx": "^8.5.0",
     "file-saver": "^2.0.5",
     "jspdf": "^2.5.1",
