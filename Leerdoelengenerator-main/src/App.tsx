@@ -268,6 +268,7 @@ function App() {
     : null;
   const [showEducationGuidance, setShowEducationGuidance] = useState(false);
   const [generationSource, setGenerationSource] = useState<GenerationSource>(null); // NIEUW: bron van de laatste generatie
+  const [geminiAvailable, setGeminiAvailable] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [openToetsvormSearch, setOpenToetsvormSearch] = useState(false);
 
@@ -295,6 +296,7 @@ function App() {
       aiStatement?: string;
       importedKD?: KDStructure | null;
       generationSource?: GenerationSource;
+      geminiAvailable?: boolean;
     }>(new URLSearchParams(window.location.search).get("data"));
 
     if (fromUrl) {
@@ -309,6 +311,11 @@ function App() {
       setOutput(out);
       setAiStatement(fromUrl.aiStatement ?? "");
       setGenerationSource(fromUrl.generationSource ?? null);
+      if (typeof fromUrl.geminiAvailable === "boolean") {
+        setGeminiAvailable(fromUrl.geminiAvailable);
+      } else if (fromUrl.generationSource === "gemini") {
+        setGeminiAvailable(true);
+      }
       if (out) {
         setAiGoTags(
           inferAIGOTags(out.newObjective, {
@@ -352,7 +359,13 @@ function App() {
         if (typeof saved.currentStep === "number") setCurrentStep(saved.currentStep);
         if (saved.importedKD) setImportedKD(saved.importedKD);
         if (saved.aiStatement) setAiStatement(saved.aiStatement);
-        if (saved.generationSource) setGenerationSource(saved.generationSource as GenerationSource);
+        if (saved.generationSource) {
+          setGenerationSource(saved.generationSource as GenerationSource);
+          setGeminiAvailable(saved.generationSource === "gemini");
+        }
+        if (typeof saved.geminiAvailable === "boolean") {
+          setGeminiAvailable(saved.geminiAvailable);
+        }
       }
     } catch { /* ignore */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -360,9 +373,9 @@ function App() {
 
   /* ---------------- Autosave naar localStorage ---------------- */
   useEffect(() => {
-    const state = { currentStep, formData, baan, output, aiStatement, importedKD, generationSource };
+    const state = { currentStep, formData, baan, output, aiStatement, importedKD, generationSource, geminiAvailable };
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
-  }, [currentStep, formData, baan, output, aiStatement, importedKD, generationSource]);
+  }, [currentStep, formData, baan, output, aiStatement, importedKD, generationSource, geminiAvailable]);
 
   const voLevels: VoLevel[] = [...VO_LEVELS];
   const levels = LEVEL_OPTIONS;
@@ -433,70 +446,72 @@ function App() {
       }
     }
 
-    // Duidelijke console‑log per pad
-    console.log(
-      "[AI-check] Lane:", lane,
-      "| Gemini beschikbaar?", geminiService.isAvailable()
-    );
-
     try {
-      if (geminiService.isAvailable()) {
+      // Duidelijke console-log per pad
+      console.log(
+        "[AI-check] Lane:", lane,
+        "| Gemini status:", geminiAvailable ? "actief/bekend" : "onbekend of uit"
+      );
+
+      let aiOutput: AIReadyOutput | null = null;
+      let usedGemini = false;
+
+      try {
         const kdContext = importedKD
           ? {
               title: importedKD.metadata.title,
-              code: importedKD.metadata.code,
-              relatedCompetencies: KDParser.extractContextForObjective(
-                importedKD,
-                formData.original
-              ).relatedCompetencies,
-              relatedWorkProcesses: KDParser.extractContextForObjective(
-                importedKD,
-                formData.original
-              ).relatedWorkProcesses,
-            }
-          : undefined;
+            code: importedKD.metadata.code,
+            relatedCompetencies: KDParser.extractContextForObjective(
+              importedKD,
+              formData.original
+            ).relatedCompetencies,
+            relatedWorkProcesses: KDParser.extractContextForObjective(
+              importedKD,
+              formData.original
+            ).relatedWorkProcesses,
+          }
+        : undefined;
 
-        const geminiResponse = await geminiService.generateAIReadyObjective(
-          { ...formData, lane: lane as Lane },
-          kdContext
-        );
+      const geminiResponse = await geminiService.generateAIReadyObjective(
+        { ...formData, lane: lane as Lane },
+        kdContext
+      );
 
-        const adjusted: AIReadyOutput = attachSuggestions(
-          {
-            ...geminiResponse,
-            newObjective:
-              lane === "baan2"
-                ? geminiResponse.newObjective
-                : geminiResponse.newObjective
-                    .replace(/met hulp van.*?,\s*/i, "")
-                    .replace(/\bAI-?tools?\b/gi, "hulpmiddelen"),
-          },
-          formData.context,
-        );
+      const adjusted: AIReadyOutput = attachSuggestions(
+        {
+          ...geminiResponse,
+          newObjective:
+            lane === "baan2"
+              ? geminiResponse.newObjective
+              : geminiResponse.newObjective
+                  .replace(/met hulp van.*?,\s*/i, "")
+                  .replace(/\bAI-?tools?\b/gi, "hulpmiddelen"),
+        },
+        formData.context,
+      );
 
-    if (formData.context.education === "VO" || formData.context.education === "VSO") {
-      const repl = (txt: string) =>
-        txt.replace(/studenten?/gi, (m) => (m.toLowerCase().endsWith("en") ? "leerlingen" : "leerling"));
-      adjusted.newObjective = repl(adjusted.newObjective);
-      adjusted.rationale = repl(adjusted.rationale);
-      adjusted.activities = adjusted.activities.map(repl);
-      adjusted.assessments = adjusted.assessments.map(repl);
-      adjusted.aiLiteracy = repl(adjusted.aiLiteracy);
-    }
+      if (formData.context.education === "VO" || formData.context.education === "VSO") {
+        const repl = (txt: string) =>
+          txt.replace(/studenten?/gi, (m) => (m.toLowerCase().endsWith("en") ? "leerlingen" : "leerling"));
+        adjusted.newObjective = repl(adjusted.newObjective);
+        adjusted.rationale = repl(adjusted.rationale);
+        adjusted.activities = adjusted.activities.map(repl);
+        adjusted.assessments = adjusted.assessments.map(repl);
+        adjusted.aiLiteracy = repl(adjusted.aiLiteracy);
+      }
 
-        setOutput(adjusted);
-        setGenerationSource("gemini");
+        aiOutput = adjusted;
+        usedGemini = true;
+        setGeminiAvailable(true);
         console.log("[AI-check] Gebruik: Gemini (AI)");
+      } catch (err) {
+        console.error("[AI-check] Gemini-route mislukt, val terug op fallback:", err);
+        setGeminiAvailable(false);
+      }
 
-        setAiGoTags(
-          inferAIGOTags(adjusted.newObjective, {
-            withAI: lane === "baan2",
-            domain: formData.context.domain,
-          })
-        );
-      } else {
+      if (!aiOutput) {
         const generatedObjective = generateAIReadyObjective(formData, lane as Lane);
-        const aiOutput: AIReadyOutput = attachSuggestions(
+        aiOutput = attachSuggestions(
           {
             newObjective: generatedObjective,
             rationale: generateRationale(formData),
@@ -509,39 +524,18 @@ function App() {
           },
           formData.context,
         );
-        setOutput(aiOutput);
-        setGenerationSource("fallback");
+        usedGemini = false;
         console.log("[AI-check] Gebruik: fallback (geen Gemini)");
-
-        setAiGoTags(
-          inferAIGOTags(aiOutput.newObjective, {
-            withAI: lane === "baan2",
-            domain: formData.context.domain,
-          })
-        );
       }
-      setCurrentStep(3);
-    } catch (err) {
-      console.error("[AI-check] Fout in AI-pad, val terug op fallback:", err);
-      const fbObjective = generateAIReadyObjective(formData, lane as Lane);
-      const fallback: AIReadyOutput = attachSuggestions(
-        {
-          newObjective: fbObjective,
-          rationale: generateRationale(formData),
-          activities: generateActivities(formData, lane as Lane),
-          assessments: generateAssessments(formData, lane as Lane),
-          aiLiteracy: inferAIGOTags(fbObjective, {
-            withAI: lane === "baan2",
-            domain: formData.context.domain,
-          }).join(", ") || "kritisch denken, ethiek",
-        },
-        formData.context,
-      );
-      setOutput(fallback);
-      setGenerationSource("fallback");
 
+      if (!aiOutput) {
+        throw new Error("Geen output gegenereerd");
+      }
+
+      setOutput(aiOutput);
+      setGenerationSource(usedGemini ? "gemini" : "fallback");
       setAiGoTags(
-        inferAIGOTags(fallback.newObjective, {
+        inferAIGOTags(aiOutput.newObjective, {
           withAI: lane === "baan2",
           domain: formData.context.domain,
         })
@@ -785,7 +779,7 @@ function App() {
 
   /* ---------- Deelbare link + Print + AI-statement ---------- */
   const shareLink = () => {
-    const payload = encodeState({ currentStep, formData, baan, output, aiStatement, importedKD, generationSource });
+    const payload = encodeState({ currentStep, formData, baan, output, aiStatement, importedKD, generationSource, geminiAvailable });
     const url = new URL(window.location.href);
     url.searchParams.set("data", payload);
     navigator.clipboard.writeText(url.toString());
@@ -835,11 +829,11 @@ function App() {
                   {/* Altijd zichtbaar AI-statuslabel */}
                   <span
                     className={`text-xs font-semibold ml-2 ${
-                      geminiService.isAvailable() ? "text-purple-600" : "text-gray-400"
+                      geminiAvailable ? "text-purple-600" : "text-gray-400"
                     }`}
-                    title={geminiService.isAvailable() ? "Gemini actief" : "Fallback actief"}
+                    title={geminiAvailable ? "Gemini actief" : "Fallback actief"}
                   >
-                    {geminiService.isAvailable() ? "• AI actief (Gemini)" : "• AI uit (fallback)"}
+                    {geminiAvailable ? "• AI actief (Gemini)" : "• AI uit (fallback)"}
                   </span>
                 </p>
               </div>
@@ -1017,7 +1011,7 @@ function App() {
                         sector={sector}
                         baan={baan}
                         onBaanChange={setBaan}
-                        geminiAvailable={geminiService.isAvailable()}
+                        geminiAvailable={geminiAvailable}
                       />
 
                       <div className="source-badge" style={{ marginTop: 8, fontSize: 12, opacity: 0.9 }}>
@@ -1239,7 +1233,7 @@ function App() {
                 ></div>
               </div>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                {geminiService.isAvailable()
+                {geminiAvailable
                   ? "AI-Enhanced omzetting naar AI-ready onderwijs..."
                   : "Omzetting naar AI-ready onderwijs..."}
               </h2>
@@ -1249,7 +1243,7 @@ function App() {
               <div className="text-sm text-gray-500">
                 <p>✓ Originele leeruitkomst analyseren</p>
                 {importedKD && <p>✓ KD-context en competenties betrekken</p>}
-                {geminiService.isAvailable() && <p>✓ AI-Enhanced niveau-specifieke aanpassingen</p>}
+                {geminiAvailable && <p>✓ AI-Enhanced niveau-specifieke aanpassingen</p>}
                 <p>✓ Transparantie en inclusie meenemen</p>
               </div>
             </div>
@@ -1263,7 +1257,7 @@ function App() {
               <h2 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent flex items-center">
                 <Shield className="w-6 h-6 text-green-600 mr-2" />
                 AI-Ready Leeruitkomst
-                {geminiService.isAvailable() && <span className="text-sm font-normal text-green-600 ml-2">• AI-Enhanced</span>}
+                {geminiAvailable && <span className="text-sm font-normal text-green-600 ml-2">• AI-Enhanced</span>}
               </h2>
 
               {/* Actieknoppen */}
