@@ -47,8 +47,8 @@ async function sendPrompt(prompt: string): Promise<string> {
 
   const json = await res.json().catch(() => undefined);
   if (!res.ok) {
-    const message = json?.detail || json?.error || `Gemini route failed: ${res.status}`;
-    throw new Error(String(message));
+    console.error("Gemini route error:", json);
+    throw new Error(`Gemini route failed: ${res.status}`);
   }
 
   const text = typeof json?.text === "string" ? json.text : "";
