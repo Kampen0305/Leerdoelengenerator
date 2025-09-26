@@ -3,7 +3,15 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const MODEL_ID = process.env.GEMINI_MODEL_ID || "gemini-1.5-flash";
+const API_KEY =
+  process.env.GOOGLE_API_KEY ||
+  process.env.GEMINI_API_KEY ||
+  process.env.VITE_GEMINI_API_KEY;
+
+const MODEL_ID =
+  process.env.GEMINI_MODEL_ID ||
+  process.env.VITE_GEMINI_MODEL ||
+  "gemini-1.5-flash";
 
 type GeminiRequestBody = { prompt?: string } | null;
 
@@ -25,10 +33,9 @@ type GeminiResponseBody = {
 
 export async function POST(req: NextRequest) {
   try {
-    const apiKey = process.env.GOOGLE_API_KEY;
-    if (!apiKey) {
+    if (!API_KEY) {
       return NextResponse.json(
-        { error: "Missing GOOGLE_API_KEY on server" },
+        { error: "Missing Gemini API key on server" },
         { status: 500 }
       );
     }
@@ -42,7 +49,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing prompt" }, { status: 400 });
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1/models/${MODEL_ID}:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1/models/${MODEL_ID}:generateContent?key=${API_KEY}`;
 
     const payload = {
       contents: [{ role: "user", parts: [{ text: prompt }]}],
