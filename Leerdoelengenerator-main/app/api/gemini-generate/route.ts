@@ -1,3 +1,4 @@
+// Forceer Node-runtime om Edge-issues te vermijden
 export const runtime = 'nodejs';
 
 const ENDPOINT =
@@ -15,10 +16,7 @@ export async function POST(req: Request) {
 
     const body = await req.json().catch(() => ({}));
     const prompt: string = body?.prompt ?? 'Health check: zeg “OK”.';
-
-    const payload = {
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    };
+    const payload = { contents: [{ role: 'user', parts: [{ text: prompt }] }] };
 
     const r = await fetch(`${ENDPOINT}?key=${apiKey}`, {
       method: 'POST',
@@ -27,7 +25,6 @@ export async function POST(req: Request) {
     });
 
     const upstreamText = await r.text();
-
     if (!r.ok) {
       return new Response(
         JSON.stringify({ ok: false, upstreamStatus: r.status, upstream: upstreamText.slice(0, 2000) }),
@@ -41,7 +38,7 @@ export async function POST(req: Request) {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (e: any) {
-    return new Response(JSON.stringify({ ok: false, error: 'Route crashed', detail: e?.message }), {
+    return new Response(JSON.stringify({ ok: false, error: 'Route crashed', detail: String(e) }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
