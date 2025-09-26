@@ -22,66 +22,46 @@ export interface KDContext {
   relatedWorkProcesses?: Array<{ title: string }>;
 }
 
-/**
- * Config
- */
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
-if (!API_KEY) {
-  // Niet crashen, maar wel duidelijke waarschuwing
-  // (bouw blijft werken; runtime logs vertellen wat er mist)
-  console.warn("[gemini] VITE_GEMINI_API_KEY ontbreekt.");
+const GEMINI_ROUTE = "/api/gemini-generate";
+let lastAvailable = false;
+
+function resolveGeminiRoute() {
+  if (typeof window !== "undefined") {
+    return GEMINI_ROUTE;
+  }
+  const vercel = process.env.VERCEL_URL;
+  if (vercel) {
+    return `https://${vercel}${GEMINI_ROUTE}`;
+  }
+  const base = process.env.GEMINI_ROUTE_BASE_URL || "http://127.0.0.1:3000";
+  return `${base}${GEMINI_ROUTE}`;
 }
 
-const MODEL_NAME = "gemini-1.5-flash"; // snel en goedkoop; desgewenst: "gemini-1.5-pro"
-const API_VERSION = "v1beta"; // 1.5-modellen wonen (nog) onder de v1beta-endpoint
-const MODEL_URL = `https://generativelanguage.googleapis.com/${API_VERSION}/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
-
-type GeminiPart = { text?: string };
-
-interface GenerateContentPayload {
-  contents: Array<{ role: string; parts: GeminiPart[] }>;
-  generationConfig?: {
-    temperature?: number;
-    maxOutputTokens?: number;
-    topK?: number;
-    topP?: number;
-  };
-}
-
-function extractText(response: any): string {
-  const parts: GeminiPart[] | undefined = response?.candidates?.[0]?.content?.parts;
-  if (!parts) return "";
-  return parts.map(part => part.text ?? "").join("");
-}
-
-async function sendToGemini(payload: GenerateContentPayload) {
-  const res = await fetch(MODEL_URL, {
+async function sendPrompt(prompt: string): Promise<string> {
+  const endpoint = resolveGeminiRoute();
+  const res = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ prompt }),
   });
 
   const json = await res.json().catch(() => undefined);
   if (!res.ok) {
-    const message = json?.error?.message || `Gemini API fout (${res.status}).`;
-    throw new Error(message);
+    const message = json?.detail || json?.error || `Gemini route failed: ${res.status}`;
+    throw new Error(String(message));
   }
 
-  return { json, text: extractText(json) };
-}
-
-async function callGemini(system: string, user: string): Promise<string> {
-  if (!API_KEY) throw new Error("Gemini API key ontbreekt.");
-  const prompt = `${system}\n\n${user}`.trim();
-  const payload: GenerateContentPayload = {
-    contents: [{ role: "user", parts: [{ text: prompt }]}],
-    generationConfig: { temperature: 0.2, maxOutputTokens: 256 },
-  };
-
-  const { text } = await sendToGemini(payload);
+  const text = typeof json?.text === "string" ? json.text : "";
+  if (!text) {
+    throw new Error("Lege respons van Gemini-route.");
+  }
   return text;
 }
 
+async function callGemini(system: string, user: string): Promise<string> {
+  const prompt = `${system}\n\n${user}`.trim();
+  return sendPrompt(prompt);
+}
 
 /**
  * Klein hulpmiddel om KD-context leesbaar in de prompt te zetten
@@ -164,25 +144,22 @@ export function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): stri
 }
 
 /**
- * Publieke API
+ * Snelle check of de Gemini API bruikbaar is (key + simpele call).
  */
-
-/** Snelle check of de Gemini API bruikbaar is (key + simpele call). */
 export async function checkGeminiAvailable(): Promise<boolean> {
-  if (!API_KEY) return false;
   try {
-    const { text } = await sendToGemini({
-      contents: [{ role: "user", parts: [{ text: "Antwoord uitsluitend met: OK" }]}],
-      generationConfig: { temperature: 0.1, maxOutputTokens: 8 }
-    });
-    const txt = text.trim();
-    const ok = txt.toUpperCase().includes("OK");
+    const text = await sendPrompt("Antwoord uitsluitend met: OK");
+    const ok = text.trim().toUpperCase().includes("OK");
     if (ok) {
-      console.info("[AI-check] Gemini online met model:", MODEL_NAME);
+      lastAvailable = true;
+      console.info("[AI-check] Gemini online via route:", GEMINI_ROUTE);
+    } else {
+      lastAvailable = false;
     }
     return ok;
   } catch (e) {
     console.error("[gemini] Beschikbaarheidscheck faalde:", e);
+    lastAvailable = false;
     return false;
   }
 }
@@ -194,33 +171,20 @@ export async function generateAIReadyObjective(
   ctx: LearningObjectiveContext,
   kd?: KDContext
 ): Promise<GeminiResponse> {
-  if (!API_KEY) {
-    return Promise.reject(new Error("Gemini API key ontbreekt."));
-  }
   const prompt = buildPrompt(ctx, kd);
 
   try {
-    const { text: responseText } = await sendToGemini({
-      contents: [{ role: "user", parts: [{ text: prompt }]}],
-      generationConfig: {
-        temperature: 0.3,
-        maxOutputTokens: 800
-      }
-    });
-
-    // De API geeft tekst terug; we vragen via de prompt om JSON
+    const responseText = await sendPrompt(prompt);
     const raw = responseText.trim();
 
     if (!raw) {
       throw new Error("Lege respons van model.");
     }
 
-    // Probeer te parsen; als het mislukt, toon een zinvolle fout
     let data: any;
     try {
       data = JSON.parse(raw);
     } catch {
-      // Soms geeft het model codeblokken – strip die eerst
       const cleaned = raw
         .replace(/^```json\s*/i, "")
         .replace(/^```\s*/i, "")
@@ -230,7 +194,6 @@ export async function generateAIReadyObjective(
       data = JSON.parse(cleaned);
     }
 
-    // Type-narrowing + defaults
     const safe: GeminiResponse = {
       newObjective: String(data.newObjective ?? ""),
       rationale: String(data.rationale ?? ""),
@@ -240,14 +203,14 @@ export async function generateAIReadyObjective(
       bloom: data.bloom ? String(data.bloom) : undefined
     };
 
-    // Minimale validatie
     if (!safe.newObjective || safe.activities.length === 0 || !safe.aiLiteracy) {
       throw new Error("Onvolledige JSON-respons ontvangen van model.");
     }
 
+    lastAvailable = true;
     return safe;
   } catch (err: any) {
-    // Duidelijke foutmeldingen voor in je UI/logs
+    lastAvailable = false;
     const msg =
       err?.message?.includes("Invalid JSON payload received")
         ? "Fout in API-aanroep: controleer de meegestuurde velden."
@@ -257,7 +220,6 @@ export async function generateAIReadyObjective(
     throw new Error(msg);
   }
 }
-
 
 export async function generateObjective(ctx: {
   original: string;
@@ -304,24 +266,27 @@ Beschikbare werkwoorden voor dit niveau (begin hiermee): ${allowedVerbs.join(", 
 ${strictRules}
 Genereer precies 1 leerdoel.`;
 
-  let result = (await callGemini(system, user)).trim().replace(/\s+/g, " ");
-  let check = validateObjective(result, ctx.levelKey);
-  if (!check.ok) {
-    const fixPrompt = `
+  try {
+    let result = (await callGemini(system, user)).trim().replace(/\s+/g, " ");
+    let check = validateObjective(result, ctx.levelKey);
+    if (!check.ok) {
+      const fixPrompt = `
 Herzie het leerdoel zodat alle issues opgelost zijn:
 Issues: ${check.issues.map(i => i.message).join("; ")}
 Houd je strikt aan de niveauprofiel-regels en begin met een toegestaan werkwoord.
 Genereer precies 1 leerdoel.`;
-    const revised = await callGemini(system, `${user}\n\n${fixPrompt}`);
-    result = revised.trim().replace(/\s+/g, " ");
+      const revised = await callGemini(system, `${user}\n\n${fixPrompt}`);
+      result = revised.trim().replace(/\s+/g, " ");
+    }
+    lastAvailable = true;
+    return result;
+  } catch (err) {
+    lastAvailable = false;
+    throw err;
   }
-  return result;
 }
 
-/**
- * Eventueel extra exporteren voor elders in de app.
- */
 export const geminiService = {
-  isAvailable: () => Boolean(API_KEY),
+  isAvailable: () => lastAvailable,
   generateAIReadyObjective,
 };
