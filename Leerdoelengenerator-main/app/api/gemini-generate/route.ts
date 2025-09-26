@@ -1,9 +1,11 @@
-export const runtime = 'edge';
+// app/api/gemini-generate/route.ts
+// Forceer Node runtime (Edge kan crashen -> 502)
+export const runtime = 'nodejs';
 
 const ENDPOINT =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
 
-// simpele guard om te grote prompts te voorkomen (anders 400 van Google)
+// Korte guard tegen te grote prompts (anders 400 upstream)
 function trimToMaxChars(text: string, max = 120_000) {
   return text && text.length > max ? text.slice(0, max) : text;
 }
@@ -14,7 +16,7 @@ export async function POST(req: Request) {
     if (!apiKey) {
       return new Response(
         JSON.stringify({ ok: false, error: 'Missing GEMINI_API_KEY' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } },
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
@@ -40,15 +42,15 @@ export async function POST(req: Request) {
     });
 
     const upstreamText = await r.text();
-
+    // Belangrijk: GEEN 502 meer retourneren. We geven altijd 200 terug met ok:false + details.
     if (!r.ok) {
       return new Response(
         JSON.stringify({
           ok: false,
-          status: r.status,
+          upstreamStatus: r.status,
           upstream: upstreamText.slice(0, 2000),
         }),
-        { status: r.status, headers: { 'Content-Type': 'application/json' } },
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
@@ -58,9 +60,14 @@ export async function POST(req: Request) {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (e: any) {
+    // Ook hier: nooit 502 naar buiten
     return new Response(
-      JSON.stringify({ ok: false, error: 'Route crashed', detail: e?.message ?? String(e) }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } },
+      JSON.stringify({
+        ok: false,
+        error: 'Route crashed',
+        detail: e?.message ?? String(e),
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   }
 }

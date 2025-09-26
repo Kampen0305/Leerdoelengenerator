@@ -1,3 +1,4 @@
+// lib/gemini.ts
 export async function callGemini(prompt: string, system?: string) {
   const res = await fetch('/api/gemini-generate', {
     method: 'POST',
@@ -5,19 +6,15 @@ export async function callGemini(prompt: string, system?: string) {
     body: JSON.stringify({ prompt, system }),
   });
 
-  let json: any = null;
-  try {
-    json = await res.json();
-  } catch {
-    throw new Error('Kon response niet parsen van /api/gemini-generate');
-  }
+  const json = await res.json().catch(() => ({}));
 
-  if (!res.ok || !json?.ok) {
-    console.error('[Gemini error]', { httpStatus: res.status, payload: json });
+  if (!json?.ok) {
+    // Toon nette, bruikbare fout in console/UI i.p.v. 502/Object
+    console.error('[Gemini error]', json);
     const msg =
       json?.upstream ??
       json?.error ??
-      `Gemini call failed with HTTP ${res.status}`;
+      `Gemini call failed (status: ${json?.upstreamStatus ?? 'unknown'})`;
     throw new Error(typeof msg === 'string' ? msg : JSON.stringify(msg));
   }
 
