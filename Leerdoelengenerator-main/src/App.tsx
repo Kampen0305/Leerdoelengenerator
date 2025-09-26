@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import {
   BookOpen, Brain, FileText, Download, ChevronRight, Target,
   CheckCircle, Database, ChevronDown, Save, FolderOpen, Library,
-  BarChart3, Shield, Printer, Link2, Sparkles, Menu
+  BarChart3, Shield, Printer, Link2, Sparkles, Menu, ListFilter
 } from "lucide-react";
 
 import { KDImport } from "./components/KDImport";
@@ -18,6 +18,7 @@ import type { VoorbeeldCase } from "@/lib/examples";
 import { QualityChecker } from "./components/QualityChecker";
 import { EducationGuidance } from "./components/EducationGuidance";
 import ObjectiveForm from "./ObjectiveForm";
+import { AssessmentFormsModal } from "./components/AssessmentFormsModal";
 
 import { KDStructure } from "./types/kd";
 import { KDParser } from "./utils/kdParser";
@@ -243,6 +244,7 @@ function App() {
   const [showKDImport, setShowKDImport] = useState(false);
   const [showSavedObjectives, setShowSavedObjectives] = useState(false);
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
+  const [showAssessmentForms, setShowAssessmentForms] = useState(false);
   const [importedKD, setImportedKD] = useState<KDStructure | null>(null);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showQualityChecker, setShowQualityChecker] = useState(false);
@@ -870,6 +872,14 @@ function App() {
                   <span>Opgeslagen</span>
                 </button>
 
+                <button
+                  onClick={() => setShowAssessmentForms(true)}
+                  className="flex items-center space-x-2 bg-white border border-green-200 text-green-700 h-11 px-4 rounded-lg font-medium hover:bg-green-50 transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  <ListFilter className="w-4 h-4" />
+                  <span>Toetsvormen</span>
+                </button>
+
                 <a
                   href="/begrippen"
                   className="flex items-center space-x-2 bg-gray-100 text-gray-800 h-11 px-4 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200 shadow-md hover:shadow-lg"
@@ -919,6 +929,17 @@ function App() {
               >
                 <FolderOpen className="w-4 h-4" />
                 <span>Opgeslagen</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowAssessmentForms(true);
+                  setMenuOpen(false);
+                }}
+                className="flex items-center justify-center space-x-2 bg-white border border-green-200 text-green-700 h-11 px-4 rounded-lg font-medium hover:bg-green-50 transition-all duration-200 shadow-md hover:shadow-lg w-full"
+              >
+                <ListFilter className="w-4 h-4" />
+                <span>Toetsvormen</span>
               </button>
 
               <a
@@ -1472,6 +1493,10 @@ function App() {
       {showKDImport && <KDImport onKDImported={handleKDImported} onClose={() => setShowKDImport(false)} />}
       {showSavedObjectives && <SavedObjectives onLoadObjective={loadObjective} onClose={() => setShowSavedObjectives(false)} />}
       {showTemplateLibrary && <TemplateLibrary onUseTemplate={useTemplate} onClose={() => setShowTemplateLibrary(false)} />}
+      <AssessmentFormsModal
+        open={showAssessmentForms}
+        onClose={() => setShowAssessmentForms(false)}
+      />
 
       {/* Click outside to close export menu */}
       {showExportMenu && <div className="fixed inset-0 z-5" onClick={() => setShowExportMenu(false)} />}
