@@ -32,7 +32,6 @@ export const TOETSVORMEN: Toetsvorm[] = [
     beschrijving:
       "Individuele mondelinge bevraging met doorvragen op begrip en toepassing.",
     categorieen: ["Mondeling"],
-    baan: "Baan 1",
     validiteitFocus: "Hoog",
     betrouwbaarheidFocus: "Midden",
   },
@@ -52,7 +51,6 @@ export const TOETSVORMEN: Toetsvorm[] = [
     beschrijving:
       "Schriftelijke uitwerking met nadruk op redenering, bronnen en structuur.",
     categorieen: ["Schriftelijk"],
-    baan: "Baan 1",
     validiteitFocus: "Midden",
     betrouwbaarheidFocus: "Midden",
   },
@@ -82,7 +80,6 @@ export const TOETSVORMEN: Toetsvorm[] = [
     beschrijving:
       "MC/gesloten vragen met automatische scoring en item-analyse.",
     categorieen: ["Digitaal/Geautomatiseerd"],
-    baan: "Baan 1",
     validiteitFocus: "Midden",
     betrouwbaarheidFocus: "Hoog",
   },
@@ -92,7 +89,6 @@ export const TOETSVORMEN: Toetsvorm[] = [
     beschrijving:
       "Studenten beoordelen elkaars werk aan de hand van heldere criteria/rubrics.",
     categorieen: ["Peer/Co-assessment", "Proces/Portfolio"],
-    baan: "Baan 2",
     validiteitFocus: "Midden",
     betrouwbaarheidFocus: "Midden",
   },
