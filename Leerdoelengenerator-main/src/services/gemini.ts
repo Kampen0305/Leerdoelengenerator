@@ -1,5 +1,4 @@
 // src/services/gemini.ts
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { LearningObjectiveContext } from "../types/context";
 import { LEVEL_PROFILES, LevelKey } from "../domain/levelProfiles";
 import { validateObjective } from "../utils/objectiveValidator";
@@ -34,20 +33,53 @@ if (!API_KEY) {
 }
 
 const MODEL_NAME = "gemini-1.5-flash"; // snel en goedkoop; desgewenst: "gemini-1.5-pro"
+const API_VERSION = "v1beta"; // 1.5-modellen wonen (nog) onder de v1beta-endpoint
+const MODEL_URL = `https://generativelanguage.googleapis.com/${API_VERSION}/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 
-let genAI: GoogleGenerativeAI | null = null;
-if (API_KEY) {
-  genAI = new GoogleGenerativeAI(API_KEY);
+type GeminiPart = { text?: string };
+
+interface GenerateContentPayload {
+  contents: Array<{ role: string; parts: GeminiPart[] }>;
+  generationConfig?: {
+    temperature?: number;
+    maxOutputTokens?: number;
+    topK?: number;
+    topP?: number;
+  };
 }
+
+function extractText(response: any): string {
+  const parts: GeminiPart[] | undefined = response?.candidates?.[0]?.content?.parts;
+  if (!parts) return "";
+  return parts.map(part => part.text ?? "").join("");
+}
+
+async function sendToGemini(payload: GenerateContentPayload) {
+  const res = await fetch(MODEL_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const json = await res.json().catch(() => undefined);
+  if (!res.ok) {
+    const message = json?.error?.message || `Gemini API fout (${res.status}).`;
+    throw new Error(message);
+  }
+
+  return { json, text: extractText(json) };
+}
+
 async function callGemini(system: string, user: string): Promise<string> {
-  if (!genAI) throw new Error("Gemini API key ontbreekt.");
-  const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+  if (!API_KEY) throw new Error("Gemini API key ontbreekt.");
   const prompt = `${system}\n\n${user}`.trim();
-  const res = await model.generateContent({
+  const payload: GenerateContentPayload = {
     contents: [{ role: "user", parts: [{ text: prompt }]}],
     generationConfig: { temperature: 0.2, maxOutputTokens: 256 },
-  });
-  return res.response.text();
+  };
+
+  const { text } = await sendToGemini(payload);
+  return text;
 }
 
 
@@ -137,14 +169,13 @@ export function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): stri
 
 /** Snelle check of de Gemini API bruikbaar is (key + simpele call). */
 export async function checkGeminiAvailable(): Promise<boolean> {
-  if (!genAI) return false;
+  if (!API_KEY) return false;
   try {
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-    const res = await model.generateContent({
+    const { text } = await sendToGemini({
       contents: [{ role: "user", parts: [{ text: "Antwoord uitsluitend met: OK" }]}],
       generationConfig: { temperature: 0.1, maxOutputTokens: 8 }
     });
-    const txt = res.response.text().trim();
+    const txt = text.trim();
     const ok = txt.toUpperCase().includes("OK");
     if (ok) {
       console.info("[AI-check] Gemini online met model:", MODEL_NAME);
@@ -163,25 +194,22 @@ export async function generateAIReadyObjective(
   ctx: LearningObjectiveContext,
   kd?: KDContext
 ): Promise<GeminiResponse> {
-  if (!genAI) {
+  if (!API_KEY) {
     return Promise.reject(new Error("Gemini API key ontbreekt."));
   }
-  const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-
   const prompt = buildPrompt(ctx, kd);
 
   try {
-    const result = await model.generateContent({
+    const { text: responseText } = await sendToGemini({
       contents: [{ role: "user", parts: [{ text: prompt }]}],
-      // Belangrijk: GEEN responseMimeType gebruiken (geeft 400 bij sommige endpoints/SDK's)
       generationConfig: {
         temperature: 0.3,
         maxOutputTokens: 800
       }
     });
 
-    // De SDK geeft tekst terug; we vragen via de prompt om JSON
-    const raw = (result.response?.text?.() ?? "").trim();
+    // De API geeft tekst terug; we vragen via de prompt om JSON
+    const raw = responseText.trim();
 
     if (!raw) {
       throw new Error("Lege respons van model.");
@@ -294,6 +322,6 @@ Genereer precies 1 leerdoel.`;
  * Eventueel extra exporteren voor elders in de app.
  */
 export const geminiService = {
-  isAvailable: () => Boolean(genAI),
+  isAvailable: () => Boolean(API_KEY),
   generateAIReadyObjective,
 };
