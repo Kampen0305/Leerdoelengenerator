@@ -1,93 +1,71 @@
-import { NextRequest, NextResponse } from "next/server";
+export const runtime = "edge"; // laat staan voor Edge; verwijder of zet 'nodejs' als je Node runtimes wil
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+const GEMINI_ENDPOINT =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
-const API_KEY =
-  process.env.GOOGLE_API_KEY ||
-  process.env.GEMINI_API_KEY ||
-  process.env.VITE_GEMINI_API_KEY;
-
-const MODEL_ID =
-  process.env.GEMINI_MODEL_ID ||
-  process.env.VITE_GEMINI_MODEL ||
-  "gemini-1.5-flash";
-
-type GeminiRequestBody = { prompt?: string } | null;
-
-type GeminiContentPart =
-  | { text?: string; inline_data?: undefined }
-  | { inline_data?: { data?: string }; text?: undefined };
-
-type GeminiCandidate = {
-  content?: {
-    parts?: GeminiContentPart[];
-  };
-};
-
-type GeminiResponseBody = {
-  candidates?: GeminiCandidate[];
-  error?: unknown;
-  [key: string]: unknown;
-};
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    if (!API_KEY) {
-      return NextResponse.json(
-        { error: "Missing Gemini API key on server" },
-        { status: 500 }
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    if (!apiKey) {
+      return new Response(
+        JSON.stringify({ ok: false, error: "Missing GEMINI_API_KEY" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    const body = (await req
-      .json()
-      .catch(() => null)) as GeminiRequestBody;
-    const prompt = body?.prompt?.toString().trim();
+    // body verwacht: { prompt: string, system?: string }
+    const body = await req.json().catch(() => ({}));
+    const prompt: string =
+      body?.prompt ?? "Schrijf 1 zin: dit is een health-check.";
+    const system: string | undefined = body?.system;
 
-    if (!prompt) {
-      return NextResponse.json({ error: "Missing prompt" }, { status: 400 });
-    }
-
-    const url = `https://generativelanguage.googleapis.com/v1/models/${MODEL_ID}:generateContent?key=${API_KEY}`;
-
-    const payload = {
-      contents: [{ role: "user", parts: [{ text: prompt }]}],
+    const payload: any = {
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt }],
+        },
+      ],
     };
 
-    const upstream = await fetch(url, {
+    if (system) {
+      // simpele system-instructie via generative safety-hint
+      payload.systemInstruction = { role: "system", parts: [{ text: system }] };
+    }
+
+    const googleRes = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
-    const data = (await upstream.json().catch(() => ({}))) as GeminiResponseBody;
-
-    if (!upstream.ok) {
-      return NextResponse.json(
-        {
+    const text = await googleRes.text(); // eerst als text voor transparante foutmelding
+    if (!googleRes.ok) {
+      return new Response(
+        JSON.stringify({
+          ok: false,
           error: "Upstream Gemini error",
-          status: upstream.status,
-          details: data?.error ?? data,
-        },
-        { status: 502 }
+          status: googleRes.status,
+          upstream: text,
+        }),
+        { status: 502, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    const text =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ??
-      data?.candidates?.[0]?.content?.parts?.[0]?.inline_data?.data ??
-      "";
-
-    return NextResponse.json({
-      text,
-      provider: "ai-studio",
-      model: MODEL_ID,
+    // parse na ok
+    const data = JSON.parse(text);
+    return new Response(JSON.stringify({ ok: true, data }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
     });
-  } catch (e: any) {
-    return NextResponse.json(
-      { error: "Server error", details: e?.message || String(e) },
-      { status: 500 }
+  } catch (err: any) {
+    return new Response(
+      JSON.stringify({
+        ok: false,
+        error: "Route crashed",
+        detail: err?.message ?? String(err),
+      }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }
