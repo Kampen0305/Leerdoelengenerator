@@ -37,21 +37,44 @@ function resolveGeminiRoute() {
   return `${base}${GEMINI_ROUTE}`;
 }
 
-async function sendPrompt(prompt: string): Promise<string> {
+async function sendPrompt(prompt: string, system?: string): Promise<string> {
   const endpoint = resolveGeminiRoute();
-  const res = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt }),
-  });
-
-  const json = await res.json().catch(() => undefined);
-  if (!res.ok) {
-    console.error("Gemini route error:", json);
-    throw new Error(`Gemini route failed: ${res.status}`);
+  let res: Response;
+  try {
+    const payload: Record<string, unknown> = { prompt };
+    if (system) {
+      payload.system = system;
+    }
+    res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    console.error("Gemini route unreachable:", error);
+    throw new Error("Kon de Gemini-route niet bereiken.");
   }
 
-  const text = typeof json?.text === "string" ? json.text : "";
+  let json: any;
+  try {
+    json = await res.json();
+  } catch {
+    throw new Error("Kon response niet parsen van /api/gemini-generate");
+  }
+
+  if (!json?.ok) {
+    console.error("[Gemini route error]", json);
+    const msg = json?.upstream
+      ? `Gemini-fout (${json.status ?? res.status}): ${json.upstream}`
+      : json?.error || "Onbekende fout bij Gemini-route";
+    throw new Error(msg);
+  }
+
+  const candidates = json.data?.candidates;
+  const text =
+    candidates?.[0]?.content?.parts?.map((part: any) => part?.text).join("") ??
+    "";
+
   if (!text) {
     throw new Error("Lege respons van Gemini-route.");
   }
@@ -59,8 +82,7 @@ async function sendPrompt(prompt: string): Promise<string> {
 }
 
 async function callGemini(system: string, user: string): Promise<string> {
-  const prompt = `${system}\n\n${user}`.trim();
-  return sendPrompt(prompt);
+  return sendPrompt(user.trim(), system);
 }
 
 /**
