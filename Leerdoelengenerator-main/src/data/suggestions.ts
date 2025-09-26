@@ -1,4 +1,21 @@
-import { EducationLevel, GoalOrientation, SuggestionBundle } from '@/types/learning';
+import { EducationLevel, GoalOrientation, SuggestionBundle, AssessmentSuggestion } from '@/types/learning';
+import { TOETSVORMEN } from '@/data/toetsvormen';
+
+const TOETSVORM_INDEX = new Map(TOETSVORMEN.map(item => [item.id, item]));
+
+function assessmentFromToetsvorm(
+  id: string,
+  why: string,
+  flags: Pick<AssessmentSuggestion, 'formative' | 'summative'> = {},
+): AssessmentSuggestion {
+  const item = TOETSVORM_INDEX.get(id);
+  return {
+    title: item?.naam ?? id,
+    description: item?.beschrijving ?? 'Zie toetsvormenbibliotheek voor details.',
+    why,
+    ...flags,
+  };
+}
 
 type Key = `${GoalOrientation}:${EducationLevel}`;
 const base: Record<Key, SuggestionBundle> = {
@@ -8,7 +25,11 @@ const base: Record<Key, SuggestionBundle> = {
       { title: 'Mini-lecture met check', description: 'Korte instructie gevolgd door 5 conceptvragen via Mentimeter/Forms.', duration: '25 min', why: 'Snelle formatieve check op kennisopbouw.' },
     ],
     assessments: [
-      { title: 'Kennisquiz (open/gesloten)', description: 'Korte quiz met feedback, herkansbaar.', formative: true, why: 'Passend bij kennisdoelen; directe feedback.' }
+      assessmentFromToetsvorm(
+        'gesloten-items',
+        'Checkt kernbegrippen snel met directe feedback; passend bij kennisdoelen op MBO-3.',
+        { formative: true }
+      ),
     ]
   },
   'vaardigheid:MBO-4': {
@@ -17,7 +38,11 @@ const base: Record<Key, SuggestionBundle> = {
       { title: 'Stap-voor-stap demonstratie', description: 'Docent modelt handeling; studenten herhalen met peerfeedback.', duration: '40 min', why: 'Scaffolding en geleidelijke zelfstandigheid.' },
     ],
     assessments: [
-      { title: 'Praktijkopdracht met rubric', description: 'Uitvoering van handeling met beoordelingscriteria.', summative: true, why: 'Observeerbare vaardigheid; valide beoordeling.' }
+      assessmentFromToetsvorm(
+        'praktijktoets',
+        'Laat de student de beroepshandeling uitvoeren met objectieve rubric; sluit aan bij vaardigheidsdoelen op MBO-4.',
+        { summative: true }
+      ),
     ]
   },
   'attitude:MBO-2': {
@@ -26,7 +51,11 @@ const base: Record<Key, SuggestionBundle> = {
       { title: 'Feedback-carrousel', description: 'Studenten geven elkaar waarderende feedback met 2 verbeterpunten.', duration: '25 min', why: 'Stimuleert professionele attitude en peer-leren.' },
     ],
     assessments: [
-      { title: 'Reflectieverslag met bewijs', description: 'Korte reflectie met concrete voorbeelden en bewijsstukken.', formative: true, why: 'Attitude borg je via onderbouwde reflectie.' }
+      assessmentFromToetsvorm(
+        'reflectie',
+        'Maakt ontwikkeling in houding zichtbaar via onderbouwde reflectie en bewijsstukken.',
+        { formative: true }
+      ),
     ]
   },
   'kennis:VO-vwo': {
@@ -35,7 +64,11 @@ const base: Record<Key, SuggestionBundle> = {
       { title: 'Flitscollege', description: 'Docent geeft korte uitleg gevolgd door begripstoets via Kahoot.', duration: '20 min', why: 'Houdt aandacht vast en checkt kennis direct.' },
     ],
     assessments: [
-      { title: 'Formatieve proef', description: 'Korte toets met bespreking in tweetallen.', formative: true, why: 'Biedt inzicht in begripsniveau.' }
+      assessmentFromToetsvorm(
+        'open-vragen-toets',
+        'Stimuleert verdiepend denken met open vragen; biedt formatieve feedback voor VWO-leerlingen.',
+        { formative: true }
+      ),
     ]
   },
   'vaardigheid:HBO-ba': {
@@ -44,7 +77,11 @@ const base: Record<Key, SuggestionBundle> = {
       { title: 'Workshop met expert', description: 'Gastspreker demonstreert techniek; studenten oefenen direct.', duration: '90 min', why: 'Combineert theorie en praktijk.' },
     ],
     assessments: [
-      { title: 'Praktijkproduct met peerreview', description: 'Ingeleverd product met feedback van medestudenten.', summative: true, why: 'Beoordeling op toepassen van vaardigheden.' }
+      assessmentFromToetsvorm(
+        'project',
+        'Koppelt product en proces aan beroepscriteria; passend bij HBO-bachelorvaardigheden.',
+        { summative: true }
+      ),
     ]
   },
   'kennis:HBO-ma': {
@@ -53,7 +90,11 @@ const base: Record<Key, SuggestionBundle> = {
       { title: 'Expertpanel', description: 'Studenten bevragen vakexperts over complexe theorie.', duration: '45 min', why: 'Verbindt theorie met praktijkervaring.' },
     ],
     assessments: [
-      { title: 'Essay met peerfeedback', description: 'Kritische beschouwing van theorie toegepast op casus.', summative: true, why: 'Toetst diep begrip en argumentatie.' }
+      assessmentFromToetsvorm(
+        'paper',
+        'Daagt uit tot diepgaande analyse met academische argumentatie; past bij HBO-masterniveau.',
+        { summative: true }
+      ),
     ]
   },
   'vaardigheid:VO-vmbo': {
@@ -62,7 +103,11 @@ const base: Record<Key, SuggestionBundle> = {
       { title: 'Begeleide oefening', description: 'Docent ondersteunt bij uitvoeren van vaardigheidsoefening.', duration: '30 min', why: 'Biedt structuur en vertrouwen.' },
     ],
     assessments: [
-      { title: 'Praktijkobservatie', description: 'Docent observeert uitvoering met checklist.', formative: true, why: 'Directe feedback op vaardigheid.' }
+      assessmentFromToetsvorm(
+        'vaardighedentoets',
+        'Observeert directe uitvoering van de vaardigheid met concrete beoordelingscriteria.',
+        { formative: true }
+      ),
     ]
   },
   'attitude:VO-havo': {
@@ -71,7 +116,11 @@ const base: Record<Key, SuggestionBundle> = {
       { title: 'Reflectieblog', description: 'Wekelijkse blog over eigen leerhouding.', duration: '20 min', why: 'Maakt ontwikkeling zichtbaar.' },
     ],
     assessments: [
-      { title: 'Zelfevaluatieformulier', description: 'Leerling beoordeelt eigen inzet en groeipunten.', formative: true, why: 'Bevordert eigenaarschap van houding.' }
+      assessmentFromToetsvorm(
+        'reflectiegesprek',
+        'Gespreksvorm maakt houding en eigen verantwoordelijkheid expliciet.',
+        { formative: true }
+      ),
     ]
   },
   'kennis:WO-ba': {
@@ -80,7 +129,11 @@ const base: Record<Key, SuggestionBundle> = {
       { title: 'Quiz met stembakjes', description: 'Meerkeuzevragen tijdens hoorcollege.', duration: '15 min', why: 'Real-time inzicht in kennisniveau.' },
     ],
     assessments: [
-      { title: 'Korte paper', description: 'Analyse van theoretisch concept toegepast op casus.', summative: true, why: 'Toetst begrip en schrijfvaardigheid.' }
+      assessmentFromToetsvorm(
+        'essay',
+        'Laat studenten theoretische kennis analyseren en beargumenteren in academische vorm.',
+        { summative: true }
+      ),
     ]
   },
   'vaardigheid:WO-ma': {
@@ -89,7 +142,11 @@ const base: Record<Key, SuggestionBundle> = {
       { title: 'Peer coaching', description: 'Studenten geven elkaar feedback op methodologie.', duration: '45 min', why: 'Verbetert kwaliteit door collegiale toetsing.' },
     ],
     assessments: [
-      { title: 'Onderzoeksverslag', description: 'Volledig verslag inclusief methodologische verantwoording.', summative: true, why: 'Beoordeelt toegepaste onderzoeksvaardigheden.' }
+      assessmentFromToetsvorm(
+        'onderzoek',
+        'Verplicht tot methodisch verantwoorde toepassing van onderzoek en reflectie op keuzes.',
+        { summative: true }
+      ),
     ]
   },
   'attitude:VSO-vervolg': {
@@ -98,7 +155,11 @@ const base: Record<Key, SuggestionBundle> = {
       { title: 'Dagreflectie', description: 'Kort kringgesprek over wat goed ging en wat lastig was.', duration: '15 min', why: 'Vergroot zelfinzicht en respect.' },
     ],
     assessments: [
-      { title: 'Portfolio-moment', description: 'Verzamel bewijs van samenwerking en reflectie.', formative: true, why: 'Laat groei in houding zien over tijd.' }
+      assessmentFromToetsvorm(
+        'portfolio-ontwikkel',
+        'Bundelt bewijzen van houding en samenwerking; goed voor dialoog met VSO-leerlingen.',
+        { formative: true }
+      ),
     ]
   },
   'kennis:VSO-arbeidsmarkt': {
@@ -107,7 +168,11 @@ const base: Record<Key, SuggestionBundle> = {
       { title: 'Gastles werkgever', description: 'Werkgever vertelt over vak; leerlingen stellen vragen.', duration: '30 min', why: 'Concretiseert arbeidsmarkt voor leerlingen.' },
     ],
     assessments: [
-      { title: 'Mondelinge check', description: 'Korte vragenronde over beroepen en taken.', formative: true, why: 'Peilt begripsniveau informeel.' }
+      assessmentFromToetsvorm(
+        'eindgesprek',
+        'Korte mondelinge check op kennis over beroepen in vertrouwde setting.',
+        { formative: true }
+      ),
     ]
   },
   'vaardigheid:MBO-1': {
@@ -116,7 +181,11 @@ const base: Record<Key, SuggestionBundle> = {
       { title: 'Klassikale oefening', description: 'Samen oefenen met directe feedback.', duration: '20 min', why: 'Versterkt correct uitvoeren van stappen.' },
     ],
     assessments: [
-      { title: 'Beoordelingsgesprek', description: 'Korte evaluatie van uitgevoerde handeling.', formative: true, why: 'Stimuleert groei vanaf startniveau.' }
+      assessmentFromToetsvorm(
+        'observatie',
+        'Geeft directe feedback op uitgevoerde handelingen; sluit aan bij startende mbo-studenten.',
+        { formative: true }
+      ),
     ]
   }
 };
@@ -131,10 +200,42 @@ export function getSuggestions(
     activities: [
       { title: 'Think-Pair-Share', description: 'Eerst individueel, dan duo, dan klassikaal delen.', why: 'Generiek inzetbaar en activerend.' }
     ],
-    assessments: [
-      { title: 'Korte formatieve check', description: '3–5 vragen met feedback.', formative: true, why: 'Lage drempel, snel beeld.' }
-    ]
+    assessments: [pickFallbackAssessment(orientation, level)]
   };
   return generic;
+}
+
+function pickFallbackAssessment(orientation: GoalOrientation, level: EducationLevel): AssessmentSuggestion {
+  const sector = describeEducationLevel(level);
+  switch (orientation) {
+    case 'kennis':
+      return assessmentFromToetsvorm(
+        'kennistoets',
+        `Meet kernkennis snel en betrouwbaar in ${sector}; geeft ruimte voor gerichte feedback.`,
+        { formative: true }
+      );
+    case 'vaardigheid':
+      return assessmentFromToetsvorm(
+        'skillstoets',
+        `Laat studenten de vaardigheid demonstreren in ${sector} met directe observatie.`,
+        { summative: true }
+      );
+    case 'attitude':
+    default:
+      return assessmentFromToetsvorm(
+        'portfolio-assessment',
+        `Maakt groei in houding zichtbaar over tijd met bewijsmateriaal passend bij ${sector}.`,
+        { formative: true }
+      );
+  }
+}
+
+function describeEducationLevel(level: EducationLevel): string {
+  if (level.startsWith('VO')) return 'het voortgezet onderwijs';
+  if (level.startsWith('VSO')) return 'het voortgezet speciaal onderwijs';
+  if (level.startsWith('MBO')) return 'het mbo';
+  if (level.startsWith('HBO')) return 'het hbo';
+  if (level.startsWith('WO')) return 'de universiteit';
+  return 'dit onderwijsniveau';
 }
 
