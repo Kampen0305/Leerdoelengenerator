@@ -15,8 +15,6 @@ export default function ToetsvormSearchModal({ open, onClose }: Props) {
     setQuery,
     activeCats,
     toggleCat,
-    onlyBaan,
-    setOnlyBaan,
     categories,
     results,
   } = useToetsvormSearch();
@@ -33,7 +31,7 @@ export default function ToetsvormSearchModal({ open, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/50 p-4 md:p-8">
-      <div className="w-full max-w-4xl rounded-2xl bg-white p-4 md:p-6 shadow-xl">
+      <div className="w-full max-w-4xl rounded-2xl bg-white p-4 md:p-6 shadow-xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-xl md:text-2xl font-semibold">Zoek toetsvormen</h2>
           <button
@@ -57,47 +55,27 @@ export default function ToetsvormSearchModal({ open, onClose }: Props) {
         </div>
 
         {/* Filters */}
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2">
-            <p className="mb-2 text-sm font-medium text-gray-700">Categorieën</p>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((c: ToetsCategorie) => {
-                const active = activeCats.includes(c);
-                return (
-                  <button
-                    key={c}
-                    onClick={() => toggleCat(c)}
-                    className={[
-                      "rounded-full border px-3 py-1 text-sm",
-                      active
-                        ? "border-indigo-600 bg-indigo-600 text-white"
-                        : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50",
-                    ].join(" ")}
-                    aria-pressed={active}
-                  >
-                    {c}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div>
-            <p className="mb-2 text-sm font-medium text-gray-700">Two-Lane (optioneel)</p>
-            <select
-              value={onlyBaan}
-              onChange={(e) =>
-                setOnlyBaan(
-                  e.target.value as "" | "Baan 1" | "Baan 2" | "Beide"
-                )
-              }
-              className="w-full rounded-xl border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">Alle</option>
-              <option value="Baan 1">Baan 1</option>
-              <option value="Baan 2">Baan 2</option>
-              <option value="Beide">Beide</option>
-            </select>
+        <div className="mt-4">
+          <p className="mb-2 text-sm font-medium text-gray-700">Categorieën</p>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((c: ToetsCategorie) => {
+              const active = activeCats.includes(c);
+              return (
+                <button
+                  key={c}
+                  onClick={() => toggleCat(c)}
+                  className={[
+                    "rounded-full border px-3 py-1 text-sm",
+                    active
+                      ? "border-indigo-600 bg-indigo-600 text-white"
+                      : "border-gray-300 bg-white text-gray-800 hover:bg-gray-50",
+                  ].join(" ")}
+                  aria-pressed={active}
+                >
+                  {c}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -127,11 +105,6 @@ export default function ToetsvormSearchModal({ open, onClose }: Props) {
                           {c}
                         </span>
                       ))}
-                      {t.baan && (
-                        <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs text-indigo-700">
-                          {t.baan}
-                        </span>
-                      )}
                     </div>
                   </div>
                   {/* 👉 Voorzie van jouw eigen deep-link of actie */}

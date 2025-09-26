@@ -5,7 +5,6 @@ import { TOETSVORMEN, ALLE_CATEGORIEEN, Toetsvorm, ToetsCategorie } from "@/data
 export function useToetsvormSearch() {
   const [query, setQuery] = useState("");
   const [activeCats, setActiveCats] = useState<ToetsCategorie[]>([]);
-  const [onlyBaan, setOnlyBaan] = useState<"Baan 1" | "Baan 2" | "Beide" | "">("");
 
   const results = useMemo<Toetsvorm[]>(() => {
     const q = query.trim().toLowerCase();
@@ -22,12 +21,9 @@ export function useToetsvormSearch() {
         activeCats.length === 0 ||
         activeCats.every((c) => t.categorieen.includes(c));
 
-      // baan-filter (optioneel)
-      const matchBaan = !onlyBaan || t.baan === onlyBaan || (onlyBaan === "Beide" && t.baan === "Beide");
-
-      return matchText && matchCats && matchBaan;
+      return matchText && matchCats;
     }).sort((a, b) => a.naam.localeCompare(b.naam));
-  }, [query, activeCats, onlyBaan]);
+  }, [query, activeCats]);
 
   function toggleCat(cat: ToetsCategorie) {
     setActiveCats((prev) =>
@@ -40,8 +36,6 @@ export function useToetsvormSearch() {
     setQuery,
     activeCats,
     toggleCat,
-    onlyBaan,
-    setOnlyBaan,
     categories: ALLE_CATEGORIEEN,
     results,
   };
