@@ -4,7 +4,7 @@
   ],
   "redirects": [
     {
-      "source": "/(.*)",
+      "source": "https://leerdoelen.digited.nl/(.*)",
       "destination": "https://leerdoelen.edwinspielhagen.nl/$1",
       "permanent": true
     }
