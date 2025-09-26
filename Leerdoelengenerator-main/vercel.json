@@ -1,12 +1,1 @@
-{
-  "redirects": [
-    {
-      "source": "/:path*",
-      "has": [
-        { "type": "host", "value": "leerdoelen.digited.nl" }
-      ],
-      "destination": "https://leerdoelen.edwinspielhagen.nl/:path*",
-      "permanent": true
-    }
-  ]
-}
+{}
