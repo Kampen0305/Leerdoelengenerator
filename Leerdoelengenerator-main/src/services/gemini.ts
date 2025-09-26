@@ -1,4 +1,5 @@
 // src/services/gemini.ts
+import { callGemini } from "@/lib/gemini";
 import type { LearningObjectiveContext } from "../types/context";
 import { LEVEL_PROFILES, LevelKey } from "../domain/levelProfiles";
 import { validateObjective } from "../utils/objectiveValidator";
@@ -24,66 +25,6 @@ export interface KDContext {
 
 const GEMINI_ROUTE = "/api/gemini-generate";
 let lastAvailable = false;
-
-function resolveGeminiRoute() {
-  if (typeof window !== "undefined") {
-    return GEMINI_ROUTE;
-  }
-  const vercel = process.env.VERCEL_URL;
-  if (vercel) {
-    return `https://${vercel}${GEMINI_ROUTE}`;
-  }
-  const base = process.env.GEMINI_ROUTE_BASE_URL || "http://127.0.0.1:3000";
-  return `${base}${GEMINI_ROUTE}`;
-}
-
-async function sendPrompt(prompt: string, system?: string): Promise<string> {
-  const endpoint = resolveGeminiRoute();
-  let res: Response;
-  try {
-    const payload: Record<string, unknown> = { prompt };
-    if (system) {
-      payload.system = system;
-    }
-    res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-  } catch (error) {
-    console.error("Gemini route unreachable:", error);
-    throw new Error("Kon de Gemini-route niet bereiken.");
-  }
-
-  let json: any;
-  try {
-    json = await res.json();
-  } catch {
-    throw new Error("Kon response niet parsen van /api/gemini-generate");
-  }
-
-  if (!json?.ok) {
-    console.error("[Gemini route error]", json);
-    const msg = json?.upstream
-      ? `Gemini-fout (${json.status ?? res.status}): ${json.upstream}`
-      : json?.error || "Onbekende fout bij Gemini-route";
-    throw new Error(msg);
-  }
-
-  const candidates = json.data?.candidates;
-  const text =
-    candidates?.[0]?.content?.parts?.map((part: any) => part?.text).join("") ??
-    "";
-
-  if (!text) {
-    throw new Error("Lege respons van Gemini-route.");
-  }
-  return text;
-}
-
-async function callGemini(system: string, user: string): Promise<string> {
-  return sendPrompt(user.trim(), system);
-}
 
 /**
  * Klein hulpmiddel om KD-context leesbaar in de prompt te zetten
@@ -170,7 +111,7 @@ export function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): stri
  */
 export async function checkGeminiAvailable(): Promise<boolean> {
   try {
-    const text = await sendPrompt("Antwoord uitsluitend met: OK");
+    const text = await callGemini("Antwoord uitsluitend met: OK");
     const ok = text.trim().toUpperCase().includes("OK");
     if (ok) {
       lastAvailable = true;
@@ -196,7 +137,7 @@ export async function generateAIReadyObjective(
   const prompt = buildPrompt(ctx, kd);
 
   try {
-    const responseText = await sendPrompt(prompt);
+    const responseText = await callGemini(prompt);
     const raw = responseText.trim();
 
     if (!raw) {
@@ -289,7 +230,7 @@ ${strictRules}
 Genereer precies 1 leerdoel.`;
 
   try {
-    let result = (await callGemini(system, user)).trim().replace(/\s+/g, " ");
+    let result = (await callGemini(user.trim(), system)).trim().replace(/\s+/g, " ");
     let check = validateObjective(result, ctx.levelKey);
     if (!check.ok) {
       const fixPrompt = `
@@ -297,7 +238,7 @@ Herzie het leerdoel zodat alle issues opgelost zijn:
 Issues: ${check.issues.map(i => i.message).join("; ")}
 Houd je strikt aan de niveauprofiel-regels en begin met een toegestaan werkwoord.
 Genereer precies 1 leerdoel.`;
-      const revised = await callGemini(system, `${user}\n\n${fixPrompt}`);
+      const revised = await callGemini(`${user}\n\n${fixPrompt}`, system);
       result = revised.trim().replace(/\s+/g, " ");
     }
     lastAvailable = true;
