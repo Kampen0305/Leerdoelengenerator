@@ -9,6 +9,7 @@ import {
 import { KDImport } from "./components/KDImport";
 import { SavedObjectives } from "./components/SavedObjectives";
 import { TemplateLibrary } from "./components/TemplateLibrary";
+import ToetsvormSearchModal from "@/components/ToetsvormSearchModal";
 import type { TemplateItem } from '@/types';
 import { Hero } from "./components/Hero";
 import Voorbeeldcases from "@/features/examples/Voorbeeldcases";
@@ -268,6 +269,7 @@ function App() {
   const [showEducationGuidance, setShowEducationGuidance] = useState(false);
   const [generationSource, setGenerationSource] = useState<GenerationSource>(null); // NIEUW: bron van de laatste generatie
   const [menuOpen, setMenuOpen] = useState(false);
+  const [openToetsvormSearch, setOpenToetsvormSearch] = useState(false);
 
   const handleExampleSelect = (ex: VoorbeeldCase) => {
     setSector(ex.sector);
@@ -877,6 +879,14 @@ function App() {
                   <BookOpen className="w-4 h-4" />
                   <span>Begrippen</span>
                 </a>
+
+                <button
+                  onClick={() => setOpenToetsvormSearch(true)}
+                  className="flex items-center space-x-2 bg-indigo-600 text-white h-11 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  <span aria-hidden="true">🔎</span>
+                  <span>Zoek toetsvormen</span>
+                </button>
               </div>
 
               <button
@@ -929,10 +939,26 @@ function App() {
                 <BookOpen className="w-4 h-4" />
                 <span>Begrippen</span>
               </a>
+
+              <button
+                onClick={() => {
+                  setOpenToetsvormSearch(true);
+                  setMenuOpen(false);
+                }}
+                className="flex items-center justify-center space-x-2 bg-indigo-600 text-white h-11 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg w-full"
+              >
+                <span aria-hidden="true">🔎</span>
+                <span>Zoek toetsvormen</span>
+              </button>
             </div>
           )}
         </div>
       </header>
+
+      <ToetsvormSearchModal
+        open={openToetsvormSearch}
+        onClose={() => setOpenToetsvormSearch(false)}
+      />
 
       <Hero />
       <div id="form-start" className="max-w-screen-xl mx-auto px-4 lg:px-8 py-8 space-y-6">
