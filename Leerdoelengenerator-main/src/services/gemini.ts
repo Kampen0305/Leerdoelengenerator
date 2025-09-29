@@ -229,8 +229,11 @@ Beschikbare werkwoorden voor dit niveau (begin hiermee): ${allowedVerbs.join(", 
 ${strictRules}
 Genereer precies 1 leerdoel.`;
 
+  const trimmedUser = user.trim();
+  const basePrompt = `${system}\n\n${trimmedUser}`;
+
   try {
-    let result = (await callGemini(user.trim(), system)).trim().replace(/\s+/g, " ");
+    let result = (await callGemini(basePrompt)).trim().replace(/\s+/g, " ");
     let check = validateObjective(result, ctx.levelKey);
     if (!check.ok) {
       const fixPrompt = `
@@ -238,7 +241,8 @@ Herzie het leerdoel zodat alle issues opgelost zijn:
 Issues: ${check.issues.map(i => i.message).join("; ")}
 Houd je strikt aan de niveauprofiel-regels en begin met een toegestaan werkwoord.
 Genereer precies 1 leerdoel.`;
-      const revised = await callGemini(`${user}\n\n${fixPrompt}`, system);
+      const revisedPrompt = `${system}\n\n${trimmedUser}\n\n${fixPrompt}`;
+      const revised = await callGemini(revisedPrompt);
       result = revised.trim().replace(/\s+/g, " ");
     }
     lastAvailable = true;
