@@ -33,6 +33,7 @@ export async function POST(req: Request) {
     }
 
     const data = JSON.parse(upstreamText);
+    console.log('Gemini response:', data);
     return new Response(JSON.stringify({ ok: true, data }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
