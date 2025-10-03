@@ -23,7 +23,7 @@ export interface KDContext {
   relatedWorkProcesses?: Array<{ title: string }>;
 }
 
-const GEMINI_ROUTE = "/api/gemini-generate";
+const GEMINI_ROUTE = "/api/gemini";
 let lastAvailable = false;
 
 /**

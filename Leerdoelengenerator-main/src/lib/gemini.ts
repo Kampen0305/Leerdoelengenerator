@@ -1,22 +1,31 @@
 // src/lib/gemini.ts
+const GEMINI_ROUTE = '/api/gemini';
+
 export async function callGemini(prompt: string) {
-  const res = await fetch('/api/gemini-generate', {
+  const res = await fetch(GEMINI_ROUTE, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ prompt }),
   });
 
-  const json = await res.json().catch(() => ({}));
+  let json: any = null;
+  try {
+    json = await res.json();
+  } catch (err) {
+    console.error('[Gemini error] Failed to parse JSON response', err);
+  }
 
-  if (!json?.ok) {
+  if (!res.ok || json?.error) {
     console.error('[Gemini error]', json);
-    const msg =
-      json?.upstream ||
-      json?.error ||
-      `Gemini call failed (status: ${json?.upstreamStatus ?? 'unknown'})`;
+    const statusMsg = `Gemini call failed (status: ${res.status})`;
+    const msg = json?.error || statusMsg;
     throw new Error(typeof msg === 'string' ? msg : JSON.stringify(msg));
   }
 
-  const parts = json?.data?.candidates?.[0]?.content?.parts ?? [];
-  return parts.map((p: any) => p?.text ?? '').join('');
+  const text = typeof json?.text === 'string' ? json.text : '';
+  if (!text) {
+    throw new Error('Gemini returned an empty response');
+  }
+
+  return text;
 }
