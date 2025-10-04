@@ -1,5 +1,5 @@
 // src/services/gemini.ts
-import { callGemini } from "@/lib/gemini";
+import { askGeminiFlash } from "@/lib/gemini";
 import type { LearningObjectiveContext } from "../types/context";
 import { LEVEL_PROFILES, LevelKey } from "../domain/levelProfiles";
 import { validateObjective } from "../utils/objectiveValidator";
@@ -111,7 +111,7 @@ export function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): stri
  */
 export async function checkGeminiAvailable(): Promise<boolean> {
   try {
-    const text = await callGemini("Antwoord uitsluitend met: OK");
+    const text = await askGeminiFlash("Antwoord uitsluitend met: OK");
     const ok = text.trim().toUpperCase().includes("OK");
     if (ok) {
       lastAvailable = true;
@@ -137,7 +137,7 @@ export async function generateAIReadyObjective(
   const prompt = buildPrompt(ctx, kd);
 
   try {
-    const responseText = await callGemini(prompt);
+    const responseText = await askGeminiFlash(prompt);
     const raw = responseText.trim();
 
     if (!raw) {
@@ -233,7 +233,7 @@ Genereer precies 1 leerdoel.`;
   const basePrompt = `${system}\n\n${trimmedUser}`;
 
   try {
-    let result = (await callGemini(basePrompt)).trim().replace(/\s+/g, " ");
+    let result = (await askGeminiFlash(basePrompt)).trim().replace(/\s+/g, " ");
     let check = validateObjective(result, ctx.levelKey);
     if (!check.ok) {
       const fixPrompt = `
@@ -242,7 +242,7 @@ Issues: ${check.issues.map(i => i.message).join("; ")}
 Houd je strikt aan de niveauprofiel-regels en begin met een toegestaan werkwoord.
 Genereer precies 1 leerdoel.`;
       const revisedPrompt = `${system}\n\n${trimmedUser}\n\n${fixPrompt}`;
-      const revised = await callGemini(revisedPrompt);
+      const revised = await askGeminiFlash(revisedPrompt);
       result = revised.trim().replace(/\s+/g, " ");
     }
     lastAvailable = true;

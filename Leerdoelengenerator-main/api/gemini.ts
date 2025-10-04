@@ -1,4 +1,3 @@
-// api/gemini.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
@@ -8,23 +7,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const key = process.env.GEMINI_API_KEY;
+  // Compatibiliteit: lees GEMINI_API_KEY, val desnoods terug op VITE_GEMINI_API_KEY (server-side only)
+  const key = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
   if (!key) {
+    console.error('[gemini] Missing server env: GEMINI_API_KEY (or VITE_GEMINI_API_KEY)');
     return res.status(500).json({ error: 'GEMINI_API_KEY is missing on server' });
   }
 
   try {
-    const { prompt } = (req.body ?? {}) as { prompt?: string };
+    const { prompt, generationConfig } = (req.body ?? {}) as {
+      prompt?: string;
+      generationConfig?: Record<string, unknown>;
+    };
     if (!prompt || typeof prompt !== 'string') {
-      return res.status(400).json({ error: 'Missing prompt' });
+      return res.status(400).json({ error: 'Missing "prompt" (string)' });
     }
 
     const genAI = new GoogleGenerativeAI(key);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    const result = await model.generateContent(prompt);
+    const result = await model.generateContent({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 2048,
+        ...generationConfig,
+      },
+    });
+
     const text = result?.response?.text?.() ?? '';
-
     return res.status(200).json({ text });
   } catch (err: any) {
     console.error('[gemini] error:', err?.message || err);
