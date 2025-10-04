@@ -1,3 +1,5 @@
+import { parseAIResponse } from '@/utils/aiResponse';
+
 // Forceer Node-runtime om Edge-issues te vermijden
 export const runtime = 'nodejs';
 
@@ -33,7 +35,8 @@ export async function POST(req: Request) {
     }
 
     const data = JSON.parse(upstreamText);
-    return new Response(JSON.stringify({ ok: true, data }), {
+    const text = parseAIResponse((data as any)?.response ?? data);
+    return new Response(JSON.stringify({ ok: true, data, text }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });

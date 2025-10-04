@@ -1,5 +1,6 @@
 // api/gemini-generate.ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { parseAIResponse } from '../src/utils/aiResponse';
 
 const ENDPOINT =
   'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
@@ -54,8 +55,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const data = JSON.parse(upstreamText);
+    const text = parseAIResponse((data as any)?.response ?? data);
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.status(200).json({ ok: true, data });
+    res.status(200).json({ ok: true, data, text });
   } catch (err: any) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.status(200).json({

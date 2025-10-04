@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { parseAIResponse } from '../src/utils/aiResponse';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -35,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       },
     });
 
-    const text = result?.response?.text?.() ?? '';
+    const text = parseAIResponse(result?.response ?? result);
     return res.status(200).json({ text });
   } catch (err: any) {
     console.error('[gemini] error:', err?.message || err);
