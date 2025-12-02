@@ -14,6 +14,7 @@ export interface GeminiResponse {
   assessments: string[];
   aiLiteracy: string;
   bloom?: string;
+  aiGoTags?: string[];
 }
 
 export interface KDContext {
@@ -84,12 +85,14 @@ export function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): stri
     "Doel: herschrijf het oorspronkelijke leerdoel naar één SMART leerdoel, en lever: rationale, 3–5 leeractiviteiten, 2–4 toetsvormen met label [Baan 1] of [Baan 2].",
     "Kaders:",
     "- Constructive alignment; Two-Lane approach (Baan 1=besluitvormend, beperkte AI; Baan 2=ontwikkelingsgericht, AI toegestaan/verplicht).",
-    "- AI-geletterdheid (AI-GO): benoem kort welke kennis/vaardigheden/ethiek aan bod komen.",
+    "- AI-geletterdheid (AI-GO): benoem expliciet welke kennis/vaardigheden/ethiek aan bod komen.",
     "- Referentiekader 2.0: wees transparant en ethisch; geen persoonsgegevens; geen hallucinaties.",
     "Eisen:",
     "- 1 leerdoel, actief werkwoord + context + meetcriterium + condities + tijd.",
     "- Geen Engels.",
     "- Vermijd vage woorden (“optimaliseren”, “begrijpen”) zonder meetbare specificatie.",
+    "- Toetsing: Geef minimaal één toetsvorm voor [Baan 1] (zonder AI) en één voor [Baan 2] (met AI) om het contrast te tonen.",
+    "- Rationale: Leg uit WAAROM dit leerdoel past bij het specifieke onderwijsniveau.",
     "Input:",
     `- Oorspronkelijk leerdoel: ${ctx.original}`,
     contextLine,
@@ -97,11 +100,12 @@ export function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): stri
     "Output JSON:",
     "{",
     ' "newObjective": "...",',
-    ' "rationale": "... (≤80 woorden)",',
+    ' "rationale": "... (≤80 woorden, focus op niveau)",',
     ' "activities": ["…","…","…"],',
-    ' "assessments": ["[Baan X] …","…"],',
+    ' "assessments": ["[Baan 1] …","[Baan 2] …"],',
     ' "bloom": "apply",',
-    ' "aiLiteracy": "Kernpunten (kritisch denken/ethiek/vaardigheden)"',
+    ' "aiLiteracy": "Kernpunten (kritisch denken/ethiek/vaardigheden)",',
+    ' "aiGoTags": ["Kennis", "Vaardigheden", "Ethiek"]',
     "}"
   ].filter(Boolean).join("\n");
 }
@@ -169,7 +173,8 @@ export async function generateAIReadyObjective(
       activities: Array.isArray(data.activities) ? data.activities.map(String) : [],
       assessments: Array.isArray(data.assessments) ? data.assessments.map(String) : [],
       aiLiteracy: String(data.aiLiteracy ?? ""),
-      bloom: data.bloom ? String(data.bloom) : undefined
+      bloom: data.bloom ? String(data.bloom) : undefined,
+      aiGoTags: Array.isArray(data.aiGoTags) ? data.aiGoTags.map(String) : undefined
     };
 
     if (!safe.newObjective || safe.activities.length === 0 || !safe.aiLiteracy) {

@@ -24,8 +24,8 @@ export function EducationGuidance({ context, aiReadyObjective }: EducationGuidan
   const [expandedSections, setExpandedSections] = useState<string[]>(['teaching-methods']);
 
   const toggleSection = (sectionId: string) => {
-    setExpandedSections(prev => 
-      prev.includes(sectionId) 
+    setExpandedSections(prev =>
+      prev.includes(sectionId)
         ? prev.filter(id => id !== sectionId)
         : [...prev, sectionId]
     );
@@ -33,6 +33,7 @@ export function EducationGuidance({ context, aiReadyObjective }: EducationGuidan
 
   const getGuidanceSections = (): GuidanceSection[] => {
     const isBasicLevel = context.level?.includes('Niveau 1') || context.level?.includes('Niveau 2');
+    const isMiddleLevel = context.level?.includes('Niveau 3') || context.level?.includes('Niveau 4') || context.level?.includes('Associate degree');
     const isAdvancedLevel = context.level?.includes('Bachelor') || context.level?.includes('Master');
     const domain = context.domain.toLowerCase();
 
@@ -41,13 +42,17 @@ export function EducationGuidance({ context, aiReadyObjective }: EducationGuidan
         title: 'Lesmethoden & Didactiek',
         icon: <BookOpen className="w-5 h-5" />,
         content: [
-          isBasicLevel 
+          isBasicLevel
             ? 'Gebruik hands-on demonstraties waarbij studenten AI-tools stap voor stap leren gebruiken'
-            : 'Integreer AI-tools in bestaande lesmethoden en laat studenten experimenteren',
+            : isMiddleLevel
+              ? 'Focus op begeleide toepassing: laat studenten AI inzetten voor specifieke beroepstaken met directe feedback'
+              : 'Integreer AI-tools in bestaande lesmethoden en laat studenten experimenteren',
           'Begin elke les met een korte uitleg over welke AI-tools gebruikt gaan worden en waarom',
           isBasicLevel
             ? 'Werk in kleine groepjes zodat studenten elkaar kunnen helpen'
-            : 'Stimuleer peer-learning waarbij studenten AI-ervaringen delen',
+            : isMiddleLevel
+              ? 'Combineer individuele uitvoering met klassikale reflectie op de kwaliteit van de AI-output'
+              : 'Stimuleer peer-learning waarbij studenten AI-ervaringen delen',
           'Gebruik de "sandwich-methode": eerst zonder AI, dan met AI, dan reflectie op het verschil',
           isAdvancedLevel
             ? 'Integreer kritische analyse van AI-algoritmes en hun maatschappelijke impact'
@@ -56,12 +61,14 @@ export function EducationGuidance({ context, aiReadyObjective }: EducationGuidan
         examples: [
           isBasicLevel
             ? 'Demonstreer ChatGPT voor het schrijven van een e-mail, laat studenten het proberen, bespreek samen de resultaten'
-            : 'Laat studenten verschillende AI-tools vergelijken voor dezelfde taak',
-          domain.includes('zorg') 
+            : isMiddleLevel
+              ? 'Laat studenten een concept maken met AI en dit vervolgens zelfstandig verfijnen tot een eindproduct'
+              : 'Laat studenten verschillende AI-tools vergelijken voor dezelfde taak',
+          domain.includes('zorg')
             ? 'Gebruik AI voor het maken van zorgplannen, maar bespreek altijd de menselijke controle'
             : domain.includes('marketing')
-            ? 'Laat AI marketingteksten genereren en laat studenten deze verbeteren'
-            : 'Gebruik AI voor brainstorming en laat studenten de ideeën verder uitwerken',
+              ? 'Laat AI marketingteksten genereren en laat studenten deze verbeteren'
+              : 'Gebruik AI voor brainstorming en laat studenten de ideeën verder uitwerken',
           'Maak gebruik van "AI-vrije zones" waar studenten eerst zelf nadenken',
           isAdvancedLevel
             ? 'Organiseer debatsessies over ethische AI-dilemma\'s in het vakgebied'
@@ -74,7 +81,9 @@ export function EducationGuidance({ context, aiReadyObjective }: EducationGuidan
           'Documenteer welke AI-tools gebruikt zijn in opdrachten',
           isBasicLevel
             ? 'Gebruik visuele hulpmiddelen en stap-voor-stap instructies'
-            : 'Stimuleer experimenteren en leren van fouten'
+            : isMiddleLevel
+              ? 'Geef duidelijke kaders (prompts) mee, maar laat ruimte voor eigen invulling'
+              : 'Stimuleer experimenteren en leren van fouten'
         ]
       },
       {
@@ -86,7 +95,9 @@ export function EducationGuidance({ context, aiReadyObjective }: EducationGuidan
           'Voor-en-na opdrachten: maak eerst zonder AI, dan met AI, vergelijk de resultaten',
           isBasicLevel
             ? 'Begeleide AI-sessies waarbij de docent meekijkt en helpt'
-            : 'Zelfstandige AI-projecten met reflectiemomenten',
+            : isMiddleLevel
+              ? 'Casus-gestuurd onderwijs waarbij AI als hulpmiddel wordt ingezet om een probleem op te lossen'
+              : 'Zelfstandige AI-projecten met reflectiemomenten',
           'Peer-review van AI-gebruik: studenten beoordelen elkaars AI-toepassingen',
           'Ethische dilemma-discussies over AI-gebruik in het vakgebied',
           isAdvancedLevel
@@ -97,15 +108,17 @@ export function EducationGuidance({ context, aiReadyObjective }: EducationGuidan
           domain.includes('zorg')
             ? 'Laat studenten AI gebruiken voor symptoomherkenning, maar bespreek de beperkingen'
             : domain.includes('ict')
-            ? 'Gebruik AI voor code-generatie en laat studenten de code controleren en verbeteren'
-            : domain.includes('marketing')
-            ? 'Genereer marketingcampagnes met AI en pas deze aan voor verschillende doelgroepen'
-            : 'Gebruik AI voor tekstschrijving en laat studenten de stijl aanpassen',
+              ? 'Gebruik AI voor code-generatie en laat studenten de code controleren en verbeteren'
+              : domain.includes('marketing')
+                ? 'Genereer marketingcampagnes met AI en pas deze aan voor verschillende doelgroepen'
+                : 'Gebruik AI voor tekstschrijving en laat studenten de stijl aanpassen',
           'Organiseer "AI-speed dating" waarbij studenten verschillende tools kort uitproberen',
           'Maak een AI-portfolio waarin studenten hun beste AI-toepassingen verzamelen',
           isBasicLevel
             ? 'Gebruik AI voor het maken van presentaties en laat studenten deze verbeteren'
-            : 'Laat studenten AI-tools evalueren op bruikbaarheid en ethiek',
+            : isMiddleLevel
+              ? 'Laat studenten de output van AI factchecken aan de hand van betrouwbare bronnen'
+              : 'Laat studenten AI-tools evalueren op bruikbaarheid en ethiek',
           'Organiseer groepsopdrachten waarbij elk teamlid een andere AI-tool gebruikt'
         ],
         tips: [
@@ -125,7 +138,9 @@ export function EducationGuidance({ context, aiReadyObjective }: EducationGuidan
           'Reflectieverslagen: studenten schrijven over hun AI-ervaringen en leerpunten',
           isBasicLevel
             ? 'Praktische demonstraties waarbij studenten laten zien wat ze kunnen'
-            : 'Peer-assessment waarbij studenten elkaars AI-gebruik beoordelen',
+            : isMiddleLevel
+              ? 'Productbeoordeling waarbij de student mondeling moet kunnen toelichten welke keuzes (met/zonder AI) zijn gemaakt'
+              : 'Peer-assessment waarbij studenten elkaars AI-gebruik beoordelen',
           'Authentieke opdrachten die lijken op echte werksituaties',
           'Combinatie van AI-ondersteunde en AI-vrije toetsen',
           isAdvancedLevel
@@ -138,13 +153,15 @@ export function EducationGuidance({ context, aiReadyObjective }: EducationGuidan
           'Peer-review sessies waarbij studenten elkaars AI-toepassingen beoordelen',
           isBasicLevel
             ? 'Praktijktoets waarbij studenten een taak uitvoeren met AI-hulp'
-            : 'Casestudy-analyse waarbij AI-ethiek centraal staat',
+            : isMiddleLevel
+              ? 'Criteriumgericht interview (CGI) over de totstandkoming van het werkstuk'
+              : 'Casestudy-analyse waarbij AI-ethiek centraal staat',
           'Groepspresentaties over AI-toepassingen in het vakgebied',
           domain.includes('zorg')
             ? 'Simulatie van patiëntenzorg met AI-ondersteuning'
             : domain.includes('marketing')
-            ? 'Ontwikkel een marketingcampagne met AI en presenteer de strategie'
-            : 'Maak een product of dienst met AI-hulp en evalueer het proces'
+              ? 'Ontwikkel een marketingcampagne met AI en presenteer de strategie'
+              : 'Maak een product of dienst met AI-hulp en evalueer het proces'
         ],
         tips: [
           'Maak duidelijke beoordelingscriteria voor AI-gebruik',

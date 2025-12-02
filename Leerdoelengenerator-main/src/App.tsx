@@ -513,6 +513,18 @@ function App() {
         aiOutput = adjusted;
         usedGemini = true;
         setGeminiAvailable(true);
+
+        // Gebruik AI-tags indien beschikbaar, anders fallback
+        if (geminiResponse.aiGoTags && geminiResponse.aiGoTags.length > 0) {
+          // Map string[] naar AIGOTagKey[] (filter ongeldige tags)
+          const validTags = geminiResponse.aiGoTags.filter(t =>
+            ["Kennis", "Vaardigheden", "Attitude", "Ethiek"].includes(t)
+          ) as AIGOTagKey[];
+          setAiGoTags(validTags.length > 0 ? validTags : inferAIGOTags(adjusted.newObjective, { withAI: lane === "baan2" }));
+        } else {
+          setAiGoTags(inferAIGOTags(adjusted.newObjective, { withAI: lane === "baan2", domain: formData.context.domain }));
+        }
+
         console.log("[AI-check] Gebruik: Gemini (AI)");
       } catch (err) {
         console.error("[AI-check] Gemini-route mislukt, val terug op fallback:", err);
