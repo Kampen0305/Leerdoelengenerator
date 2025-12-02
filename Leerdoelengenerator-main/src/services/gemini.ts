@@ -50,33 +50,33 @@ export function buildPrompt(ctx: LearningObjectiveContext, kd?: KDContext): stri
   const contextLine = isVO
     ? `- Onderwijs: ${ctx.education} | VO-niveau: ${ctx.voLevel} | Leerjaar: ${ctx.voGrade} | Domein: ${ctx.domain} | Baan: ${laneLabel}`
     : ctx.education === "VSO"
-    ? `- Sector: ${ctx.education} | Niveau: ${ctx.level} | Cluster: ${ctx.vsoCluster} | Domein: ${ctx.domain} | Baan: ${laneLabel}`
-    : `- Sector: ${ctx.education} | Niveau: ${ctx.level} | Domein: ${ctx.domain} | Baan: ${laneLabel}`;
+      ? `- Sector: ${ctx.education} | Niveau: ${ctx.level} | Cluster: ${ctx.vsoCluster} | Domein: ${ctx.domain} | Baan: ${laneLabel}`
+      : `- Sector: ${ctx.education} | Niveau: ${ctx.level} | Domein: ${ctx.domain} | Baan: ${laneLabel}`;
   const learnerLines = needsLearner
     ? [
-        "Formuleer leerdoelen activerend en observeerbaar in correct Nederlands.",
-        "Gebruik het woord 'leerling' in plaats van 'student'.",
-        "Koppel waar passend aan toetbare criteria (formatief/summatief).",
-      ]
+      "Formuleer leerdoelen activerend en observeerbaar in correct Nederlands.",
+      "Gebruik het woord 'leerling' in plaats van 'student'.",
+      "Koppel waar passend aan toetbare criteria (formatief/summatief).",
+    ]
     : [];
   const sectorLines =
     ctx.education === "VSO"
       ? [
-          "Je schrijft leerdoelen voor het Voortgezet Speciaal Onderwijs (VSO).",
-          "Houd rekening met handelingsgericht en passend onderwijs.",
-          'Differentiatie per leerroute: ' + ctx.level + '.',
-          'Cluster: ' + ctx.vsoCluster + '.',
-          "Gebruik concrete, observeerbare gedragsindicatoren en realistische contexten.",
-        ]
+        "Je schrijft leerdoelen voor het Voortgezet Speciaal Onderwijs (VSO).",
+        "Houd rekening met handelingsgericht en passend onderwijs.",
+        'Differentiatie per leerroute: ' + ctx.level + '.',
+        'Cluster: ' + ctx.vsoCluster + '.',
+        "Gebruik concrete, observeerbare gedragsindicatoren en realistische contexten.",
+      ]
       : ctx.education === "HBO" && ctx.level === "Master"
-      ? [
+        ? [
           "Je schrijft leeruitkomsten op HBO-masterniveau:",
           "- Kennisontwikkeling en onderzoekend vermogen",
           "- Kritische reflectie, innovatie en complex probleemoplossen",
           "- Professionele standaard, ethiek en evidence-informed handelen",
           "- Hoge mate van zelfstandigheid en leiderschap",
         ]
-      : [];
+        : [];
   return [
     "Je bent een onderwijskundige assistent. Schrijf ALLES in natuurlijk Nederlands.",
     ...learnerLines,
@@ -147,14 +147,20 @@ export async function generateAIReadyObjective(
     let data: any;
     try {
       data = JSON.parse(raw);
-    } catch {
+    } catch (e) {
+      console.error("[Gemini] JSON Parse Error. Raw response:", raw);
       const cleaned = raw
         .replace(/^```json\s*/i, "")
         .replace(/^```\s*/i, "")
         .replace(/```$/, "")
         .trim();
 
-      data = JSON.parse(cleaned);
+      try {
+        data = JSON.parse(cleaned);
+      } catch (e2) {
+        console.error("[Gemini] Cleaned JSON Parse Error:", e2);
+        throw new Error("Kon JSON niet parsen. Mogelijk afgekapt.");
+      }
     }
 
     const safe: GeminiResponse = {

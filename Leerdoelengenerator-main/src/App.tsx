@@ -23,7 +23,7 @@ import ObjectiveForm from "./ObjectiveForm";
 import { KDStructure } from "./types/kd";
 import { KDParser } from "./utils/kdParser";
 import { ExportUtils } from "./utils/exportUtils";
-import { geminiService } from "./services/gemini";
+import { geminiService, checkGeminiAvailable } from "./services/gemini";
 import type { Education, VoLevel, VSOCluster } from "./types/context";
 import { LEVEL_OPTIONS, VO_LEVELS, VSO_CLUSTERS } from "./constants/education";
 import SectorSelector from "@/features/sector/SectorSelector";
@@ -253,18 +253,18 @@ function App() {
       : null;
   const levelInfo = levelKey
     ? (() => {
-        const [sectorPart, ...rest] = levelKey.split("-");
-        const sector = sectorPart as OnderwijsSector;
-        if (isFunderend(sector)) return { sector };
-        const raw = rest.join("-");
-        const subtype =
-          sector === "HBO"
-            ? raw === "AD"
-              ? "Associate degree"
-              : raw
-            : raw || undefined;
-        return { sector, subtype };
-      })()
+      const [sectorPart, ...rest] = levelKey.split("-");
+      const sector = sectorPart as OnderwijsSector;
+      if (isFunderend(sector)) return { sector };
+      const raw = rest.join("-");
+      const subtype =
+        sector === "HBO"
+          ? raw === "AD"
+            ? "Associate degree"
+            : raw
+          : raw || undefined;
+      return { sector, subtype };
+    })()
     : null;
   const [showEducationGuidance, setShowEducationGuidance] = useState(false);
   const [generationSource, setGenerationSource] = useState<GenerationSource>(null); // NIEUW: bron van de laatste generatie
@@ -371,6 +371,14 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /* ---------------- Check Gemini Availability on Mount ---------------- */
+  useEffect(() => {
+    checkGeminiAvailable().then((available) => {
+      console.log("[App] Initial Gemini check:", available);
+      setGeminiAvailable(available);
+    });
+  }, []);
+
   /* ---------------- Autosave naar localStorage ---------------- */
   useEffect(() => {
     const state = { currentStep, formData, baan, output, aiStatement, importedKD, generationSource, geminiAvailable };
@@ -417,8 +425,8 @@ function App() {
           education: importedKD.metadata.level.includes("MBO")
             ? "MBO"
             : importedKD.metadata.level.includes("HBO")
-            ? "HBO"
-            : "WO",
+              ? "HBO"
+              : "WO",
           level: importedKD.metadata.level,
           domain: importedKD.metadata.sector,
           assessment: prev.context.assessment,
@@ -459,7 +467,7 @@ function App() {
       try {
         const kdContext = importedKD
           ? {
-              title: importedKD.metadata.title,
+            title: importedKD.metadata.title,
             code: importedKD.metadata.code,
             relatedCompetencies: KDParser.extractContextForObjective(
               importedKD,
@@ -470,35 +478,37 @@ function App() {
               formData.original
             ).relatedWorkProcesses,
           }
-        : undefined;
+          : undefined;
 
-      const geminiResponse = await geminiService.generateAIReadyObjective(
-        { ...formData, lane: lane as Lane },
-        kdContext
-      );
+        // @ts-ignore
+        const geminiResponse = await geminiService.generateAIReadyObjective(
+          { ...formData, lane: lane as Lane },
+          kdContext
+        );
 
-      const adjusted: AIReadyOutput = attachSuggestions(
-        {
-          ...geminiResponse,
-          newObjective:
-            lane === "baan2"
-              ? geminiResponse.newObjective
-              : geminiResponse.newObjective
+        const adjusted: AIReadyOutput = attachSuggestions(
+          {
+            ...geminiResponse,
+            newObjective:
+              lane === "baan2"
+                ? geminiResponse.newObjective
+                : geminiResponse.newObjective
                   .replace(/met hulp van.*?,\s*/i, "")
                   .replace(/\bAI-?tools?\b/gi, "hulpmiddelen"),
-        },
-        formData.context,
-      );
+            suggestions: { activities: [], assessments: [] } // Placeholder to satisfy type
+          },
+          formData.context,
+        );
 
-      if (formData.context.education === "VO" || formData.context.education === "VSO") {
-        const repl = (txt: string) =>
-          txt.replace(/studenten?/gi, (m) => (m.toLowerCase().endsWith("en") ? "leerlingen" : "leerling"));
-        adjusted.newObjective = repl(adjusted.newObjective);
-        adjusted.rationale = repl(adjusted.rationale);
-        adjusted.activities = adjusted.activities.map(repl);
-        adjusted.assessments = adjusted.assessments.map(repl);
-        adjusted.aiLiteracy = repl(adjusted.aiLiteracy);
-      }
+        if (formData.context.education === "VO" || formData.context.education === "VSO") {
+          const repl = (txt: string) =>
+            txt.replace(/studenten?/gi, (m) => (m.toLowerCase().endsWith("en") ? "leerlingen" : "leerling"));
+          adjusted.newObjective = repl(adjusted.newObjective);
+          adjusted.rationale = repl(adjusted.rationale);
+          adjusted.activities = adjusted.activities.map(repl);
+          adjusted.assessments = adjusted.assessments.map(repl);
+          adjusted.aiLiteracy = repl(adjusted.aiLiteracy);
+        }
 
         aiOutput = adjusted;
         usedGemini = true;
@@ -521,6 +531,7 @@ function App() {
               withAI: lane === "baan2",
               domain: formData.context.domain,
             }).join(", ") || "kritisch denken, ethiek",
+            suggestions: { activities: [], assessments: [] } // Placeholder
           },
           formData.context,
         );
@@ -693,6 +704,7 @@ function App() {
           withAI: baan === 2,
           domain: objective.context.domain,
         }).join(", ") || "kritisch denken, ethiek",
+        suggestions: { activities: [], assessments: [] } // Placeholder
       },
       objective.context,
     );
@@ -736,10 +748,10 @@ function App() {
       generationSource,
       kdContext: importedKD
         ? {
-            title: importedKD.metadata.title,
-            code: importedKD.metadata.code,
-            relatedCompetencies: KDParser.extractContextForObjective(importedKD, formData.original).relatedCompetencies,
-          }
+          title: importedKD.metadata.title,
+          code: importedKD.metadata.code,
+          relatedCompetencies: KDParser.extractContextForObjective(importedKD, formData.original).relatedCompetencies,
+        }
         : null,
       nationalVisionCompliance: true,
       exportDate: new Date().toLocaleDateString("nl-NL"),
@@ -828,9 +840,8 @@ function App() {
                   Maak leeruitkomsten geschikt voor AI en eerlijke kansen (gratis tools)
                   {/* Altijd zichtbaar AI-statuslabel */}
                   <span
-                    className={`text-xs font-semibold ml-2 ${
-                      geminiAvailable ? "text-purple-600" : "text-gray-400"
-                    }`}
+                    className={`text-xs font-semibold ml-2 ${geminiAvailable ? "text-purple-600" : "text-gray-400"
+                      }`}
                     title={geminiAvailable ? "Gemini actief" : "Fallback actief"}
                   >
                     {geminiAvailable ? "• AI actief (Gemini)" : "• AI uit (fallback)"}
@@ -966,20 +977,18 @@ function App() {
             ].map(({ step, title, icon: Icon }) => (
               <div key={step} className="flex items-center">
                 <div
-                  className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${
-                    currentStep >= step
-                      ? "bg-gradient-to-r from-green-600 to-orange-500 text-white shadow-lg"
-                      : "bg-gray-200 text-gray-500"
-                  }`}
+                  className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${currentStep >= step
+                    ? "bg-gradient-to-r from-green-600 to-orange-500 text-white shadow-lg"
+                    : "bg-gray-200 text-gray-500"
+                    }`}
                 >
                   <Icon className="w-5 h-5" />
                 </div>
                 <span
-                  className={`ml-2 font-medium ${
-                    currentStep >= step
-                      ? "bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent"
-                      : "text-gray-500"
-                  }`}
+                  className={`ml-2 font-medium ${currentStep >= step
+                    ? "bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent"
+                    : "text-gray-500"
+                    }`}
                 >
                   {title}
                 </span>
@@ -1027,7 +1036,7 @@ function App() {
                         <textarea
                           value={formData.original}
                           onChange={(e) => handleInputChange("original", e.target.value)}
-                          placeholder={`Bijvoorbeeld: De ${['VO','VSO'].includes(sector ?? '') ? 'leerling' : 'student'} kan een zakelijke e-mail schrijven in correct Nederlands.`}
+                          placeholder={`Bijvoorbeeld: De ${['VO', 'VSO'].includes(sector ?? '') ? 'leerling' : 'student'} kan een zakelijke e-mail schrijven in correct Nederlands.`}
                           className="w-full h-24 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none transition-all duration-200"
                         />
                         {importedKD && formData.original && (
@@ -1131,7 +1140,7 @@ function App() {
                             value={formData.context.domain}
                             onChange={(e) => handleInputChange("domain", e.target.value)}
                             placeholder="Bijvoorbeeld: Marketing, Zorg, ICT"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"/>
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1142,7 +1151,7 @@ function App() {
                             value={formData.context.assessment}
                             onChange={(e) => handleInputChange("assessment", e.target.value)}
                             placeholder="Bijvoorbeeld: Portfolio, Examen"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"/>
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200" />
                         </div>
                       </div>
 
@@ -1414,19 +1423,19 @@ function App() {
                               tag === "Kennis"
                                 ? "Begrip, concepten, theorie, AI-basiskennis"
                                 : tag === "Vaardigheden"
-                                ? "Toepassen/uitvoeren, maken, evalueren"
-                                : tag === "Attitude"
-                                ? "Reflectie, samenwerking, toegankelijkheid"
-                                : "Ethiek, transparantie, privacy, eerlijke kansen"
+                                  ? "Toepassen/uitvoeren, maken, evalueren"
+                                  : tag === "Attitude"
+                                    ? "Reflectie, samenwerking, toegankelijkheid"
+                                    : "Ethiek, transparantie, privacy, eerlijke kansen"
                             }
                             className={
                               tag === "Kennis"
                                 ? "px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-sm border border-indigo-200"
                                 : tag === "Vaardigheden"
-                                ? "px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-sm border border-emerald-200"
-                                : tag === "Attitude"
-                                ? "px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-sm border border-amber-200"
-                                : "px-3 py-1 rounded-full bg-rose-50 text-rose-700 text-sm border border-rose-200"
+                                  ? "px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-sm border border-emerald-200"
+                                  : tag === "Attitude"
+                                    ? "px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-sm border border-amber-200"
+                                    : "px-3 py-1 rounded-full bg-rose-50 text-rose-700 text-sm border border-rose-200"
                             }
                           >
                             {tag}
