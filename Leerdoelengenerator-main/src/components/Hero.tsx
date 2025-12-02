@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Sparkles, ArrowRight } from "lucide-react";
+import { HowItWorksModal } from "./HowItWorksModal";
 
 export function Hero() {
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
+
   const scrollToForm = () => {
     document.getElementById("form-start")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -40,16 +43,12 @@ export function Hero() {
             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
 
-          <a
-            href="#uitleg"
+          <button
+            onClick={() => setShowHowItWorks(true)}
             className="text-slate-600 hover:text-primary font-medium px-6 py-3 transition-colors"
-            onClick={(e) => {
-              e.preventDefault();
-              document.getElementById("uitleg")?.scrollIntoView({ behavior: "smooth" });
-            }}
           >
             Hoe werkt het?
-          </a>
+          </button>
         </div>
 
         {/* Feature pills */}
@@ -59,6 +58,8 @@ export function Hero() {
           <span className="px-3 py-1 glass-panel rounded-full text-xs uppercase tracking-wider text-slate-600">⚖️ Ethisch Verantwoord</span>
         </div>
       </div>
+
+      {showHowItWorks && <HowItWorksModal onClose={() => setShowHowItWorks(false)} />}
     </section>
   );
 }
