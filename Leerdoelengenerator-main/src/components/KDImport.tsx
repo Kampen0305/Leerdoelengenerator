@@ -28,7 +28,7 @@ export function KDImport({ onKDImported, onClose }: KDImportProps) {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
     }
@@ -48,7 +48,7 @@ export function KDImport({ onKDImported, onClose }: KDImportProps) {
       const content = await file.text();
       const result = KDParser.parseFromText(content);
       setParseResult(result);
-      
+
       if (result.success && result.data) {
         // Auto-import after 2 seconds if successful
         setTimeout(() => {
@@ -77,7 +77,7 @@ export function KDImport({ onKDImported, onClose }: KDImportProps) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-          <h2 className="text-xl font-semibold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent">
+          <h2 className="text-xl font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             KD Importeren
           </h2>
           <button
@@ -91,11 +91,10 @@ export function KDImport({ onKDImported, onClose }: KDImportProps) {
         <div className="p-6 space-y-6">
           {/* Upload Area */}
           <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 ${
-              dragActive 
-                ? 'border-green-400 bg-green-50' 
+            className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 ${dragActive
+                ? 'border-secondary bg-secondary/5'
                 : 'border-gray-300 hover:border-gray-400'
-            }`}
+              }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
@@ -110,7 +109,7 @@ export function KDImport({ onKDImported, onClose }: KDImportProps) {
             </p>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="bg-gradient-to-r from-green-600 to-orange-500 text-white py-2 px-4 rounded-lg font-medium hover:from-green-700 hover:to-orange-600 transition-colors shadow-md hover:shadow-lg"
+              className="bg-gradient-to-r from-primary to-secondary text-white py-2 px-4 rounded-lg font-medium hover:from-primary-light hover:to-secondary-dark transition-colors shadow-md hover:shadow-lg"
             >
               Bestand selecteren
             </button>
@@ -127,8 +126,8 @@ export function KDImport({ onKDImported, onClose }: KDImportProps) {
           {isProcessing && (
             <div className="text-center py-8">
               <div className="relative w-8 h-8 mx-auto mb-4">
-                <div className="absolute inset-0 rounded-full border-4 border-green-200"></div>
-                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-green-600 animate-spin"></div>
+                <div className="absolute inset-0 rounded-full border-4 border-secondary/20"></div>
+                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-secondary animate-spin"></div>
               </div>
               <p className="text-gray-600">KD wordt verwerkt...</p>
             </div>
@@ -138,51 +137,51 @@ export function KDImport({ onKDImported, onClose }: KDImportProps) {
           {parseResult && !isProcessing && (
             <div className="space-y-4">
               {parseResult.success ? (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="bg-secondary/10 border border-secondary/20 rounded-lg p-4">
                   <div className="flex items-center mb-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-                    <h4 className="font-medium text-green-800">KD succesvol verwerkt</h4>
+                    <CheckCircle className="w-5 h-5 text-secondary mr-2" />
+                    <h4 className="font-medium text-secondary-dark">KD succesvol verwerkt</h4>
                   </div>
-                  
+
                   {parseResult.data && (
                     <div className="space-y-3 text-sm">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <span className="font-medium text-green-700">Titel:</span>
-                          <p className="text-green-600">{parseResult.data.metadata.title}</p>
+                          <span className="font-medium text-secondary-dark">Titel:</span>
+                          <p className="text-secondary">{parseResult.data.metadata.title}</p>
                         </div>
                         <div>
-                          <span className="font-medium text-green-700">Code:</span>
-                          <p className="text-green-600">{parseResult.data.metadata.code}</p>
+                          <span className="font-medium text-secondary-dark">Code:</span>
+                          <p className="text-secondary">{parseResult.data.metadata.code}</p>
                         </div>
                         <div>
-                          <span className="font-medium text-green-700">Niveau:</span>
-                          <p className="text-green-600">{parseResult.data.metadata.level}</p>
+                          <span className="font-medium text-secondary-dark">Niveau:</span>
+                          <p className="text-secondary">{parseResult.data.metadata.level}</p>
                         </div>
                         <div>
-                          <span className="font-medium text-green-700">Sector:</span>
-                          <p className="text-green-600">{parseResult.data.metadata.sector}</p>
+                          <span className="font-medium text-secondary-dark">Sector:</span>
+                          <p className="text-secondary">{parseResult.data.metadata.sector}</p>
                         </div>
                       </div>
-                      
-                      <div className="grid grid-cols-3 gap-4 pt-3 border-t border-green-200">
+
+                      <div className="grid grid-cols-3 gap-4 pt-3 border-t border-secondary/20">
                         <div className="text-center">
-                          <div className="text-lg font-bold text-green-700">
+                          <div className="text-lg font-bold text-secondary-dark">
                             {parseResult.data.competencies.length}
                           </div>
-                          <div className="text-green-600">Competenties</div>
+                          <div className="text-secondary">Competenties</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-lg font-bold text-green-700">
+                          <div className="text-lg font-bold text-secondary-dark">
                             {parseResult.data.workProcesses.length}
                           </div>
-                          <div className="text-green-600">Werkprocessen</div>
+                          <div className="text-secondary">Werkprocessen</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-lg font-bold text-green-700">
+                          <div className="text-lg font-bold text-secondary-dark">
                             {parseResult.data.learningOutcomes.length}
                           </div>
-                          <div className="text-green-600">Leeruitkomsten</div>
+                          <div className="text-secondary">Leeruitkomsten</div>
                         </div>
                       </div>
                     </div>
@@ -191,24 +190,24 @@ export function KDImport({ onKDImported, onClose }: KDImportProps) {
                   <div className="mt-4 flex justify-end">
                     <button
                       onClick={handleManualImport}
-                      className="bg-gradient-to-r from-green-600 to-green-700 text-white py-2 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-colors shadow-md hover:shadow-lg"
+                      className="bg-gradient-to-r from-secondary to-secondary-dark text-white py-2 px-4 rounded-lg font-medium hover:from-secondary-dark hover:to-secondary-dark transition-colors shadow-md hover:shadow-lg"
                     >
                       KD gebruiken
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="bg-accent-pop/10 border border-accent-pop/20 rounded-lg p-4">
                   <div className="flex items-center mb-3">
-                    <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-                    <h4 className="font-medium text-red-800">Fout bij verwerken</h4>
+                    <AlertCircle className="w-5 h-5 text-accent-pop mr-2" />
+                    <h4 className="font-medium text-accent-pop">Fout bij verwerken</h4>
                   </div>
-                  <p className="text-red-700 mb-3">{parseResult.error}</p>
-                  
+                  <p className="text-accent-pop mb-3">{parseResult.error}</p>
+
                   {parseResult.suggestions && (
                     <div>
-                      <p className="font-medium text-red-800 mb-2">Suggesties:</p>
-                      <ul className="list-disc list-inside space-y-1 text-sm text-red-700">
+                      <p className="font-medium text-accent-pop mb-2">Suggesties:</p>
+                      <ul className="list-disc list-inside space-y-1 text-sm text-accent-pop">
                         {parseResult.suggestions.map((suggestion, idx) => (
                           <li key={idx}>{suggestion}</li>
                         ))}
@@ -221,12 +220,12 @@ export function KDImport({ onKDImported, onClose }: KDImportProps) {
           )}
 
           {/* Format Information */}
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-            <h4 className="font-medium text-orange-800 mb-2 flex items-center">
+          <div className="bg-accent/10 border border-accent/20 rounded-lg p-4">
+            <h4 className="font-medium text-accent-hover mb-2 flex items-center">
               <FileText className="w-4 h-4 mr-2" />
               Ondersteunde formaten
             </h4>
-            <div className="text-sm text-orange-700 space-y-2">
+            <div className="text-sm text-accent-hover space-y-2">
               <p><strong>JSON:</strong> Gestructureerd KD-bestand met metadata, competenties, werkprocessen en leeruitkomsten</p>
               <p><strong>Tekst:</strong> Gestructureerd tekstbestand met duidelijke secties en labels</p>
               <p><strong>Word:</strong> Document met gestructureerde inhoud (wordt als tekst verwerkt)</p>

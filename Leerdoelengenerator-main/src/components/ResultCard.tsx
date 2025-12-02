@@ -14,7 +14,7 @@ interface ResultCardProps {
 export const ResultCard: React.FC<ResultCardProps> = ({ result, error, onSave }) => {
   if (error) {
     return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded text-red-800">
+      <div className="p-4 bg-accent-pop/10 border border-accent-pop/20 rounded text-accent-pop">
         {error}
       </div>
     );
@@ -30,7 +30,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, error, onSave })
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
       {autoFixed && (
-        <div className="mb-3 p-2 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded">
+        <div className="mb-3 p-2 bg-accent/10 border border-accent/20 text-accent rounded">
           Automatisch hersteld
         </div>
       )}
@@ -47,7 +47,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, error, onSave })
       <p className="text-gray-700 mb-4">{result.rationale}</p>
 
       {remainingWarnings.length > 0 && (
-        <ul className="mb-4 p-2 bg-orange-50 border border-orange-200 rounded text-orange-800 text-sm list-disc list-inside">
+        <ul className="mb-4 p-2 bg-accent/10 border border-accent/20 rounded text-accent text-sm list-disc list-inside">
           {remainingWarnings.map((w, idx) => (
             <li key={idx}>{w}</li>
           ))}
@@ -58,13 +58,13 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, error, onSave })
         <button
           onClick={onSave}
           disabled={isIncomplete}
-          className="mt-2 bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
+          className="mt-2 bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-lg hover:shadow-md transition-all disabled:opacity-50"
         >
           Opslaan
         </button>
       )}
       {onSave && isIncomplete && (
-        <p className="text-sm text-red-600 mt-2">Vul alle velden in.</p>
+        <p className="text-sm text-accent-pop mt-2">Vul alle velden in.</p>
       )}
     </div>
   );

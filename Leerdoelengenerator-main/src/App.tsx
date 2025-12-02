@@ -834,21 +834,21 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-green-50 via-white to-orange-50">
+    <div className="min-h-screen flex flex-col bg-slate-50 bg-mesh">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-green-100">
+      <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-screen-xl mx-auto px-4 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="bg-gradient-to-r from-green-600 to-orange-500 p-2 rounded-lg">
+              <div className="bg-gradient-to-r from-primary to-secondary p-2 rounded-lg shadow-lg">
                 <Brain className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent">
+                <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
                   AI Leerdoelengenerator
                 </h1>
                 <p className="text-sm text-gray-600 flex items-center">
-                  <Shield className="w-4 h-4 mr-1 text-green-600" />
+                  <Shield className="w-4 h-4 mr-1 text-secondary" />
                   Maak leeruitkomsten geschikt voor AI en eerlijke kansen (gratis tools)
                   {/* Altijd zichtbaar AI-statuslabel */}
                   <span
@@ -863,9 +863,9 @@ function App() {
             </div>
 
             <div className="flex items-center space-x-4">
-              <div className="hidden md:flex items-center space-x-4">
+              <div className="hidden md:flex items-center space-x-1">
                 {importedKD && (
-                  <div className="flex items-center space-x-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                  <div className="flex items-center space-x-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2 mr-2">
                     <Database className="w-4 h-4 text-green-600" />
                     <span className="text-sm font-medium text-green-700">
                       {importedKD.metadata.title}
@@ -875,34 +875,34 @@ function App() {
 
                 <button
                   onClick={() => setShowTemplateLibrary(true)}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white h-11 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="flex items-center space-x-2 text-gray-600 hover:text-primary hover:bg-gray-100/50 px-4 py-2 rounded-lg transition-all duration-200"
                 >
                   <Library className="w-4 h-4" />
-                  <span>Voorbeelden</span>
+                  <span className="font-medium">Voorbeelden</span>
                 </button>
 
                 <button
                   onClick={() => setShowSavedObjectives(true)}
-                  className="flex items-center space-x-2 bg-gray-600 text-white h-11 px-4 rounded-lg font-medium hover:bg-gray-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="flex items-center space-x-2 text-gray-600 hover:text-primary hover:bg-gray-100/50 px-4 py-2 rounded-lg transition-all duration-200"
                 >
                   <FolderOpen className="w-4 h-4" />
-                  <span>Opgeslagen</span>
+                  <span className="font-medium">Opgeslagen</span>
                 </button>
 
                 <a
                   href="/begrippen"
-                  className="flex items-center space-x-2 bg-gray-100 text-gray-800 h-11 px-4 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="flex items-center space-x-2 text-gray-600 hover:text-primary hover:bg-gray-100/50 px-4 py-2 rounded-lg transition-all duration-200"
                 >
                   <BookOpen className="w-4 h-4" />
-                  <span>Begrippen</span>
+                  <span className="font-medium">Begrippen</span>
                 </a>
 
                 <button
                   onClick={() => setOpenToetsvormSearch(true)}
-                  className="flex items-center space-x-2 bg-indigo-600 text-white h-11 px-4 rounded-lg font-medium hover:bg-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="flex items-center space-x-2 text-gray-600 hover:text-primary hover:bg-gray-100/50 px-4 py-2 rounded-lg transition-all duration-200"
                 >
-                  <span aria-hidden="true">🔎</span>
-                  <span>Zoek toetsvormen</span>
+                  <span aria-hidden="true" className="grayscale">🔎</span>
+                  <span className="font-medium">Zoek toetsvormen</span>
                 </button>
               </div>
 
@@ -990,7 +990,7 @@ function App() {
               <div key={step} className="flex items-center">
                 <div
                   className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${currentStep >= step
-                    ? "bg-gradient-to-r from-green-600 to-orange-500 text-white shadow-lg"
+                    ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg scale-110"
                     : "bg-gray-200 text-gray-500"
                     }`}
                 >
@@ -998,7 +998,7 @@ function App() {
                 </div>
                 <span
                   className={`ml-2 font-medium ${currentStep >= step
-                    ? "bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent"
+                    ? "text-primary font-bold"
                     : "text-gray-500"
                     }`}
                 >
@@ -1017,9 +1017,9 @@ function App() {
               <Voorbeeldcases currentSector={sector} debug onSelect={handleExampleSelect} />
             </div>
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div className="glass-panel rounded-xl p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                  <Target className="w-5 h-5 text-green-600 mr-2" />
+                  <Target className="w-5 h-5 text-secondary mr-2" />
                   Origineel Leerdoel & Context
                 </h2>
 
@@ -1170,7 +1170,7 @@ function App() {
                       <button
                         onClick={() => setCurrentStep(2)}
                         disabled={!isFormDataComplete()}
-                        className="w-full bg-gradient-to-r from-green-600 to-orange-500 text-white py-3.5 px-6 rounded-lg font-medium hover:from-green-700 hover:to-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
+                        className="w-full bg-gradient-to-r from-primary to-secondary text-white py-4 px-6 rounded-xl font-bold text-lg hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center shadow-lg"
                       >
                         Omzetten naar AI-ready onderwijs
                         <ChevronRight className="w-5 h-5 ml-2" />
@@ -1243,7 +1243,7 @@ function App() {
         {/* Step 2: Processing */}
         {currentStep === 2 && (
           <div className="max-w-2xl mx-auto text-center">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12">
+            <div className="glass-panel rounded-xl p-12">
               <div className="relative w-16 h-16 mx-auto mb-6">
                 <div className="absolute inset-0 rounded-full border-4 border-green-200"></div>
                 <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-green-600 animate-spin"></div>
@@ -1275,10 +1275,10 @@ function App() {
         {currentStep === 3 && output && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent flex items-center">
-                <Shield className="w-6 h-6 text-green-600 mr-2" />
+              <h2 className="text-2xl font-bold text-slate-900 flex items-center">
+                <Shield className="w-6 h-6 text-secondary mr-2" />
                 AI-Ready Leeruitkomst
-                {geminiAvailable && <span className="text-sm font-normal text-green-600 ml-2">• AI-Enhanced</span>}
+                {geminiAvailable && <span className="text-sm font-medium text-secondary ml-2 bg-secondary/10 px-2 py-1 rounded-full">• AI-Enhanced</span>}
               </h2>
 
               {/* Actieknoppen */}
@@ -1403,7 +1403,7 @@ function App() {
             {/* Result blokken */}
             <div className="grid lg:grid-cols-2 gap-6">
               {/* Original vs New */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div className="glass-panel rounded-xl p-6">
                 <h3 className="font-semibold text-gray-900 mb-4">Vergelijking</h3>
                 <div className="space-y-4">
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -1478,7 +1478,7 @@ function App() {
               </div>
 
               {/* Rationale + AI-statement */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div className="glass-panel rounded-xl p-6">
                 <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
                   <BookOpen className="w-5 h-5 text-green-600 mr-2" />
                   Uitleg & AI-statement
@@ -1493,7 +1493,7 @@ function App() {
             </div>
 
             {output.suggestions && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <div className="glass-panel rounded-xl p-6">
                 <Suggestions data={output.suggestions} />
               </div>
             )}

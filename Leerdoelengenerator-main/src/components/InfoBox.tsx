@@ -12,7 +12,7 @@ export function InfoBox({ children }: InfoBoxProps) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="ml-1 text-blue-600 hover:text-blue-800 align-middle"
+        className="ml-1 text-primary hover:text-primary-light align-middle"
         aria-label="Toon meer info"
       >
         <Info className="w-4 h-4" />

@@ -21,7 +21,7 @@ export default function Suggestions({ data }: { data: SuggestionBundle }) {
     <section className="mt-6 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Aanbevolen activiteiten</h3>
-        <button onClick={copyActivities} className="text-xs text-blue-600">Kopieer</button>
+        <button onClick={copyActivities} className="text-xs text-primary">Kopieer</button>
       </div>
       <ul className="list-disc pl-5 space-y-2">
         {data.activities.map((a, i) => (
@@ -38,7 +38,7 @@ export default function Suggestions({ data }: { data: SuggestionBundle }) {
 
       <div className="flex items-center justify-between mt-6">
         <h3 className="text-lg font-semibold">Mogelijke toetsvormen</h3>
-        <button onClick={copyAssessments} className="text-xs text-blue-600">Kopieer</button>
+        <button onClick={copyAssessments} className="text-xs text-primary">Kopieer</button>
       </div>
       <ul className="list-disc pl-5 space-y-2">
         {data.assessments.map((t, i) => (

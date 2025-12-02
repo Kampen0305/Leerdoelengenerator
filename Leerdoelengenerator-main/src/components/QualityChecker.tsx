@@ -31,12 +31,12 @@ export function QualityChecker({ objective, context }: QualityCheckerProps) {
     const isAdvancedLevel = context.level?.includes('Bachelor') || context.level?.includes('Master');
 
     // EERLIJKE KANSEN CHECKS (Nederlandse Visie)
-    
+
     // Toegankelijkheid Check
     const hasAccessibilityTerms = objectiveLower.includes('toegankelijk') || objectiveLower.includes('iedereen') ||
-                                 objectiveLower.includes('alle studenten') || objectiveLower.includes('inclusief') ||
-                                 objectiveLower.includes('diverse') || objectiveLower.includes('verschillende');
-    
+      objectiveLower.includes('alle studenten') || objectiveLower.includes('inclusief') ||
+      objectiveLower.includes('diverse') || objectiveLower.includes('verschillende');
+
     checks.push({
       id: 'accessibility',
       title: 'Toegankelijkheid & Inclusiviteit',
@@ -54,10 +54,10 @@ export function QualityChecker({ objective, context }: QualityCheckerProps) {
 
     // Bias-bewustzijn Check
     const hasBiasAwareness = objectiveLower.includes('bias') || objectiveLower.includes('vooroordelen') ||
-                            objectiveLower.includes('eerlijk') || objectiveLower.includes('objectief') ||
-                            objectiveLower.includes('kritisch evaluer') || objectiveLower.includes('kritisch beoordeelt') ||
-                            objectiveLower.includes('controleren');
-    
+      objectiveLower.includes('eerlijk') || objectiveLower.includes('objectief') ||
+      objectiveLower.includes('kritisch evaluer') || objectiveLower.includes('kritisch beoordeelt') ||
+      objectiveLower.includes('controleren');
+
     checks.push({
       id: 'bias-awareness',
       title: 'Vooroordelen herkennen',
@@ -75,10 +75,10 @@ export function QualityChecker({ objective, context }: QualityCheckerProps) {
 
     // Transparantie Check
     const hasTransparency = objectiveLower.includes('transparant') || objectiveLower.includes('uitlegbaar') ||
-                           objectiveLower.includes('begrijpt hoe') || objectiveLower.includes('werking') ||
-                           objectiveLower.includes('verantwoord') || objectiveLower.includes('uitleggen') ||
-                           objectiveLower.includes('toelichting');
-    
+      objectiveLower.includes('begrijpt hoe') || objectiveLower.includes('werking') ||
+      objectiveLower.includes('verantwoord') || objectiveLower.includes('uitleggen') ||
+      objectiveLower.includes('toelichting');
+
     checks.push({
       id: 'transparency',
       title: 'Transparantie & Uitlegbaarheid',
@@ -95,10 +95,10 @@ export function QualityChecker({ objective, context }: QualityCheckerProps) {
     });
 
     // AI-Integratie Kwaliteit Check
-    const hasAdvancedAITerms = objectiveLower.includes('strategisch') || objectiveLower.includes('integreren') || 
-                              objectiveLower.includes('ai-tools') || objectiveLower.includes('ai-ondersteuning');
+    const hasAdvancedAITerms = objectiveLower.includes('strategisch') || objectiveLower.includes('integreren') ||
+      objectiveLower.includes('ai-tools') || objectiveLower.includes('ai-ondersteuning');
     const hasBasicAITerms = objectiveLower.includes('ai') || objectiveLower.includes('hulp van');
-    
+
     let aiScore = 0;
     let aiStatus: 'pass' | 'warning' | 'fail' = 'fail';
     let aiSuggestions: string[] = [];
@@ -129,10 +129,10 @@ export function QualityChecker({ objective, context }: QualityCheckerProps) {
 
     // Kritisch Denken & Menselijke Autonomie
     const hasCriticalTerms = objectiveLower.includes('kritisch') || objectiveLower.includes('evalueert') ||
-                            objectiveLower.includes('beoordeelt') || objectiveLower.includes('valideert') ||
-                            objectiveLower.includes('zelfstandig') || objectiveLower.includes('autonoom') ||
-                            objectiveLower.includes('controleren');
-    
+      objectiveLower.includes('beoordeelt') || objectiveLower.includes('valideert') ||
+      objectiveLower.includes('zelfstandig') || objectiveLower.includes('autonoom') ||
+      objectiveLower.includes('controleren');
+
     checks.push({
       id: 'critical-autonomy',
       title: 'Kritisch Denken & Menselijke Autonomie',
@@ -152,7 +152,7 @@ export function QualityChecker({ objective, context }: QualityCheckerProps) {
   };
 
   const checks = runQualityChecks();
-  
+
   // Calculate weighted score
   const totalWeight = checks.reduce((sum, check) => sum + check.weight, 0);
   const weightedScore = Math.round(
@@ -167,15 +167,15 @@ export function QualityChecker({ objective, context }: QualityCheckerProps) {
   }, {} as Record<string, QualityCheck[]>);
 
   const getScoreColor = (score: number) => {
-    if (score >= 85) return 'text-green-600';
-    if (score >= 70) return 'text-orange-600';
-    return 'text-red-600';
+    if (score >= 85) return 'text-secondary';
+    if (score >= 70) return 'text-accent';
+    return 'text-accent-pop';
   };
 
   const getScoreBackground = (score: number) => {
-    if (score >= 85) return 'bg-green-100';
-    if (score >= 70) return 'bg-orange-100';
-    return 'bg-red-100';
+    if (score >= 85) return 'bg-secondary/10';
+    if (score >= 70) return 'bg-accent/10';
+    return 'bg-accent-pop/10';
   };
 
   const getQualityLabel = (score: number) => {
@@ -189,13 +189,13 @@ export function QualityChecker({ objective, context }: QualityCheckerProps) {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pass':
-        return <CheckCircle className="w-5 h-5 text-green-600" />;
+        return <CheckCircle className="w-5 h-5 text-secondary" />;
       case 'warning':
-        return <AlertTriangle className="w-5 h-5 text-orange-600" />;
+        return <AlertTriangle className="w-5 h-5 text-accent" />;
       case 'fail':
-        return <XCircle className="w-5 h-5 text-red-600" />;
+        return <XCircle className="w-5 h-5 text-accent-pop" />;
       case 'info':
-        return <Info className="w-5 h-5 text-blue-600" />;
+        return <Info className="w-5 h-5 text-primary" />;
       default:
         return null;
     }
@@ -234,11 +234,11 @@ export function QualityChecker({ objective, context }: QualityCheckerProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent flex items-center">
-          <Award className="w-5 h-5 text-green-600 mr-2" />
+        <h3 className="text-lg font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent flex items-center">
+          <Award className="w-5 h-5 text-secondary mr-2" />
           Kwaliteitsanalyse volgens Nederlandse Visie
         </h3>
-        <div className={`px-6 py-3 rounded-lg ${getScoreBackground(weightedScore)} border-2 ${weightedScore >= 85 ? 'border-green-300' : weightedScore >= 70 ? 'border-orange-300' : 'border-red-300'}`}>
+        <div className={`px-6 py-3 rounded-lg ${getScoreBackground(weightedScore)} border-2 ${weightedScore >= 85 ? 'border-secondary/30' : weightedScore >= 70 ? 'border-accent/30' : 'border-accent-pop/30'}`}>
           <div className="text-center">
             <span className={`text-2xl font-bold ${getScoreColor(weightedScore)}`}>
               {weightedScore}%
@@ -257,7 +257,7 @@ export function QualityChecker({ objective, context }: QualityCheckerProps) {
               {getCategoryIcon(category)}
               <span className="ml-2">{getCategoryTitle(category)}</span>
             </h4>
-            
+
             <div className="space-y-3">
               {categoryChecks.map((check) => (
                 <div key={check.id} className="bg-gray-50 rounded-lg p-3">
@@ -285,7 +285,7 @@ export function QualityChecker({ objective, context }: QualityCheckerProps) {
                       <ul className="text-sm text-gray-600 space-y-1">
                         {check.suggestions.map((suggestion, idx) => (
                           <li key={idx} className="flex items-start">
-                            <Target className="w-3 h-3 text-orange-500 mr-2 mt-0.5 flex-shrink-0" />
+                            <Target className="w-3 h-3 text-accent mr-2 mt-0.5 flex-shrink-0" />
                             {suggestion}
                           </li>
                         ))}
@@ -299,12 +299,12 @@ export function QualityChecker({ objective, context }: QualityCheckerProps) {
         ))}
       </div>
 
-      <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-orange-50 border border-green-200 rounded-lg">
-        <h4 className="font-medium text-green-800 mb-2 flex items-center">
+      <div className="mt-6 p-4 bg-gradient-to-r from-secondary/5 to-accent/5 border border-secondary/20 rounded-lg">
+        <h4 className="font-medium text-secondary-dark mb-2 flex items-center">
           <Shield className="w-4 h-4 mr-2" />
           Nederlandse Visie op AI en Eerlijke kansen
         </h4>
-        <div className="grid md:grid-cols-2 gap-4 text-sm text-green-700">
+        <div className="grid md:grid-cols-2 gap-4 text-sm text-secondary-dark">
           <ul className="space-y-1">
             <li>• <strong>Eerlijke kansen (25%):</strong> Toegankelijk voor alle studenten</li>
             <li>• <strong>Vooroordelen herkennen (20%):</strong> Weten wat bias is</li>
@@ -316,10 +316,10 @@ export function QualityChecker({ objective, context }: QualityCheckerProps) {
             <li>• <strong>Inclusiviteit:</strong> Verschillende leerbehoeften ondersteunen</li>
           </ul>
         </div>
-        
-        <div className="mt-3 pt-3 border-t border-green-200">
-          <p className="text-sm text-green-700">
-            <strong>Landelijke Visie:</strong> AI moet bijdragen aan eerlijke kansen voor alle studenten, 
+
+        <div className="mt-3 pt-3 border-t border-secondary/20">
+          <p className="text-sm text-secondary-dark">
+            <strong>Landelijke Visie:</strong> AI moet bijdragen aan eerlijke kansen voor alle studenten,
             ongeacht achtergrond, en ethisch verantwoord worden toegepast in het onderwijs.
           </p>
         </div>

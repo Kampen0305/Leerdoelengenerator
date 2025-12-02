@@ -22,15 +22,15 @@ export function TemplateLibrary({ onUseTemplate, onClose }: TemplateLibraryProps
   );
 
   const getQualityColor = (score: number) => {
-    if (score >= 85) return 'text-green-600';
-    if (score >= 75) return 'text-orange-600';
-    return 'text-red-600';
+    if (score >= 85) return 'text-secondary';
+    if (score >= 75) return 'text-accent';
+    return 'text-accent-pop';
   };
 
   const getQualityBackground = (score: number) => {
-    if (score >= 85) return 'bg-green-100';
-    if (score >= 75) return 'bg-orange-100';
-    return 'bg-red-100';
+    if (score >= 85) return 'bg-secondary/10';
+    if (score >= 75) return 'bg-accent/10';
+    return 'bg-accent-pop/10';
   };
 
   const laneLabel = (baan: 1 | 2) =>
@@ -40,8 +40,8 @@ export function TemplateLibrary({ onUseTemplate, onClose }: TemplateLibraryProps
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-          <h2 className="text-xl font-semibold bg-gradient-to-r from-green-600 to-orange-500 bg-clip-text text-transparent flex items-center">
-            <Award className="w-5 h-5 text-green-600 mr-2" />
+          <h2 className="text-xl font-semibold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent flex items-center">
+            <Award className="w-5 h-5 text-secondary mr-2" />
             Eenvoudige AI-Ready Templates
           </h2>
           <button
@@ -52,7 +52,7 @@ export function TemplateLibrary({ onUseTemplate, onClose }: TemplateLibraryProps
           </button>
         </div>
 
-        <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-green-50 to-orange-50">
+        <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-secondary/5 to-accent/5">
           <div className="grid md:grid-cols-2 gap-4">
             <div className="relative">
               <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
@@ -61,14 +61,14 @@ export function TemplateLibrary({ onUseTemplate, onClose }: TemplateLibraryProps
                 placeholder="Zoek eenvoudige templates..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
               />
             </div>
 
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value as 'ALL' | OnderwijsType)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary focus:border-transparent"
             >
               <option value="ALL">Alle onderwijstypes</option>
               <option value="FUNDEREND">Funderend</option>
@@ -82,7 +82,7 @@ export function TemplateLibrary({ onUseTemplate, onClose }: TemplateLibraryProps
             {sortedTemplates.map((template) => (
               <div
                 key={template.id}
-                className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow"
+                className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200"
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
@@ -90,7 +90,7 @@ export function TemplateLibrary({ onUseTemplate, onClose }: TemplateLibraryProps
                       {template.titel}
                     </h3>
                     <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
-                      <span className="bg-gradient-to-r from-green-100 to-orange-100 text-green-800 px-2 py-1 rounded border border-green-200">
+                      <span className="bg-gradient-to-r from-secondary/10 to-accent/10 text-secondary-dark px-2 py-1 rounded border border-secondary/20">
                         {template.sector}
                       </span>
                       {template.niveau && (
@@ -111,7 +111,7 @@ export function TemplateLibrary({ onUseTemplate, onClose }: TemplateLibraryProps
                         )}`}
                       >
                         <span className={getQualityColor(template.kwaliteit)}>
-                          <Star className="w-4 h-4 text-orange-500 inline mr-1" />
+                          <Star className="w-4 h-4 text-accent inline mr-1" />
                           Kwaliteit: {template.kwaliteit}%
                         </span>
                       </div>
@@ -124,14 +124,14 @@ export function TemplateLibrary({ onUseTemplate, onClose }: TemplateLibraryProps
 
                 <div className="space-y-3 mb-4">
                   <div>
-                    <p className="text-sm font-medium text-red-700 mb-1">Origineel leerdoel:</p>
+                    <p className="text-sm font-medium text-accent-pop mb-1">Origineel leerdoel:</p>
                     <p className="text-sm text-gray-700">
                       {template.origineelLeerdoel}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-green-700 mb-1">AI-ready (Eenvoudiger):</p>
+                    <p className="text-sm font-medium text-secondary-dark mb-1">AI-ready (Eenvoudiger):</p>
                     <p className="text-sm text-gray-700">
                       {template.aiReadyLeerdoel}
                     </p>
@@ -141,7 +141,7 @@ export function TemplateLibrary({ onUseTemplate, onClose }: TemplateLibraryProps
                 <div className="flex justify-end">
                   <button
                     onClick={() => onUseTemplate(template)}
-                    className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-orange-500 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-orange-600 transition-colors shadow-md hover:shadow-lg"
+                    className="flex items-center space-x-2 bg-gradient-to-r from-primary to-secondary text-white px-4 py-2 rounded-lg hover:from-primary-light hover:to-secondary-dark transition-colors shadow-md hover:shadow-lg"
                   >
                     <Copy className="w-4 h-4" />
                     <span>Gebruik Template</span>
