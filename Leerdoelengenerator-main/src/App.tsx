@@ -1245,11 +1245,11 @@ function App() {
           <div className="max-w-2xl mx-auto text-center">
             <div className="glass-panel rounded-xl p-12">
               <div className="relative w-16 h-16 mx-auto mb-6">
-                <div className="absolute inset-0 rounded-full border-4 border-green-200"></div>
-                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-green-600 animate-spin"></div>
-                <div className="absolute inset-2 rounded-full border-4 border-orange-200"></div>
+                <div className="absolute inset-0 rounded-full border-4 border-secondary/20"></div>
+                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-secondary animate-spin"></div>
+                <div className="absolute inset-2 rounded-full border-4 border-accent/20"></div>
                 <div
-                  className="absolute inset-2 rounded-full border-4 border-transparent border-t-orange-500 animate-spin"
+                  className="absolute inset-2 rounded-full border-4 border-transparent border-t-accent animate-spin"
                   style={{ animationDirection: "reverse" }}
                 ></div>
               </div>
@@ -1283,9 +1283,13 @@ function App() {
 
               {/* Actieknoppen */}
               <div className="flex flex-wrap gap-3 items-center">
+                {/* Tools */}
                 <button
                   onClick={() => setShowEducationGuidance(!showEducationGuidance)}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 border ${showEducationGuidance
+                      ? 'bg-blue-50 border-blue-200 text-blue-700'
+                      : 'bg-white border-slate-200 text-slate-700 hover:border-blue-300 hover:bg-blue-50/50'
+                    }`}
                 >
                   <BookOpen className="w-4 h-4" />
                   <span>Handreikingen</span>
@@ -1293,54 +1297,31 @@ function App() {
 
                 <button
                   onClick={() => setShowQualityChecker(!showQualityChecker)}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-2 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 border ${showQualityChecker
+                      ? 'bg-amber-50 border-accent/30 text-amber-700'
+                      : 'bg-white border-slate-200 text-slate-700 hover:border-accent/50 hover:bg-amber-50/50'
+                    }`}
                 >
                   <BarChart3 className="w-4 h-4" />
                   <span>Kwaliteit</span>
                 </button>
 
+                <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block"></div>
+
+                {/* Primary Actions */}
                 <button
                   onClick={saveObjective}
-                  className="flex items-center space-x-2 bg-purple-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="flex items-center space-x-2 bg-primary text-white py-2 px-4 rounded-lg font-medium hover:bg-slate-800 transition-all duration-200 shadow-sm hover:shadow-md"
                 >
                   <Save className="w-4 h-4" />
                   <span>Opslaan</span>
-                </button>
-
-                {/* Print / Deelbaar */}
-                <button
-                  onClick={printPdf}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-slate-600 to-slate-700 text-white py-2 px-4 rounded-lg font-medium hover:from-slate-700 hover:to-slate-800 transition-all duration-200 shadow-md hover:shadow-lg"
-                  title="Print of sla als PDF op"
-                >
-                  <Printer className="w-4 h-4" />
-                  <span>Print / PDF</span>
-                </button>
-
-                <button
-                  onClick={shareLink}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white py-2 px-4 rounded-lg font-medium hover:from-teal-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                  title="Kopieer een link met de huidige invoer en resultaat"
-                >
-                  <Link2 className="w-4 h-4" />
-                  <span>Deelbare link</span>
-                </button>
-
-                {/* AI-statement genereren */}
-                <button
-                  onClick={buildAIStatement}
-                  className="flex items-center space-x-2 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white py-2 px-4 rounded-lg font-medium hover:from-cyan-700 hover:to-cyan-800 transition-all duration-200 shadow-md hover:shadow-lg"
-                  title="Genereer transparante AI-verantwoording"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>AI-statement</span>
                 </button>
 
                 {/* Export-menu */}
                 <div className="relative">
                   <button
                     onClick={() => setShowExportMenu(!showExportMenu)}
-                    className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 text-white py-2 px-4 rounded-lg font-medium hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-md hover:shadow-lg"
+                    className="flex items-center space-x-2 bg-secondary text-white py-2 px-4 rounded-lg font-medium hover:bg-emerald-700 transition-all duration-200 shadow-sm hover:shadow-md"
                   >
                     <Download className="w-4 h-4" />
                     <span>Downloaden</span>
@@ -1348,27 +1329,27 @@ function App() {
                   </button>
 
                   {showExportMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-slate-100 z-10 animate-in fade-in zoom-in-95 duration-200">
                       <div className="py-1">
                         <button
                           onClick={() => handleExport("pdf")}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                          className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center transition-colors"
                         >
-                          <FileText className="w-4 h-4 mr-2 text-red-500" />
+                          <FileText className="w-4 h-4 mr-2 text-rose-500" />
                           PDF Document
                         </button>
                         <button
                           onClick={() => handleExport("word")}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                          className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center transition-colors"
                         >
                           <FileText className="w-4 h-4 mr-2 text-blue-500" />
                           Word Document
                         </button>
                         <button
                           onClick={() => handleExport("json")}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                          className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center transition-colors"
                         >
-                          <FileText className="w-4 h-4 mr-2 text-gray-500" />
+                          <FileText className="w-4 h-4 mr-2 text-slate-500" />
                           JSON Data
                         </button>
                       </div>
@@ -1376,11 +1357,43 @@ function App() {
                   )}
                 </div>
 
+                <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block"></div>
+
+                {/* Secondary Actions (Icon only on mobile maybe? keeping text for now) */}
+                <button
+                  onClick={printPdf}
+                  className="flex items-center space-x-2 text-slate-600 hover:text-primary hover:bg-slate-100 px-3 py-2 rounded-lg transition-all duration-200"
+                  title="Print of sla als PDF op"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span className="hidden xl:inline">Print</span>
+                </button>
+
+                <button
+                  onClick={shareLink}
+                  className="flex items-center space-x-2 text-slate-600 hover:text-primary hover:bg-slate-100 px-3 py-2 rounded-lg transition-all duration-200"
+                  title="Kopieer een link"
+                >
+                  <Link2 className="w-4 h-4" />
+                  <span className="hidden xl:inline">Delen</span>
+                </button>
+
+                <button
+                  onClick={buildAIStatement}
+                  className="flex items-center space-x-2 text-slate-600 hover:text-primary hover:bg-slate-100 px-3 py-2 rounded-lg transition-all duration-200"
+                  title="Genereer AI-statement"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span className="hidden xl:inline">AI-statement</span>
+                </button>
+
+                <div className="flex-1"></div>
+
                 <button
                   onClick={resetForm}
-                  className="flex items-center space-x-2 bg-gray-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-gray-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  className="flex items-center space-x-2 bg-slate-100 text-slate-600 py-2 px-4 rounded-lg font-medium hover:bg-slate-200 hover:text-slate-800 transition-all duration-200"
                 >
-                  <span>Nieuw Leerdoel</span>
+                  <span>Nieuw</span>
                 </button>
               </div>
             </div>
